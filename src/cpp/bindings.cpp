@@ -71,10 +71,89 @@ enum class GasComponent
     HELIUM = 20,
     ARGON = 21
 };
+
+struct PressureResult
+{
+    double P;
+    double Z;
+};
+struct DensityResult
+{
+    double D;
+    int ierr;
+    std::string herr;
+};
+
+struct PropertiesDetailResult
+{
+    double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
+    double U, H, S, Cv, Cp, W, G, JT, Kappa;
+};
+
+struct PropertiesGERGResult
+{
+    double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
+    double U, H, S, Cv, Cp, W, G, JT, Kappa, A;
+};
+
+struct PressureGrossResult
+{
+    double P;
+    double Z;
+    int ierr;
+    std::string herr;
+};
+struct GrossHvResult
+{
+    emscripten::val xGrs;
+    double HN;
+    double HCH;
+};
+
+struct GrossInputsResult
+{
+    emscripten::val xGrs;
+    double Gr;
+    double HN;
+    double HCH;
+    int ierr;
+    std::string herr;
+};
+
+struct BmixResult
+{
+    double B;
+    double C;
+    int ierr;
+    std::string herr;
+};
+
+struct GrossMethod1Result
+{
+   emscripten::val xGrs;
+    double Mm;
+    double HCH;
+    double HN;
+    int ierr;
+    std::string herr;
+};
+
+struct GrossMethod2Result
+{
+    emscripten::val xGrs;
+    double Hv;
+    double Mm;
+    double HCH;
+    double HN;
+    int ierr;
+    std::string herr;
+};
+
 EMSCRIPTEN_DECLARE_VAL_TYPE(gazMixtureInMolePercent);
 
 using namespace emscripten;
 
+// Helper function to convert a JavaScript array to a C++ vector
 std::vector<double> array_to_vector(const val &js_array)
 {
     auto length = js_array["length"].as<unsigned>();
@@ -86,6 +165,18 @@ std::vector<double> array_to_vector(const val &js_array)
     return result;
 }
 
+// Helper function to convert a C++ vector to a JavaScript array
+val vector_to_array(const std::vector<double> &vec)
+{
+    val result = val::array();
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        result.set(i, vec[i]);
+    }
+    return result;
+}
+
+// Detail wrappers
 double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
@@ -94,19 +185,16 @@ double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
     return Mm;
 }
 
-val PressureDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PressureResult PressureDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0;
     PressureDetail(T, D, x, P, Z);
-
-    val result = val::object();
-    result.set("P", P);
-    result.set("Z", Z);
+    PressureResult result = {P, Z};
     return result;
 }
 
-val DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent x_array)
+DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double D = 0;
@@ -115,14 +203,11 @@ val DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 
     DensityDetail(T, P, x, D, ierr, herr);
 
-    val result = val::object();
-    result.set("D", D);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    DensityResult result = {D, ierr, herr};
     return result;
 }
 
-val PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
@@ -131,22 +216,8 @@ val PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array
     PropertiesDetail(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT,
                      U, H, S, Cv, Cp, W, G, JT, Kappa);
 
-    val result = val::object();
-    result.set("P", P);
-    result.set("Z", Z);
-    result.set("dPdD", dPdD);
-    result.set("d2PdD2", d2PdD2);
-    result.set("d2PdTD", d2PdTD);
-    result.set("dPdT", dPdT);
-    result.set("U", U);
-    result.set("H", H);
-    result.set("S", S);
-    result.set("Cv", Cv);
-    result.set("Cp", Cp);
-    result.set("W", W);
-    result.set("G", G);
-    result.set("JT", JT);
-    result.set("Kappa", Kappa);
+    PropertiesDetailResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa};
+
     return result;
 }
 
@@ -159,19 +230,17 @@ double MolarMassGERG_wrapper(gazMixtureInMolePercent x_array)
     return Mm;
 }
 
-val PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PressureResult PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0;
     PressureGERG(T, D, x, P, Z);
 
-    val result = val::object();
-    result.set("P", P);
-    result.set("Z", Z);
+    PressureResult result = {P, Z};
     return result;
 }
 
-val DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMolePercent x_array)
+DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double D = 0;
@@ -180,14 +249,11 @@ val DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMolePercent x
 
     DensityGERG(iflag, T, P, x, D, ierr, herr);
 
-    val result = val::object();
-    result.set("D", D);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    DensityResult result = {D, ierr, herr};
     return result;
 }
 
-val PropertiesGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
@@ -196,23 +262,7 @@ val PropertiesGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
     PropertiesGERG(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT,
                    U, H, S, Cv, Cp, W, G, JT, Kappa, A);
 
-    val result = val::object();
-    result.set("P", P);
-    result.set("Z", Z);
-    result.set("dPdD", dPdD);
-    result.set("d2PdD2", d2PdD2);
-    result.set("d2PdTD", d2PdTD);
-    result.set("dPdT", dPdT);
-    result.set("U", U);
-    result.set("H", H);
-    result.set("S", S);
-    result.set("Cv", Cv);
-    result.set("Cp", Cp);
-    result.set("W", W);
-    result.set("G", G);
-    result.set("JT", JT);
-    result.set("Kappa", Kappa);
-    result.set("A", A);
+    PropertiesGERGResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A};
     return result;
 }
 
@@ -225,7 +275,7 @@ double MolarMassGross_wrapper(gazMixtureInMolePercent x_array)
     return Mm;
 }
 
-val PressureGross_wrapper(double T, double D, val xGrs_array, double HCH)
+PressureGrossResult PressureGross_wrapper(double T, double D, val xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double P = 0, Z = 0;
@@ -234,15 +284,11 @@ val PressureGross_wrapper(double T, double D, val xGrs_array, double HCH)
 
     PressureGross(T, D, xGrs, HCH, P, Z, ierr, herr);
 
-    val result = val::object();
-    result.set("P", P);
-    result.set("Z", Z);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    PressureGrossResult result = {P, Z, ierr, herr};
     return result;
 }
 
-val DensityGross_wrapper(double T, double P, val xGrs_array, double HCH)
+DensityResult DensityGross_wrapper(double T, double P, val xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double D = 0;
@@ -251,29 +297,22 @@ val DensityGross_wrapper(double T, double P, val xGrs_array, double HCH)
 
     DensityGross(T, P, xGrs, HCH, D, ierr, herr);
 
-    val result = val::object();
-    result.set("D", D);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    DensityResult result = {D, ierr, herr};
     return result;
 }
 
-val GrossHv_wrapper(gazMixtureInMolePercent x_array)
+GrossHvResult GrossHv_wrapper(gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     std::vector<double> xGrs(x.size());
     double HN = 0, HCH = 0;
 
     GrossHv(x, xGrs, HN, HCH);
-
-    val result = val::object();
-    result.set("xGrs", val::array(xGrs));
-    result.set("HN", HN);
-    result.set("HCH", HCH);
+    GrossHvResult result = {vector_to_array(xGrs), HN, HCH};
     return result;
 }
 
-val GrossInputs_wrapper(double T, double P, gazMixtureInMolePercent x_array)
+GrossInputsResult GrossInputs_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     std::vector<double> xGrs(x.size());
@@ -283,17 +322,11 @@ val GrossInputs_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 
     GrossInputs(T, P, x, xGrs, Gr, HN, HCH, ierr, herr);
 
-    val result = val::object();
-    result.set("xGrs", val::array(xGrs));
-    result.set("Gr", Gr);
-    result.set("HN", HN);
-    result.set("HCH", HCH);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    GrossInputsResult result = {vector_to_array(xGrs), Gr, HN, HCH, ierr, herr};
     return result;
 }
 
-val Bmix_wrapper(double T, val xGrs_array, double HCH)
+BmixResult Bmix_wrapper(double T, val xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double B = 0, C = 0;
@@ -302,15 +335,11 @@ val Bmix_wrapper(double T, val xGrs_array, double HCH)
 
     Bmix(T, xGrs, HCH, B, C, ierr, herr);
 
-    val result = val::object();
-    result.set("B", B);
-    result.set("C", C);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    BmixResult result = {B, C, ierr, herr};
     return result;
 }
 
-val GrossMethod1_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr, double Hv)
+GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr, double Hv)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double Mm = 0, HCH = 0, HN = 0;
@@ -319,17 +348,11 @@ val GrossMethod1_wrapper(double Th, double Td, double Pd, val xGrs_array, double
 
     GrossMethod1(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr);
 
-    val result = val::object();
-    result.set("xGrs", val::array(xGrs));
-    result.set("Mm", Mm);
-    result.set("HCH", HCH);
-    result.set("HN", HN);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    GrossMethod1Result result = {vector_to_array(xGrs), Mm, HCH, HN, ierr, herr};
     return result;
 }
 
-val GrossMethod2_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr)
+GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double Hv = 0, Mm = 0, HCH = 0, HN = 0;
@@ -338,14 +361,7 @@ val GrossMethod2_wrapper(double Th, double Td, double Pd, val xGrs_array, double
 
     GrossMethod2(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr);
 
-    val result = val::object();
-    result.set("xGrs", val::array(xGrs));
-    result.set("Hv", Hv);
-    result.set("Mm", Mm);
-    result.set("HCH", HCH);
-    result.set("HN", HN);
-    result.set("ierr", ierr);
-    result.set("herr", herr);
+    GrossMethod2Result result = {vector_to_array(xGrs), Hv, Mm, HCH, HN, ierr, herr};
     return result;
 }
 
@@ -376,6 +392,93 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .value("ARGON", GasComponent::ARGON);
 
     register_type<gazMixtureInMolePercent>("number[]");
+    register_vector<double>("VectorDouble");
+
+    value_object<PressureResult>("PressureResult")
+        .field("P", &PressureResult::P)
+        .field("Z", &PressureResult::Z);
+
+    value_object<DensityResult>("DensityResult")
+        .field("D", &DensityResult::D)
+        .field("ierr", &DensityResult::ierr)
+        .field("herr", &DensityResult::herr);
+
+    value_object<PropertiesDetailResult>("PropertiesDetailResult")
+        .field("P", &PropertiesDetailResult::P)
+        .field("Z", &PropertiesDetailResult::Z)
+        .field("dPdD", &PropertiesDetailResult::dPdD)
+        .field("d2PdD2", &PropertiesDetailResult::d2PdD2)
+        .field("d2PdTD", &PropertiesDetailResult::d2PdTD)
+        .field("dPdT", &PropertiesDetailResult::dPdT)
+        .field("U", &PropertiesDetailResult::U)
+        .field("H", &PropertiesDetailResult::H)
+        .field("S", &PropertiesDetailResult::S)
+        .field("Cv", &PropertiesDetailResult::Cv)
+        .field("Cp", &PropertiesDetailResult::Cp)
+        .field("W", &PropertiesDetailResult::W)
+        .field("G", &PropertiesDetailResult::G)
+        .field("JT", &PropertiesDetailResult::JT)
+        .field("Kappa", &PropertiesDetailResult::Kappa);
+
+    value_object<PropertiesGERGResult>("PropertiesGERGResult")
+        .field("P", &PropertiesGERGResult::P)
+        .field("Z", &PropertiesGERGResult::Z)
+        .field("dPdD", &PropertiesGERGResult::dPdD)
+        .field("d2PdD2", &PropertiesGERGResult::d2PdD2)
+        .field("d2PdTD", &PropertiesGERGResult::d2PdTD)
+        .field("dPdT", &PropertiesGERGResult::dPdT)
+        .field("U", &PropertiesGERGResult::U)
+        .field("H", &PropertiesGERGResult::H)
+        .field("S", &PropertiesGERGResult::S)
+        .field("Cv", &PropertiesGERGResult::Cv)
+        .field("Cp", &PropertiesGERGResult::Cp)
+        .field("W", &PropertiesGERGResult::W)
+        .field("G", &PropertiesGERGResult::G)
+        .field("JT", &PropertiesGERGResult::JT)
+        .field("Kappa", &PropertiesGERGResult::Kappa)
+        .field("A", &PropertiesGERGResult::A);
+
+    value_object<PressureGrossResult>("PressureGrossResult")
+        .field("P", &PressureGrossResult::P)
+        .field("Z", &PressureGrossResult::Z)
+        .field("ierr", &PressureGrossResult::ierr)
+        .field("herr", &PressureGrossResult::herr);
+
+    value_object<GrossHvResult>("GrossHvResult")
+        .field("xGrs", &GrossHvResult::xGrs)
+        .field("HN", &GrossHvResult::HN)
+        .field("HCH", &GrossHvResult::HCH);
+
+    value_object<GrossInputsResult>("GrossInputsResult")
+        .field("xGrs", &GrossInputsResult::xGrs)
+        .field("Gr", &GrossInputsResult::Gr)
+        .field("HN", &GrossInputsResult::HN)
+        .field("HCH", &GrossInputsResult::HCH)
+        .field("ierr", &GrossInputsResult::ierr)
+        .field("herr", &GrossInputsResult::herr);
+
+    value_object<BmixResult>("BmixResult")
+        .field("B", &BmixResult::B)
+        .field("C", &BmixResult::C)
+        .field("ierr", &BmixResult::ierr)
+        .field("herr", &BmixResult::herr);
+
+    value_object<GrossMethod1Result>("GrossMethod1Result")
+        .field("xGrs", &GrossMethod1Result::xGrs)
+        .field("Mm", &GrossMethod1Result::Mm)
+        .field("HCH", &GrossMethod1Result::HCH)
+        .field("HN", &GrossMethod1Result::HN)
+        .field("ierr", &GrossMethod1Result::ierr)
+        .field("herr", &GrossMethod1Result::herr);
+
+    value_object<GrossMethod2Result>("GrossMethod2Result")
+        .field("xGrs", &GrossMethod2Result::xGrs)
+        .field("Hv", &GrossMethod2Result::Hv)
+        .field("Mm", &GrossMethod2Result::Mm)
+        .field("HCH", &GrossMethod2Result::HCH)
+        .field("HN", &GrossMethod2Result::HN)
+        .field("ierr", &GrossMethod2Result::ierr)
+        .field("herr", &GrossMethod2Result::herr);
 
     // Detail bindings
     function("SetupDetail", &SetupDetail);
