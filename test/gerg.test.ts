@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist';
 
 describe('GERG2008', () => {
   test('GERG properties calculation', async () => {

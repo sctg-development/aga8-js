@@ -37,16 +37,16 @@ set(WASM_LINK_FLAGS
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp)
 
 # Target definition
-add_executable(aga8 ${SOURCES})
-target_include_directories(aga8 PRIVATE src/cpp)
+add_executable(index ${SOURCES})
+target_include_directories(index PRIVATE src/cpp)
 
-target_link_options(aga8 PRIVATE
-  --emit-tsd "aga8.d.ts" # or wherever else you want it to go
+target_link_options(index PRIVATE
+  --emit-tsd "index.d.ts" # or wherever else you want it to go
 )
 
 # Link flags
 string(JOIN " " WASM_LINK_FLAGS_STR ${WASM_LINK_FLAGS})
-set_target_properties(aga8 PROPERTIES LINK_FLAGS "${WASM_LINK_FLAGS_STR}")
+set_target_properties(index PROPERTIES LINK_FLAGS "${WASM_LINK_FLAGS_STR}")
 
 file(WRITE ${CMAKE_BINARY_DIR}/type_definition.d.ts 
 "/**
@@ -105,19 +105,32 @@ file(WRITE ${CMAKE_BINARY_DIR}/type_definition.d.ts
   hydrogen_sulfide: number,// HYDROGEN_SULFIDE
   helium: number,          // HELIUM
   argon: number            // ARGON
-];")
+];
+
+/**
+* Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+*/
+export type xGrsArray = [
+  number,               // PLACEHOLDER must be 0
+  hydrocarbon: number,
+  nitrogen: number,
+  carbon_dioxide: number,
+]
+")
 add_custom_command(
-    TARGET aga8 POST_BUILD
-    COMMAND cat ${CMAKE_BINARY_DIR}/type_definition.d.ts >> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/aga8.d.ts && rm -f ${CMAKE_BINARY_DIR}/type_definition.d.ts
-    COMMENT "Ajout du type gazMixtureInMolePercent à aga8.d.ts"
+    TARGET index POST_BUILD
+    COMMAND cat ${CMAKE_BINARY_DIR}/type_definition.d.ts >> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
+    COMMAND rm -f ${CMAKE_BINARY_DIR}/type_definition.d.ts
+    COMMAND sed -i bak "s/xGrs:.*any/xGrs: xGrsArray/g" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
+    COMMAND rm -f ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.tsbak
 )
 
 # Installation
-install(TARGETS aga8
+install(TARGETS index
     RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist
 )
 install(FILES 
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/aga8.wasm
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/aga8.d.ts
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.wasm
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
     DESTINATION ${CMAKE_SOURCE_DIR}/dist
 )

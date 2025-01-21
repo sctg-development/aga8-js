@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist';
 
 describe('Gross', () => {
   const EPSILON = 1.0e-8;
@@ -28,27 +28,6 @@ describe('Gross', () => {
   test('Gross properties calculation', async () => {
     const AGA8 = await AGA8wasm();
     AGA8.SetupGross();
-    // METHANE = 1,
-    // NITROGEN = 2,
-    // CARBON_DIOXIDE = 3,
-    // ETHANE = 4,
-    // PROPANE = 5,
-    // ISOBUTANE = 6,
-    // N_BUTANE = 7,
-    // ISOPENTANE = 8,
-    // N_PENTANE = 9,
-    // N_HEXANE = 10,
-    // N_HEPTANE = 11,
-    // N_OCTANE = 12,
-    // N_NONANE = 13,
-    // N_DECANE = 14,
-    // HYDROGEN = 15,
-    // OXYGEN = 16,
-    // CARBON_MONOXIDE = 17,
-    // WATER = 18,
-    // HYDROGEN_SULFIDE = 19,
-    // HELIUM = 20,
-    // ARGON = 21
 
     // Input Parameters
     const x: gazMixtureInMolePercent = [
@@ -67,12 +46,11 @@ describe('Gross', () => {
     // Calculations
     const mm = AGA8.MolarMassGross(x);
     const grossHvResult = AGA8.GrossHv(x);
-    const { xGrs, HN, HCH } = grossHvResult;
 
-    const densityResult = AGA8.DensityGross(T, P, xGrs, HCH);
+    const densityResult = AGA8.DensityGross(T, P, grossHvResult.xGrs, grossHvResult.HCH);
     const D = densityResult.D;
 
-    const pressureResult = AGA8.PressureGross(T, D, xGrs, HCH);
+    const pressureResult = AGA8.PressureGross(T, D, grossHvResult.xGrs, grossHvResult.HCH);
     const pp = pressureResult.P;
     const Z = pressureResult.Z;
 

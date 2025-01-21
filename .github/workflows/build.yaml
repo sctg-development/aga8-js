@@ -1,0 +1,43 @@
+name: Build with Emscripten and publish to npmjs
+
+on:
+  workflow_dispatch:
+
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Emscripten
+      run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install latest
+        ./emsdk activate latest
+        source ./emsdk_env.sh
+      shell: bash
+
+    - name: Build with Emscripten
+      run: |
+        source ./emsdk/emsdk_env.sh
+        npm ci
+        npm run build
+        npm run test
+
+    - name: Publish to npmjs registry
+      run: |
+        npm config set "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}"
+        npm publish

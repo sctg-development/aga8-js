@@ -15,7 +15,7 @@
  */
 
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist';
 
 describe('Detail', () => {
   const EPSILON = 1.0e-8;
