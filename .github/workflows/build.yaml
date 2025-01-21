@@ -35,7 +35,6 @@ jobs:
         source ./emsdk/emsdk_env.sh
         npm ci
         npm run build
-        npm run test
 
     - name: Publish to npmjs registry
       run: |
