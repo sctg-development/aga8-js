@@ -1,95 +1,129 @@
-# AGA8-js Project
+# AGA8 Gas Properties Calculator
 
-This project uses Emscripten to compile C++ code and expose NIST Aga8 functions as TypeScript functions.
+[![npm version](https://badge.fury.io/js/@sctg%2Faga8-js.svg)](https://www.npmjs.com/package/@sctg/aga8-js)
+[![Build Status](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml/badge.svg)](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml)
+[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-## Project structure
+WebAssembly bindings for AGA8 gas properties calculation methods (Detail, GERG-2008, and Gross).
 
-- `src/cpp/GERG2008.cpp` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/GERG2008.cpp> (AGA8 code).
-- `src/cpp/GERG2008.h` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/GERG2008.h> (AGA8 code).
-- `src/cpp/Detail.cpp` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/Detail.cpp> (AGA8 code).
-- `src/cpp/Detail.h` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/Detail.h> (AGA8 code).
-- `src/cpp/Gross.cpp` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/Gross.cpp> (AGA8 code).
-- `src/cpp/Gross.h` : From <https://github.com/usnistgov/AGA8/blob/master/AGA8CODE/C/Gross.h> (AGA8 code).
-- `src/cpp/bindings.cpp` : Binds C++ functions to TypeScript functions via Emscripten.
+## Features
 
-## Compilation
+- 📊 Supports Detail, GERG-2008, and Gross calculation methods
+- 🧪 All 22 NIST gas components support
+- 🚀 High-performance WebAssembly implementation
+- 📦 Easy to use npm package
+- 🔍 TypeScript type definitions included
 
-To compile the project, use CMake with Emscripten:
+## Installation
 
 ```bash
-npm i
+npm install @sctg/aga8-js
+```
+
+## Quick Start
+
+```typescript
+import AGA8wasm, { gazMixtureInMolePercent } from '@sctg/aga8-js';
+
+// Initialize module
+const AGA8 = await AGA8wasm();
+AGA8.SetupGERG();
+
+// Define gas mixture (94% methane, 5% CO2, 1% helium)
+const mixture: gazMixtureInMolePercent = [
+    0,     // PLACEHOLDER
+    0.94,  // METHANE
+    0,     // NITROGEN
+    0.05,  // CO2
+    0,     // ETHANE
+    // ... other components
+    0.01,  // HELIUM
+    0      // ARGON
+];
+
+// Calculate properties
+const molarMass = AGA8.MolarMassGERG(mixture);
+const density = AGA8.DensityGERG(0, 400, 50000, mixture);
+const properties = AGA8.PropertiesGERG(400, density.D, mixture);
+```
+
+## API Documentation
+
+### Gas Components
+
+The gas mixture array must contain 22 elements in the following order:
+
+1. PLACEHOLDER (must be 0)
+2. METHANE
+3. NITROGEN
+4. CARBON_DIOXIDE
+5. ETHANE
+6. PROPANE
+7. ISOBUTANE
+8. N_BUTANE
+9. ISOPENTANE
+10. N_PENTANE
+11. N_HEXANE
+12. N_HEPTANE
+13. N_OCTANE
+14. N_NONANE
+15. N_DECANE
+16. HYDROGEN
+17. OXYGEN
+18. CARBON_MONOXIDE
+19. WATER
+20. HYDROGEN_SULFIDE
+21. HELIUM
+22. ARGON
+
+The sum of all components must be equal to 1.
+
+### Available Methods
+
+- `SetupDetail()`, `SetupGERG()`, `SetupGross()`: Initialize calculation methods
+- `MolarMassDetail()`, `MolarMassGERG()`, `MolarMassGross()`: Calculate molar mass
+- `DensityDetail()`, `DensityGERG()`, `DensityGross()`: Calculate density
+- `PropertiesDetail()`, `PropertiesGERG()`: Calculate thermodynamic properties
+- Others see <https://pages.nist.gov/AGA8/>
+
+## Development
+
+### Prerequisites
+
+- Node.js >= 16
+- Emscripten SDK
+- CMake >= 3.10
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/aga8-wasm.git
+cd aga8-wasm
+
+# Install dependencies
+npm install
+
+# Build WebAssembly module
 npm run build
 ```
 
-## Test execution
-
-To run the tests, use the test framework configured in `package.json` :
+### Testing
 
 ```bash
 npm test
 ```
 
-## Sample usage
+## Contributing
 
-```typescript
-import AGA8wasm, { gazMixtureInMolePercent } from './dist/aga8';
-
-async function calculateGERGProperties() {
-    // Initialize GERG-2008 module
-    const AGA8 = await AGA8wasm();
-    AGA8.SetupGERG();
-
-    // Gas mixture composition (mole fractions, must sum to 1)
-    const gasMixture:gazMixtureInMolePercent = [
-        0,        // [0] PLACEHOLDER (must be 0)
-        0.77824,  // [1] METHANE
-        0.02,     // [2] NITROGEN
-        0.06,     // [3] CARBON DIOXIDE
-        0.08,     // [4] ETHANE
-        0.03,     // [5] PROPANE
-        0.0015,   // [6] ISOBUTANE
-        0.003,    // [7] N-BUTANE
-        0.0005,   // [8] ISOPENTANE
-        0.00165,  // [9] N-PENTANE
-        0.00215,  // [10] N-HEXANE
-        0.00088,  // [11] N-HEPTANE
-        0.00024,  // [12] N-OCTANE
-        0.00015,  // [13] N-NONANE
-        0.00009,  // [14] N-DECANE
-        0.004,    // [15] HYDROGEN
-        0.005,    // [16] OXYGEN
-        0.002,    // [17] CARBON MONOXIDE
-        0.0001,   // [18] WATER
-        0.0025,   // [19] HYDROGEN SULFIDE
-        0.007,    // [20] HELIUM
-        0.001     // [21] ARGON
-    ];
-
-    // Operating conditions
-    const temperature = 400;   // Kelvin
-    const pressure = 50000;    // kPa
-
-    // Property calculations
-    const molarMass = AGA8.MolarMassGERG(gasMixture);
-    const density = AGA8.DensityGERG(0, temperature, pressure, gasMixture);
-    const properties = AGA8.PropertiesGERG(temperature, density.D, gasMixture);
-
-    // Output results
-    console.log('GERG-2008 Gas Properties:');
-    console.log(`Molar mass: ${molarMass.toFixed(6)} g/mol`);
-    console.log(`Density: ${density.D.toFixed(6)} mol/l`);
-    console.log(`Pressure: ${properties.P.toFixed(2)} kPa`);
-    console.log(`Compressibility factor: ${properties.Z.toFixed(6)}`);
-    console.log(`Internal energy: ${properties.U.toFixed(2)} J/mol`);
-    console.log(`Enthalpy: ${properties.H.toFixed(2)} J/mol`);
-}
-
-calculateGERGProperties().catch(console.error);
-```
-
-You can run this simply with `npx tsx sample.ts`.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the AGPL3 License - see the [LICENSE](LICENSE.md) file for details.  
-All NIST AGA8 code is licensed on its own license (see code).  
+This project is licensed under the GNU Affero General Public License v3.0 - see the LICENSE file for details.  
+NISt AGA8 is published by the National Institute of Standards and Technology (NIST) and use its own license (see the code).
+
+## Credits
+
+- Original AGA8 implementation by NIST
+- WebAssembly port by Ronan LE MEILLAT for SCTG and LaserSmart
