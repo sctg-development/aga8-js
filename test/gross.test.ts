@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {gazMixtureInMolePercent} from '../dist';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist/index.js';
 
 describe('Gross', () => {
   const EPSILON = 1.0e-8;

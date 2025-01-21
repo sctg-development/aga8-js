@@ -14,11 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {gazMixtureInMolePercent} from '../dist';
+import AGA8wasm, { gazMixtureInMolePercent, PropertiesGERGResult } from '../dist/index.js';
 
 describe('GERG2008', () => {
   const EPSILON = 1.0e-8;
-  
+
   // Reference values
   const references = {
     mm: 20.5427445016,
@@ -47,12 +47,12 @@ describe('GERG2008', () => {
     // Input parameters
     const T = 400;
     const P = 50000;
-    
+
     // Calculations
     const mm = AGA8.MolarMassGERG(x);
     const densityResult = AGA8.DensityGERG(0, T, P, x);
     const D = densityResult.D;
-    const props = AGA8.PropertiesGERG(T, D, x);
+    const props: PropertiesGERGResult = AGA8.PropertiesGERG(T, D, x);
 
     // Checks with the same precision as C++ testing
     expect(Math.abs(references.mm - mm)).toBeLessThan(EPSILON);
