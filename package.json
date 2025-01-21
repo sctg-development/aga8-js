@@ -37,5 +37,9 @@
   "publishConfig": {
     "access": "public",
     "tag": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sctg-development/aga8-js.git"
   }
 }
