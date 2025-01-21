@@ -90,16 +90,16 @@ The sum of all components must be equal to 1.
 
 ### Prerequisites
 
-- Node.js >= 16
-- Emscripten SDK
+- Node.js >= 22
+- Emscripten SDK >= 4.0
 - CMake >= 3.10
 
 ### Setup
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/aga8-wasm.git
-cd aga8-wasm
+git clone https://github.com/sctg-development/aga8-js.git
+cd aga8-js
 
 # Install dependencies
 npm install
