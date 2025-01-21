@@ -35,5 +35,5 @@ jobs:
         source ./emsdk/emsdk_env.sh
         npm ci
         npm run build
-        npm config set "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}"
+        npm config set "//registry.npmjs.org/:_authToken=${{ secrets.NPMJS_TOKEN }}"
         npm publish
