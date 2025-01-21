@@ -15,7 +15,7 @@
  */
 
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
 
 describe('Detail', () => {
   const EPSILON = 1.0e-8;
@@ -37,7 +37,7 @@ describe('Detail', () => {
     AGA8.SetupDetail();
 
     // Composition du gaz
-    const x = [
+    const x: gazMixtureInMolePercent = [
       0, // padding initial
       0.77824, 0.02, 0.06, 0.08, 0.03, 0.0015, 0.003, 0.0005,
       0.00165, 0.00215, 0.00088, 0.00024, 0.00015, 0.00009,

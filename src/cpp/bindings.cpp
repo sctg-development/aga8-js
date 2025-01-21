@@ -390,7 +390,7 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .value("HELIUM", GasComponent::HELIUM)
         .value("ARGON", GasComponent::ARGON);
 
-    register_type<gazMixtureInMolePercent>("number[]");
+    register_type<gazMixtureInMolePercent>("gazMixtureInMolePercent");
     register_vector<double>("VectorDouble");
 
     value_object<PressureResult>("PressureResult")

@@ -14,11 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
 
 describe('Gross', () => {
   const EPSILON = 1.0e-8;
-  
+
   // Reference values
   const mm_reference = 20.54333051000000;
   const D_reference = 5.117641317088482;
@@ -28,9 +28,30 @@ describe('Gross', () => {
   test('Gross properties calculation', async () => {
     const AGA8 = await AGA8wasm();
     AGA8.SetupGross();
+    // METHANE = 1,
+    // NITROGEN = 2,
+    // CARBON_DIOXIDE = 3,
+    // ETHANE = 4,
+    // PROPANE = 5,
+    // ISOBUTANE = 6,
+    // N_BUTANE = 7,
+    // ISOPENTANE = 8,
+    // N_PENTANE = 9,
+    // N_HEXANE = 10,
+    // N_HEPTANE = 11,
+    // N_OCTANE = 12,
+    // N_NONANE = 13,
+    // N_DECANE = 14,
+    // HYDROGEN = 15,
+    // OXYGEN = 16,
+    // CARBON_MONOXIDE = 17,
+    // WATER = 18,
+    // HYDROGEN_SULFIDE = 19,
+    // HELIUM = 20,
+    // ARGON = 21
 
     // Input Parameters
-    const x = [
+    const x: gazMixtureInMolePercent = [
       0, // padding initial
       0.77824, 0.02, 0.06, 0.08, 0.03, 0.0015, 0.003, 0.0005,
       0.00165, 0.00215, 0.00088, 0.00024, 0.00015, 0.00009,

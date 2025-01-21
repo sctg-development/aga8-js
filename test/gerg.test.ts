@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm from '../dist/aga8';
+import AGA8wasm, {gazMixtureInMolePercent} from '../dist/aga8';
 
 describe('GERG2008', () => {
   test('GERG properties calculation', async () => {
@@ -23,7 +23,7 @@ describe('GERG2008', () => {
     AGA8.SetupGERG();
     
     // Input data
-    const x = [
+    const x: gazMixtureInMolePercent = [
       0, // padding initial
       0.77824, 0.02, 0.06, 0.08, 0.03, 0.0015, 0.003, 0.0005, 
       0.00165, 0.00215, 0.00088, 0.00024, 0.00015, 0.00009, 
