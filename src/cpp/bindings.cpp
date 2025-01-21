@@ -21,6 +21,7 @@
 #include "Gross.h"
 
 EMSCRIPTEN_DECLARE_VAL_TYPE(gazMixtureInMolePercent);
+EMSCRIPTEN_DECLARE_VAL_TYPE(xGrsArray);
 
 using namespace emscripten;
 // The compositions in the gazMixtureInMolePercent array use the following order and must be sent as mole fractions:
@@ -274,7 +275,7 @@ double MolarMassGross_wrapper(gazMixtureInMolePercent x_array)
     return Mm;
 }
 
-PressureGrossResult PressureGross_wrapper(double T, double D, val xGrs_array, double HCH)
+PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double P = 0, Z = 0;
@@ -287,7 +288,7 @@ PressureGrossResult PressureGross_wrapper(double T, double D, val xGrs_array, do
     return result;
 }
 
-DensityResult DensityGross_wrapper(double T, double P, val xGrs_array, double HCH)
+DensityResult DensityGross_wrapper(double T, double P, xGrsArray xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double D = 0;
@@ -325,7 +326,7 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gazMixtureInMolePercen
     return result;
 }
 
-BmixResult Bmix_wrapper(double T, val xGrs_array, double HCH)
+BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double B = 0, C = 0;
@@ -338,7 +339,7 @@ BmixResult Bmix_wrapper(double T, val xGrs_array, double HCH)
     return result;
 }
 
-GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr, double Hv)
+GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr, double Hv)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double Mm = 0, HCH = 0, HN = 0;
@@ -351,7 +352,7 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, val xGr
     return result;
 }
 
-GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, val xGrs_array, double Gr)
+GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr)
 {
     std::vector<double> xGrs = array_to_vector(xGrs_array);
     double Hv = 0, Mm = 0, HCH = 0, HN = 0;
@@ -391,6 +392,7 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .value("ARGON", GasComponent::ARGON);
 
     register_type<gazMixtureInMolePercent>("gazMixtureInMolePercent");
+    register_type<xGrsArray>("xGrsArray");
     register_vector<double>("VectorDouble");
 
     value_object<PressureResult>("PressureResult")
