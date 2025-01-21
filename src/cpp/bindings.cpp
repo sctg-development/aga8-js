@@ -20,6 +20,9 @@
 #include "GERG2008.h"
 #include "Gross.h"
 
+EMSCRIPTEN_DECLARE_VAL_TYPE(gazMixtureInMolePercent);
+
+using namespace emscripten;
 // The compositions in the gazMixtureInMolePercent array use the following order and must be sent as mole fractions:
 //     0 - PLACEHOLDER
 //     1 - Methane
@@ -105,14 +108,14 @@ struct PressureGrossResult
 };
 struct GrossHvResult
 {
-    emscripten::val xGrs;
+    val xGrs;
     double HN;
     double HCH;
 };
 
 struct GrossInputsResult
 {
-    emscripten::val xGrs;
+    val xGrs;
     double Gr;
     double HN;
     double HCH;
@@ -130,7 +133,7 @@ struct BmixResult
 
 struct GrossMethod1Result
 {
-   emscripten::val xGrs;
+   val xGrs;
     double Mm;
     double HCH;
     double HN;
@@ -140,7 +143,7 @@ struct GrossMethod1Result
 
 struct GrossMethod2Result
 {
-    emscripten::val xGrs;
+    val xGrs;
     double Hv;
     double Mm;
     double HCH;
@@ -148,10 +151,6 @@ struct GrossMethod2Result
     int ierr;
     std::string herr;
 };
-
-EMSCRIPTEN_DECLARE_VAL_TYPE(gazMixtureInMolePercent);
-
-using namespace emscripten;
 
 // Helper function to convert a JavaScript array to a C++ vector
 std::vector<double> array_to_vector(const val &js_array)
