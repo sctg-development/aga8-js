@@ -1,0 +1,9 @@
+*.wasm
+*.cmake
+CMakeCache.txt
+Makefile
+CMakeFiles/
+node_modules/
+aga8.d.ts
+aga8.js
+dist/
