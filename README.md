@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml/badge.svg)](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml)
 [![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-WebAssembly bindings for AGA8 gas properties calculation methods (Detail, GERG-2008, and Gross).
+WebAssembly bindings for [AGA8](https://github.com/usnistgov/AGA8) gas properties calculation methods (Detail, GERG-2008, and Gross).
 
 ## Features
 
