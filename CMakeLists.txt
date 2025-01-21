@@ -121,7 +121,7 @@ add_custom_command(
     TARGET index POST_BUILD
     COMMAND cat ${CMAKE_BINARY_DIR}/type_definition.d.ts >> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
     COMMAND rm -f ${CMAKE_BINARY_DIR}/type_definition.d.ts
-    COMMAND sed -i bak "s/xGrs:.*any/xGrs: xGrsArray/g" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
+    COMMAND sed -ibak "s/xGrs:.*any/xGrs: xGrsArray/g" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
     COMMAND rm -f ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.tsbak
 )
 
