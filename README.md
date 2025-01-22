@@ -1,4 +1,4 @@
-# AGA8 Gas Properties Calculator
+# AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator
 
 [![npm version](https://badge.fury.io/js/@sctg%2Faga8-js.svg)](https://www.npmjs.com/package/@sctg/aga8-js)
 [![Build Status](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml/badge.svg)](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml)
