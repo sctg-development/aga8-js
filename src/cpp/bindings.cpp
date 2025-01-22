@@ -106,11 +106,26 @@ enum class GasComponent
     ARGON = 21
 };
 
+/**
+ * @brief Structure to hold pressure and compressibility factor values
+ * @details Contains pressure (P) and compressibility factor (Z) as double precision values
+ * @var P Pressure value
+ * @var Z Compressibility factor value
+ */
 struct PressureResult
 {
     double P;
     double Z;
 };
+
+/**
+ * @struct DensityResult
+ * @brief Structure to hold the results of density calculations
+ * 
+ * @var D Density in mol/L
+ * @var ierr Error flag (0 = success, non-zero = error)
+ * @var herr Error message string describing the error if ierr is non-zero
+ */
 struct DensityResult
 {
     double D;
@@ -118,18 +133,76 @@ struct DensityResult
     std::string herr;
 };
 
+/**
+ * @brief Structure containing thermodynamic properties for DETAIL calculations
+ * @details Contains the following properties:
+ * - P: Pressure
+ * - Z: Compressibility factor
+ * - dPdD: Derivative of pressure with respect to density
+ * - d2PdD2: Second derivative of pressure with respect to density
+ * - d2PdTD: Mixed derivative of pressure with respect to temperature and density
+ * - dPdT: Derivative of pressure with respect to temperature
+ * - U: Internal energy
+ * - H: Enthalpy
+ * - S: Entropy
+ * - Cv: Isochoric heat capacity
+ * - Cp: Isobaric heat capacity
+ * - W: Speed of sound
+ * - G: Gibbs free energy
+ * - JT: Joule-Thomson coefficient
+ * - Kappa: Isothermal compressibility
+ * 
+ * @see PropertiesDetail For the underlying calculation implementation
+ */
 struct PropertiesDetailResult
 {
     double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
     double U, H, S, Cv, Cp, W, G, JT, Kappa;
 };
 
+/**
+ * @brief Structure containing thermodynamic properties for GERG-2008 calculations
+ * 
+ * @param P Pressure [Pa]
+ * @param Z Compressibility factor [-]
+ * @param dPdD First partial derivative of pressure with respect to density [(Pa⋅m³)/kg]
+ * @param d2PdD2 Second partial derivative of pressure with respect to density [(Pa⋅m⁶)/kg²]
+ * @param d2PdTD Second partial derivative of pressure with respect to temperature and density [(Pa⋅m³)/(kg⋅K)]
+ * @param dPdT First partial derivative of pressure with respect to temperature [Pa/K]
+ * @param U Internal energy [J/kg]
+ * @param H Enthalpy [J/kg]
+ * @param S Entropy [J/(kg⋅K)]
+ * @param Cv Isochoric heat capacity [J/(kg⋅K)]
+ * @param Cp Isobaric heat capacity [J/(kg⋅K)]
+ * @param W Speed of sound [m/s]
+ * @param G Gibbs free energy [J/kg]
+ * @param JT Joule-Thomson coefficient [K/Pa]
+ * @param Kappa Isothermal compressibility [1/Pa]
+ * @param A Helmholtz free energy [J/kg]
+ * 
+ * @see PropertiesGERG For the underlying calculation implementation
+ */
 struct PropertiesGERGResult
 {
     double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
     double U, H, S, Cv, Cp, W, G, JT, Kappa, A;
 };
 
+/**
+ * @brief Structure containing computation results
+ * 
+ * @var P Pressure value
+ * @var Z Compressibility factor
+ * @var ierr Error code (0 = success, non-zero = error)
+ * @var herr Error message string
+ *//**
+ * @brief Structure containing computation results
+ * 
+ * @var P Pressure value
+ * @var Z Compressibility factor
+ * @var ierr Error code (0 = success, non-zero = error)
+ * @var herr Error message string
+ */
 struct PressureGrossResult
 {
     double P;

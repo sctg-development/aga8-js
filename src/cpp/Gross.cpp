@@ -138,6 +138,7 @@ static double c0[4][4][4], c1[4][4][4], c2[4][4][4];
  *          The sum of the compositions in the x() array must be equal to one.
  *          The order of the fluids in this array is given at the top of this code.
  * @param Mm [out] Molar mass (g/mol)
+ * @see MolarMassGross_wrapper for the Emscripten wrapper
  */
 void MolarMassGross(const std::vector<double> &x, double &Mm)
 {
@@ -177,6 +178,7 @@ void MolarMassGross(const std::vector<double> &x, double &Mm)
  * @param[out] herr Error message if ierr is not equal to zero
  * @note dPdDsave - d(P)/d(D) [kPa/(mol/l)] (at constant temperature)
  *       This variable is cached in the common variables for use in the iterative density solver
+ * @see PressureGross_wrapper for the Emscripten wrapper
  */
 void PressureGross(const double T, const double D, const std::vector<double> &xGrs, const double HCH, double &P, double &Z, int &ierr, std::string &herr)
 {
@@ -229,6 +231,7 @@ void PressureGross(const double T, const double D, const std::vector<double> &xG
  * @param[out] D Density (mol/l)
  * @param[out] ierr Error number (0 indicates no error)
  * @param[out] herr Error message if ierr is not equal to zero
+ * @see DensityGross_wrapper for the Emscripten wrapper
  */
 void DensityGross(const double T, const double P, const std::vector<double> &xGrs, const double HCH, double &D, int &ierr, std::string &herr)
 {
@@ -309,6 +312,7 @@ void DensityGross(const double T, const double P, const std::vector<double> &xGr
  * @param[out] xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
  * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
  * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ * @see GrossHv_wrapper for the Emscripten wrapper
  */
 void GrossHv(const std::vector<double> &x, std::vector<double> &xGrs, double &HN, double &HCH)
 {
@@ -355,6 +359,7 @@ void GrossHv(const std::vector<double> &x, std::vector<double> &xGrs, double &HN
  * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
  * @param[out] ierr Error number (0 indicates no error)
  * @param[out] herr Error message if ierr is not equal to zero
+ * @see GrossInputs_wrapper for the Emscripten wrapper
  */
 void GrossInputs(const double T, const double P, const std::vector<double> &x, std::vector<double> &xGrs, double &Gr, double &HN, double &HCH, int &ierr, std::string &herr)
 {
@@ -402,6 +407,7 @@ void GrossInputs(const double T, const double P, const std::vector<double> &x, s
  * @param[out] C Third virial coefficient (dm^6/mol^2)
  * @param[out] ierr Error number (0 indicates no error)
  * @param[out] herr Error message if ierr is not equal to zero
+ * @see Bmix_wrapper for the Emscripten wrapper
  */
 void Bmix(const double T, const std::vector<double> &xGrs, const double HCH, double &B, double &C, int &ierr, std::string &herr)
 {
@@ -506,6 +512,7 @@ void Bmix(const double T, const std::vector<double> &xGrs, const double HCH, dou
  * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
  * @param[out] ierr Error number (0 indicates no error)
  * @param[out] herr Error message if ierr is not equal to zero
+ * @see GrossMethod1_wrapper for the Emscripten wrapper
  */
 void GrossMethod1(const double Th, const double Td, const double Pd, std::vector<double> &xGrs, const double Gr, const double Hv, double & Mm, double &HCH, double &HN, int &ierr, std::string &herr)
 {
@@ -582,6 +589,7 @@ void GrossMethod1(const double Th, const double Td, const double Pd, std::vector
  * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
  * @param[out] ierr Error number (0 indicates no error)
  * @param[out] herr Error message if ierr is not equal to zero
+ * @see GrossMethod2_wrapper for the Emscripten wrapper
  */
 void GrossMethod2(const double Th, const double Td, const double Pd, std::vector<double> &xGrs, const double Gr, double &Hv, double &Mm, double &HCH, double &HN, int &ierr, std::string &herr)
 {
@@ -638,6 +646,7 @@ void GrossMethod2(const double Th, const double Td, const double Pd, std::vector
  * @brief Initialize all the constants and parameters in the GROSS model
  * 
  * This routine must be called once before any other routine.
+ * @note this function is directly wrapped to SetupGross() function in Emscripten
  */
 void SetupGross()
 {

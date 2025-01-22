@@ -154,6 +154,7 @@ inline double sq(double x) { return x * x; }
  * @param[out] Mm Calculated molar mass of the mixture in g/mol
  * 
  * @note The composition array x must contain valid mole fractions that sum to 1.0
+ * @see MolarMassDetail_wrapper for the Emscripten wrapped version of this function
  */
 void MolarMassDetail(const std::vector<double> &x, double &Mm)
 {
@@ -191,6 +192,7 @@ void MolarMassDetail(const std::vector<double> &x, double &Mm)
  * @note The composition vector x must contain mole fractions, not mole percents or mass fractions
  * @note The sum of all mole fractions in x must equal 1.0
  * @note The derivative d(P)/d(D) is cached internally but not returned as an argument
+ * @see PressureDetail_wrapper for the Emscripten wrapped version of this function
  */
 void PressureDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z)
 {
@@ -240,6 +242,7 @@ void PressureDetail(const double T, const double D, const std::vector<double> &x
  * @note If D is passed as negative, its absolute value will be used as initial estimate
  * @note If P is zero (or very close to zero), D will be set to 0
  * @note If calculation fails to converge, ideal gas density is returned with error message
+ * @see DensityDetail_wrapper for the Emscripten wrapped version of this function
  */
 void DensityDetail(const double T, const double P, const std::vector<double> &x, double &D, int &ierr, std::string &herr)
 {
@@ -342,6 +345,7 @@ void DensityDetail(const double T, const double P, const std::vector<double> &x,
  * @param[out] G Gibbs energy in J/mol
  * @param[out] JT Joule-Thomson coefficient in K/kPa
  * @param[out] Kappa Isentropic Exponent
+ * @see PropertiesDetail_wrapper for the Emscripten wrapped version of this function
  */
 void PropertiesDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa)
 {
@@ -794,7 +798,8 @@ static void AlpharDetail(const int itau, const int idel, const double T, const d
  * equation of state calculations to optimize performance.
  * 
  * This implementation corresponds to the reference equations for natural gas
- * mixtures as published in the GERG-2008 formulation.
+ * mixtures as published in the DETAIL formulation.
+ * @note this function is directly bind to SetupDetail() in the Emscripten wrapper
  */
 void SetupDetail()
 {

@@ -186,6 +186,7 @@ inline double Cosh(double xx){ return (exp(xx) + exp(-xx)) / 2; }
  *         The sum of the compositions in the x() array must be equal to one.
  *         The order of the fluids in this array is given at the top of this module.
  * @param[out] Mm Molar mass (g/mol)
+ * @see MolarMassGERG_wrapper for the Emscripten wrapped version of this function
  */
 void MolarMassGERG(const std::vector<double> &x, double &Mm)
 {
@@ -210,6 +211,7 @@ void MolarMassGERG(const std::vector<double> &x, double &Mm)
  * @param[out] P Pressure (kPa)
  * @param[out] Z Compressibility factor
  * @note dPdDsave d(P)/d(D) [kPa/(mol/l)] is cached for density solver
+ * @see PressureGERG_wrapper for the Emscripten wrapped version of this function
  */
 void PressureGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z)
 {
@@ -240,6 +242,7 @@ void PressureGERG(const double T, const double D, const std::vector<double> &x, 
  * @param[out] D Density (mol/l). Can provide initial guess as negative value
  * @param[out] ierr Error code
  * @param[out] herr Error message
+ * @see DensityGERG_wrapper for the Emscripten wrapped version of this function
  */
 void DensityGERG(const int iFlag, const double T, const double P, const std::vector<double> &x, double &D, int &ierr, std::string &herr)
 {
@@ -362,6 +365,7 @@ void DensityGERG(const int iFlag, const double T, const double P, const std::vec
  * @param[out] JT Joule-Thomson coefficient (K/kPa)
  * @param[out] Kappa Isentropic Exponent
  * @param[out] A Helmholtz energy (J/mol)
+ * @see PropertiesGERG_wrapper for the Emscripten wrapped version of this function
  */
 void PropertiesGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa, double &A)
 {
@@ -764,6 +768,7 @@ static void PseudoCriticalPointGERG(const std::vector<double> &x, double &Tcx, d
  * The function also includes code to produce nearly exact values for n0(1) and n0(2), 
  * which is not called in the current code but is included for reference.
  * This routine must be called once before any other routine.
+ * @note this function is directly wrapped as SetupGERG() in the Emscripten wrapper
  */
 void SetupGERG()
 {
