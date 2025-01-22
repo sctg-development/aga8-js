@@ -1,3 +1,32 @@
+/**
+ * @file Detail.cpp
+ * @brief Implementation of the AGA 8 Part 1 DETAIL equation of state for natural gas mixtures
+ *
+ * This implementation is based on the AGA Report No. 8, Part 1 - DETAIL method for the calculation 
+ * of thermodynamic properties of natural gas mixtures. The code provides routines for calculating:
+ * - Pressure from temperature and density
+ * - Density from temperature and pressure (iterative)
+ * - Various thermodynamic properties
+ * 
+ * The mixture compositions are specified using mole fractions for 21 components in the following order:
+ * 1. Methane        8. Isopentane    15. Hydrogen
+ * 2. Nitrogen       9. n-Pentane     16. Oxygen
+ * 3. Carbon dioxide 10. n-Hexane     17. Carbon monoxide
+ * 4. Ethane         11. n-Heptane    18. Water
+ * 5. Propane        12. n-Octane     19. Hydrogen sulfide
+ * 6. Isobutane      13. n-Nonane     20. Helium
+ * 7. n-Butane       14. n-Decane     21. Argon
+ *
+ * @note Before using any other functions, SetupDetail() must be called once to initialize constants
+ *
+ * @author Eric W. Lemmon (Original FORTRAN)
+ * @author Ian H. Bell (C++ Translation)
+ * @author Volker Heinemann, RMG Messtechnik GmbH (Contributor)
+ * @author Jason Lu, Thermo Fisher Scientific (Contributor)
+ * 
+ * @copyright Public Domain - developed by NIST employees
+ * @version 2.0 (April 2017)
+ */
 /*
 This software was developed by employees of the National Institute of Standards and Technology (NIST), 
 an agency of the Federal Government and is being made available as a public service. Pursuant to title 17 
@@ -112,6 +141,20 @@ static double dPdDsave; // Calculated in the Pressure subroutine, but not includ
 
 inline double sq(double x) { return x * x; }
 
+
+/**
+ * @brief Calculate molar mass of a mixture based on composition
+ * 
+ * This function calculates the molar mass of a mixture using the mole fractions 
+ * of each component provided in the composition array.
+ * 
+ * @param x Vector of mole fractions for each component in the mixture.
+ *          Must sum to 1.0. Use mole fractions only (not mass fractions or mole percents).
+ *          Components must be ordered according to the fluid order defined in the implementation.
+ * @param[out] Mm Calculated molar mass of the mixture in g/mol
+ * 
+ * @note The composition array x must contain valid mole fractions that sum to 1.0
+ */
 void MolarMassDetail(const std::vector<double> &x, double &Mm)
 {
     // Calculate molar mass of the mixture with the compositions contained in the x() input array
@@ -132,6 +175,23 @@ void MolarMassDetail(const std::vector<double> &x, double &Mm)
     }
 }
 
+/**
+ * @brief Calculates pressure and compressibility factor as a function of temperature and density
+ * 
+ * This function computes the pressure and compressibility factor for a gas mixture
+ * using the GERG-2008 equation of state. It also calculates d(P)/d(D) which is cached
+ * for use in iterative density calculations.
+ * 
+ * @param T Temperature in Kelvin (K)
+ * @param D Density in moles per liter (mol/l)
+ * @param x Vector of composition mole fractions (must sum to 1.0)
+ * @param[out] P Pressure in kiloPascals (kPa)
+ * @param[out] Z Compressibility factor (dimensionless)
+ * 
+ * @note The composition vector x must contain mole fractions, not mole percents or mass fractions
+ * @note The sum of all mole fractions in x must equal 1.0
+ * @note The derivative d(P)/d(D) is cached internally but not returned as an argument
+ */
 void PressureDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z)
 {
     // Sub Pressure(T, D, x, P, Z)
@@ -160,6 +220,27 @@ void PressureDetail(const double T, const double D, const std::vector<double> &x
     dPdDsave = RDetail * T + 2 * ar[0][1] + ar[0][2]; // d(P)/d(D) for use in density iteration
 }
 
+/**
+ * @brief Calculates density as a function of temperature and pressure using an iterative method.
+ * 
+ * This function uses an iterative Newton's method that calls PressureDetail to find the correct state point.
+ * Generally only 6 iterations at most are required. If the iteration fails to converge, the ideal gas density 
+ * and an error message are returned. No checks are made to determine the phase boundary, which would have 
+ * guaranteed that the output is in the gas phase. It is up to the user to locate the phase boundary, and 
+ * thus identify the phase of the T and P inputs. If the state point is 2-phase, the output density will 
+ * represent a metastable state.
+ *
+ * @param T Temperature in Kelvin (K)
+ * @param P Pressure in kiloPascals (kPa)
+ * @param x Vector of mole fractions representing composition
+ * @param D Density in mol/l (can be negative to use as initial guess)
+ * @param ierr Error number (0 indicates no error)
+ * @param herr Error message string (empty if no error)
+ *
+ * @note If D is passed as negative, its absolute value will be used as initial estimate
+ * @note If P is zero (or very close to zero), D will be set to 0
+ * @note If calculation fails to converge, ideal gas density is returned with error message
+ */
 void DensityDetail(const double T, const double P, const std::vector<double> &x, double &D, int &ierr, std::string &herr)
 {
     // Sub DensityDetail(T, P, x, D, ierr, herr)
@@ -237,6 +318,31 @@ void DensityDetail(const double T, const double P, const std::vector<double> &x,
     return;
 }
 
+/**
+ * @brief Calculates thermodynamic properties as a function of temperature and density.
+ * 
+ * If density is unknown, call DensityDetail first with known pressure and temperature values.
+ * Makes calls to Molarmass, Alpha0Detail, and AlpharDetail subroutines.
+ *
+ * @param T Temperature in Kelvin (K)
+ * @param D Density in mol/l
+ * @param x Vector of mole fractions representing composition
+ * @param[out] P Pressure in kPa
+ * @param[out] Z Compressibility factor
+ * @param[out] dPdD First derivative of pressure with respect to density at constant temperature [kPa/(mol/l)]
+ * @param[out] d2PdD2 Second derivative of pressure with respect to density at constant temperature [kPa/(mol/l)^2]
+ * @param[out] d2PdTD Second derivative of pressure with respect to temperature and density [kPa/(mol/l)/K]
+ * @param[out] dPdT First derivative of pressure with respect to temperature at constant density (kPa/K)
+ * @param[out] U Internal energy in J/mol
+ * @param[out] H Enthalpy in J/mol
+ * @param[out] S Entropy in J/(mol-K)
+ * @param[out] Cv Isochoric heat capacity in J/(mol-K)
+ * @param[out] Cp Isobaric heat capacity in J/(mol-K)
+ * @param[out] W Speed of sound in m/s
+ * @param[out] G Gibbs energy in J/mol
+ * @param[out] JT Joule-Thomson coefficient in K/kPa
+ * @param[out] Kappa Isentropic Exponent
+ */
 void PropertiesDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa)
 {
     // Sub Properties(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa)
@@ -414,6 +520,27 @@ static void xTermsDetail(const std::vector<double> &x)
     }
 }
 
+/**
+ * @brief Calculates the ideal gas Helmholtz energy and its derivatives with respect to T and D.
+ * 
+ * This function computes the ideal gas Helmholtz energy and its first and second 
+ * temperature derivatives. This calculation is not required when only pressure (P) 
+ * or compressibility factor (Z) is needed.
+ *
+ * @param T Temperature in Kelvin (K)
+ * @param D Density in moles per liter (mol/l)
+ * @param x Vector of mole fractions representing composition
+ * @param a0 Array to store results:
+ *        - a0[0]: Ideal gas Helmholtz energy (J/mol)
+ *        - a0[1]: First temperature derivative ∂(a0)/∂T [J/(mol-K)]
+ *        - a0[2]: Second temperature derivative T*∂²(a0)/∂T² [J/(mol-K)]
+ *
+ * @note The function uses hyperbolic functions and logarithmic terms to compute
+ *       the ideal gas contributions for each component in the mixture.
+ *
+ * @warning Input array x must be of sufficient size to handle all components (NcDetail)
+ * @warning Output array a0 must be of size 3 to store all computed values
+ */
 static void Alpha0Detail(const double T, const double D, const std::vector<double> &x, double a0[3])
 {
     // Private Sub Alpha0Detail(T, D, x, a0)
@@ -490,6 +617,29 @@ static void Alpha0Detail(const double T, const double D, const std::vector<doubl
     a0[2] = a0[2] * RDetail;
 }
 
+/**
+ * @brief Calculates derivatives of the residual Helmholtz energy with respect to temperature and density
+ *
+ * This function computes various derivatives of the residual Helmholtz energy based on temperature
+ * and density inputs. The xTerms subroutine must be called before this routine if x has changed.
+ *
+ * @param itau Set to 1 to calculate derivatives with respect to T [ar(1,0), ar(1,1), ar(2,0)], 0 otherwise
+ * @param idel Currently not used, reserved for future use in specifying highest density derivative
+ * @param T Temperature in Kelvin
+ * @param D Density in mol/l
+ * @param ar[4][4] Output array containing the following derivatives:
+ *        - ar[0][0]: Residual Helmholtz energy (J/mol)
+ *        - ar[0][1]: D*∂(ar)/∂D (J/mol)
+ *        - ar[0][2]: D²*∂²(ar)/∂D² (J/mol)
+ *        - ar[0][3]: D³*∂³(ar)/∂D³ (J/mol)
+ *        - ar[1][0]: ∂(ar)/∂T [J/(mol-K)]
+ *        - ar[1][1]: D*∂²(ar)/∂D∂T [J/(mol-K)]
+ *        - ar[2][0]: T*∂²(ar)/∂T² [J/(mol-K)]
+ *
+ * @note This function is part of the GERG-2008 equation of state calculations
+ * @note The function assumes that global variables Told, Tun, K3, RDetail, un, Bs, Csn, bn, kn 
+ *       are properly initialized
+ */
 static void AlpharDetail(const int itau, const int idel, const double T, const double D, double ar[4][4])
 {
     // Private Sub AlpharDetail(itau, idel, T, D, ar)
@@ -614,6 +764,38 @@ static void AlpharDetail(const int itau, const int idel, const double T, const d
 }
 
 /// The following routine must be called once before any other routine.
+/**
+ * @brief Initializes all constants and parameters for the DETAIL model equations of state
+ * 
+ * This function sets up all the necessary parameters for the AGA8 equation of state
+ * in its "DETAIL" version. It initializes:
+ * 
+ * - Gas constant (RDetail)
+ * - Molar masses for 21 components (MMiDetail)
+ * - Equation of state coefficients (an)
+ * - Density exponents (bn)
+ * - Temperature exponents (un)
+ * - Various flags (fn, gn, qn, sn, wn)
+ * - Binary interaction parameters:
+ *   - Energy parameters (Eij)
+ *   - Size parameters (Kij)  
+ *   - Orientation parameters (Gij)
+ *   - Conformal energy parameters (Uij)
+ * - Component-specific parameters:
+ *   - Energy parameters (Ei)
+ *   - Size parameters (Ki)
+ *   - Orientation parameters (Gi)
+ *   - Quadrupole parameters (Qi)
+ *   - Dipole parameters (Si)
+ *   - Association parameters (Wi)
+ * - Ideal gas parameters (n0i, th0i)
+ * 
+ * The function also performs necessary precalculations of constants used in the
+ * equation of state calculations to optimize performance.
+ * 
+ * This implementation corresponds to the reference equations for natural gas
+ * mixtures as published in the GERG-2008 formulation.
+ */
 void SetupDetail()
 {
     // Initialize all the constants and parameters in the DETAIL model.

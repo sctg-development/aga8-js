@@ -1,3 +1,33 @@
+/**
+ * @file Gross.cpp
+ * @brief Implementation of AGA 8 Part 1 GROSS equation of state (Version 2.0)
+ *
+ * This code implements routines for the calculation of thermodynamic properties 
+ * from the AGA 8 Part 1 GROSS equation of state (April 2017).
+ *
+ * The GROSS method is used for natural gas mixtures and requires less detailed
+ * composition information than the DETAIL method. It can use either:
+ * - Method 1: volumetric gross heating value, relative density, and mole fraction of CO2
+ * - Method 2: relative density and mole fractions of nitrogen and CO2
+ *
+ * Component order for composition array:
+ *  1 - Methane          8 - Isopentane     15 - Hydrogen
+ *  2 - Nitrogen         9 - n-Pentane      16 - Oxygen
+ *  3 - Carbon dioxide   10 - n-Hexane      17 - Carbon monoxide
+ *  4 - Ethane          11 - n-Heptane      18 - Water
+ *  5 - Propane         12 - n-Octane       19 - Hydrogen sulfide
+ *  6 - Isobutane       13 - n-Nonane       20 - Helium
+ *  7 - n-Butane        14 - n-Decane       21 - Argon
+ *
+ * @note SetupGross() must be called once before using any other routines
+ *
+ * @author Eric W. Lemmon (NIST)
+ * @author Ian H. Bell (NIST)
+ * @author Volker Heinemann (RMG Messtechnik GmbH)
+ * @author Jason Lu (Thermo Fisher Scientific)
+ *
+ * @copyright Public domain (NIST)
+ */
 /*
 This software was developed by employees of the National Institute of Standards and Technology (NIST), 
 an agency of the Federal Government and is being made available as a public service. Pursuant to title 17 
@@ -100,6 +130,15 @@ static double  xHN[MaxFlds+1] , MMiGross[MaxFlds+1]; // +1 since C/C++ is 0-base
 static double b0[4][4], b1[4][4], b2[4][4], bCHx[3][3], cCHx[3][3];
 static double c0[4][4][4], c1[4][4][4], c2[4][4][4];
 
+/**
+ * @brief Calculate molar mass of the mixture with the compositions contained in the x() input array
+ * 
+ * @param x Composition array (mole fraction)
+ *          Do not send mole percents or mass fractions in the x() array, otherwise the output will be incorrect.
+ *          The sum of the compositions in the x() array must be equal to one.
+ *          The order of the fluids in this array is given at the top of this code.
+ * @param Mm [out] Molar mass (g/mol)
+ */
 void MolarMassGross(const std::vector<double> &x, double &Mm)
 {
 // Sub MolarMassGross(x, Mm)
@@ -121,6 +160,24 @@ void MolarMassGross(const std::vector<double> &x, double &Mm)
   }
 }
 
+/**
+ * @brief Calculate pressure as a function of temperature and density
+ * 
+ * The derivative d(P)/d(D) is also calculated for use in the iterative DensityGross 
+ * subroutine (and is only returned as a common variable).
+ * 
+ * @param T Temperature (K)
+ * @param D Density (mol/l)
+ * @param xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+ * @param HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K.
+ *            Call subroutine GrossHv or GrossInputs first to obtain HCH.
+ * @param[out] P Pressure (kPa)
+ * @param[out] Z Compressibility factor
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ * @note dPdDsave - d(P)/d(D) [kPa/(mol/l)] (at constant temperature)
+ *       This variable is cached in the common variables for use in the iterative density solver
+ */
 void PressureGross(const double T, const double D, const std::vector<double> &xGrs, const double HCH, double &P, double &Z, int &ierr, std::string &herr)
 {
     // Sub PressureGross(T, D, xGrs, HCH, P, Z, ierr, herr)
@@ -157,6 +214,22 @@ void PressureGross(const double T, const double D, const std::vector<double> &xG
     }
 }
 
+/**
+ * @brief Calculate density as a function of temperature and pressure
+ * 
+ * This is an iterative routine that calls PressureGross to find the correct state point.
+ * Generally only 6 iterations at most are required. If the iteration fails to converge, 
+ * the ideal gas density and an error message are returned.
+ * 
+ * @param T Temperature (K)
+ * @param P Pressure (kPa)
+ * @param xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+ * @param HCH Molar ideal gross heating value of the hydrocarbon components (kJ/mol) at 298.15 K.
+ *            Call subroutine GrossHv or GrossInputs first to obtain HCH.
+ * @param[out] D Density (mol/l)
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ */
 void DensityGross(const double T, const double P, const std::vector<double> &xGrs, const double HCH, double &D, int &ierr, std::string &herr)
 {
     // Sub DensityGross(T, P, xGrs, HCH, D, ierr, herr)
@@ -226,6 +299,17 @@ void DensityGross(const double T, const double P, const std::vector<double> &xGr
     D = P/RGross/T;
 }
 
+/**
+ * @brief Calculate ideal heating values based on composition
+ * 
+ * The mole fractions in the mixture are required in this routine, not just xCH, xN2, and xCO2.
+ * 
+ * @param x Molar compositions of all components in the mixture. 
+ *          The order in this array is given at the top of this code.
+ * @param[out] xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+ * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
+ * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ */
 void GrossHv(const std::vector<double> &x, std::vector<double> &xGrs, double &HN, double &HCH)
 {
     // Sub GrossHv(x, xGrs, HN, HCH)
@@ -254,6 +338,24 @@ void GrossHv(const std::vector<double> &x, std::vector<double> &xGrs, double &HN
     }
 }
 
+/**
+ * @brief Calculate relative density and heating values based on composition
+ * 
+ * This routine should only be used to get these two values for use as inputs to Method 1 or 
+ * Method 2, and not for the relative density for any T and P. All of the mole fractions in 
+ * the mixture are required in this routine, not just xCH, xN2, and xCO2.
+ * 
+ * @param T Temperature (K), generally a reference temperature for relative density
+ * @param P Pressure (kPa), generally a reference pressure for relative density
+ * @param x Molar compositions of all components in the mixture. 
+ *          The order in this array is given at the top of this code.
+ * @param[out] xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+ * @param[out] Gr Relative density at T and P
+ * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
+ * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ */
 void GrossInputs(const double T, const double P, const std::vector<double> &x, std::vector<double> &xGrs, double &Gr, double &HN, double &HCH, int &ierr, std::string &herr)
 {
     // Sub GrossInputs(T, P, x, xGrs, Gr, HN, HCH, ierr, herr)
@@ -290,6 +392,17 @@ void GrossInputs(const double T, const double P, const std::vector<double> &x, s
     Gr = Mm * Zref / Mref / Z;
 }
 
+/**
+ * @brief Calculate 2nd and 3rd virial coefficients for the mixture at T
+ * 
+ * @param T Temperature (K)
+ * @param xGrs Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
+ * @param HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ * @param[out] B Second virial coefficient (dm^3/mol)
+ * @param[out] C Third virial coefficient (dm^6/mol^2)
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ */
 void Bmix(const double T, const std::vector<double> &xGrs, const double HCH, double &B, double &C, int &ierr, std::string &herr)
 {
     // Sub Bmix(T, xGrs, HCH, B, C, ierr, herr)
@@ -375,6 +488,25 @@ void Bmix(const double T, const std::vector<double> &xGrs, const double HCH, dou
         }
     }
 }
+
+/**
+ * @brief Initialize variables required in the GROSS equation with Method 1 of the AGA 8 Part 1 publication
+ * 
+ * Method 1 requires inputs of volumetric gross heating value, relative density, and mole fraction of CO2.
+ * 
+ * @param Th Reference temperature for heating value (K)
+ * @param Td Reference temperature for density (K)
+ * @param Pd Reference pressure for density (kPa)
+ * @param xGrs Array of size 3 with the molar composition of CO2 in the 3rd position. 
+ *             xCH and xN2 are returned in this array.
+ * @param Gr Relative density at Td and Pd
+ * @param Hv Volumetric ideal gross heating value (MJ/m^3) at Th
+ * @param[out] Mm Molar mass (g/mol)
+ * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ */
 void GrossMethod1(const double Th, const double Td, const double Pd, std::vector<double> &xGrs, const double Gr, const double Hv, double & Mm, double &HCH, double &HN, int &ierr, std::string &herr)
 {
     // Sub GrossMethod1(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr)
@@ -433,6 +565,24 @@ void GrossMethod1(const double Th, const double Td, const double Pd, std::vector
     }
 }
 
+/**
+ * @brief Initialize variables required in the GROSS equation with Method 2 of the AGA 8 Part 1 publication
+ * 
+ * Method 2 requires inputs of relative density and mole fractions of nitrogen and CO2.
+ * 
+ * @param Th Reference temperature for heating value (K)
+ * @param Td Reference temperature for density (K)
+ * @param Pd Reference pressure for density (kPa)
+ * @param xGrs Array of size 3 with the molar composition of N2 in the 2nd position 
+ *             and CO2 in the 3rd position. xCH is returned in this array.
+ * @param Gr Relative density at Td and Pd
+ * @param[out] Hv Volumetric ideal gross heating value (MJ/m^3) at Th
+ * @param[out] Mm Molar mass (g/mol)
+ * @param[out] HCH Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
+ * @param[out] HN Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K
+ * @param[out] ierr Error number (0 indicates no error)
+ * @param[out] herr Error message if ierr is not equal to zero
+ */
 void GrossMethod2(const double Th, const double Td, const double Pd, std::vector<double> &xGrs, const double Gr, double &Hv, double &Mm, double &HCH, double &HN, int &ierr, std::string &herr)
 {
     // Sub GrossMethod2(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr)
@@ -484,7 +634,11 @@ void GrossMethod2(const double Th, const double Td, const double Pd, std::vector
     Hv = HN / Z / RGross / Td * Pd / (1 + 0.0001027 * (Th - 298.15));
 }
 
-// The following routine must be called once before any other routine.
+/**
+ * @brief Initialize all the constants and parameters in the GROSS model
+ * 
+ * This routine must be called once before any other routine.
+ */
 void SetupGross()
 {
   // Initialize all the constants and parameters in the GROSS model.
