@@ -13,6 +13,7 @@ WebAssembly bindings for [AGA8](https://github.com/usnistgov/AGA8) gas propertie
 - 🚀 High-performance WebAssembly implementation
 - 📦 Easy to use npm package
 - 🔍 TypeScript type definitions included
+- 📄 [Full documentation available](https://sctg-development.github.io/aga8-js/Detail_8h.html)
 
 ## Installation
 
