@@ -1,3 +1,56 @@
+/**
+ * @file GERG2008.cpp
+ * @brief Implementation of the GERG-2008 equation of state for natural gas mixtures
+ *
+ * This file implements Version 2.01 of routines for calculating thermodynamic properties 
+ * using the GERG-2008 equation of state (AGA 8 Part 2).
+ * 
+ * The GERG-2008 equation of state can handle mixtures of the following components:
+ * - Methane
+ * - Nitrogen
+ * - Carbon dioxide
+ * - Ethane  
+ * - Propane
+ * - Isobutane
+ * - n-Butane
+ * - Isopentane
+ * - n-Pentane
+ * - n-Hexane
+ * - n-Heptane
+ * - n-Octane
+ * - n-Nonane
+ * - n-Decane
+ * - Hydrogen
+ * - Oxygen
+ * - Carbon monoxide
+ * - Water
+ * - Hydrogen sulfide
+ * - Helium
+ * - Argon 
+ * 
+ * @example For example, a mixture (in moles) of 94% methane, 5% CO2, and 1% helium would be (in mole fractions):
+ *           x(1)=0.94, x(3)=0.05, x(20)=0.01
+ * 
+ * Key references:
+ * - Kunz, O. and Wagner, W. (2012) "The GERG-2008 Wide-Range Equation of State for Natural 
+ *   Gases and Other Mixtures; An Expansion of GERG-2004", J. Chem. Eng. Data, 57(11):3032-3091
+ * - Kunz et al. (2007) "The GERG-2004 Wide-Range Equation of State for Natural Gases and Other 
+ *   Mixtures", GERG Technical Monograph 15
+ *
+ * @note SetupGERG() must be called once before calling other routines
+ *
+ * Main public functions:
+ * - MolarMassGERG() - Calculate mixture molar mass
+ * - PressureGERG() - Calculate pressure and compressibility factor
+ * - DensityGERG() - Calculate density iteratively 
+ * - PropertiesGERG() - Calculate thermodynamic properties
+ * - SetupGERG() - Initialize constants and parameters
+ *
+ * @authors Eric W. Lemmon (NIST), Ian H. Bell (NIST), Volker Heinemann (RMG), 
+ *          Jason Lu (Thermo Fisher)
+ * @copyright Public domain (NIST work)
+ */
+
 /*
 This software was developed by employees of the National Institute of Standards and Technology (NIST), 
 an agency of the Federal Government and is being made available as a public service. Pursuant to title 17 
@@ -122,47 +175,44 @@ inline double Tanh(double xx){ return (exp(xx) - exp(-xx)) / (exp(xx) + exp(-xx)
 inline double Sinh(double xx){ return (exp(xx) - exp(-xx)) / 2; }
 inline double Cosh(double xx){ return (exp(xx) + exp(-xx)) / 2; }
 
+/**
+ * @brief Calculate molar mass of a gas mixture
+ * 
+ * Calculate molar mass of the mixture with the compositions contained in the x() input array
+ * 
+ * @param x Composition (mole fraction)
+ *         Do not send mole percents or mass fractions in the x() array, 
+ *         otherwise the output will be incorrect.
+ *         The sum of the compositions in the x() array must be equal to one.
+ *         The order of the fluids in this array is given at the top of this module.
+ * @param[out] Mm Molar mass (g/mol)
+ */
 void MolarMassGERG(const std::vector<double> &x, double &Mm)
 {
-    // Sub MolarMassGERG(x, Mm)
-
-    // Calculate molar mass of the mixture with the compositions contained in the x() input array
-
-    // Inputs:
-    //    x() - Composition (mole fraction)
-    //          Do not send mole percents or mass fractions in the x() array, otherwise the output will be incorrect.
-    //          The sum of the compositions in the x() array must be equal to one.
-    //          The order of the fluids in this array is given at the top of this module.
-
-    // Outputs:
-    //     Mm - Molar mass (g/mol)
-
     Mm = 0;
     for (int i = 1; i <= NcGERG; ++i){
         Mm += x[i] * MMiGERG[i];
     }
 }
 
+/**
+ * @brief Calculate pressure and compressibility factor
+ * 
+ * Calculate pressure as a function of temperature and density.
+ * The derivative d(P)/d(D) is also calculated for use in the iterative DensityGERG routine.
+ * 
+ * @param T Temperature (K)
+ * @param D Density (mol/l)
+ * @param x Composition (mole fraction)
+ *         Do not send mole percents or mass fractions,
+ *         otherwise the output will be incorrect.
+ *         The sum of compositions must equal one.
+ * @param[out] P Pressure (kPa)
+ * @param[out] Z Compressibility factor
+ * @note dPdDsave d(P)/d(D) [kPa/(mol/l)] is cached for density solver
+ */
 void PressureGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z)
 {
-    // Sub PressureGERG(T, D, x, P, Z)
-
-    // Calculate pressure as a function of temperature and density.  The derivative d(P)/d(D) is also calculated
-    // for use in the iterative DensityGERG subroutine (and is only returned as a common variable).
-
-    // Inputs:
-    //      T - Temperature (K)
-    //      D - Density (mol/l)
-    //    x() - Composition (mole fraction)
-    //          Do not send mole percents or mass fractions in the x() array, otherwise the output will be incorrect.
-    //          The sum of the compositions in the x() array must be equal to one.
-
-    // Outputs:
-    //      P - Pressure (kPa)
-    //      Z - Compressibility factor
-    // dPdDsave - d(P)/d(D) [kPa/(mol/l)] (at constant temperature)
-    //          - This variable is cached in the common variables for use in the iterative density solver, but not returned as an argument.
-
     double ar[4][4];
     AlpharGERG(0, 0, T, D,x,ar);
 
@@ -171,34 +221,28 @@ void PressureGERG(const double T, const double D, const std::vector<double> &x, 
     dPdDsave = RGERG * T * (1 + 2 * ar[0][1] + ar[0][2]);
 }
 
+/**
+ * @brief Calculate density from temperature and pressure
+ * 
+ * Iterative routine that calls PressureGERG to find the correct state point.
+ * Generally only 6 iterations at most are required.
+ * If iteration fails to converge, returns ideal gas density and error message.
+ * No phase boundary checks - user must identify phase of T,P inputs.
+ * For 2-phase states, output density represents metastable state.
+ *
+ * @param iFlag Solution mode:
+ *        - 0: Strict pressure solver (gas phase, no checks, fastest)
+ *        - 1: Check possible 2-phase states
+ *        - 2: Search liquid phase (with 2-phase checks)
+ * @param T Temperature (K)
+ * @param P Pressure (kPa)
+ * @param x Composition array (mole fraction)
+ * @param[out] D Density (mol/l). Can provide initial guess as negative value
+ * @param[out] ierr Error code
+ * @param[out] herr Error message
+ */
 void DensityGERG(const int iFlag, const double T, const double P, const std::vector<double> &x, double &D, int &ierr, std::string &herr)
 {
-    // Sub DensityGERG(iFlag, T, P, x, D, ierr, herr)
-
-    // Calculate density as a function of temperature and pressure.  This is an iterative routine that calls PressureGERG
-    // to find the correct state point.  Generally only 6 iterations at most are required.
-    // If the iteration fails to converge, the ideal gas density and an error message are returned.
-    // No checks are made to determine the phase boundary, which would have guaranteed that the output is in the gas phase (or liquid phase when iFlag=2).
-    // It is up to the user to locate the phase boundary, and thus identify the phase of the T and P inputs.
-    // If the state point is 2-phase, the output density will represent a metastable state.
-
-    // Inputs:
-    //  iFlag - Set to 0 for strict pressure solver in the gas phase without checks (fastest mode, but output state may not be stable single phase)
-    //          Set to 1 to make checks for possible 2-phase states (result may still not be stable single phase, but many unstable states will be identified)
-    //          Set to 2 to search for liquid phase (and make the same checks when iFlag=1)
-    //      T - Temperature (K)
-    //      P - Pressure (kPa)
-    //    x() - Composition (mole fraction)
-    // (An initial guess for the density can be sent in D as the negative of the guess for roots that are in the liquid phase instead of using iFlag=2)
-
-    // Outputs:
-    //      D - Density (mol/l)
-    //          For the liquid phase, an initial value can be sent to the routine to avoid
-    //          a solution in the metastable or gas phases.
-    //          The initial value should be sent as a negative number.
-    //   ierr - Error number (0 indicates no error)
-    //   herr - Error message if ierr is not equal to zero
-
     int nFail, iFail;
     double plog, vlog, P2, Z, dpdlv, vdiff, tolr, vinc;
     double Tcx, Dcx;
@@ -293,37 +337,34 @@ void DensityGERG(const int iFlag, const double T, const double P, const std::vec
     D = P / RGERG / T;
 }
 
+/**
+ * @brief Calculate thermodynamic properties as a function of temperature and density
+ * 
+ * Calls are made to the subroutines ReducingParametersGERG, IdealGERG, and ResidualGERG.
+ * If the density is not known, call subroutine DENSITY first with the known values of pressure and temperature.
+ * 
+ * @param T Temperature (K)
+ * @param D Density (mol/l)
+ * @param x Composition (mole fraction)
+ * @param[out] P Pressure (kPa)
+ * @param[out] Z Compressibility factor
+ * @param[out] dPdD First derivative of pressure with respect to density at constant temperature [kPa/(mol/l)]
+ * @param[out] d2PdD2 Second derivative of pressure with respect to density at constant temperature [kPa/(mol/l)^2]
+ * @param[out] d2PdTD Second derivative of pressure with respect to temperature and density [kPa/(mol/l)/K]
+ * @param[out] dPdT First derivative of pressure with respect to temperature at constant density (kPa/K)
+ * @param[out] U Internal energy (J/mol)
+ * @param[out] H Enthalpy (J/mol)
+ * @param[out] S Entropy [J/(mol-K)]
+ * @param[out] Cv Isochoric heat capacity [J/(mol-K)]
+ * @param[out] Cp Isobaric heat capacity [J/(mol-K)]
+ * @param[out] W Speed of sound (m/s)
+ * @param[out] G Gibbs energy (J/mol)
+ * @param[out] JT Joule-Thomson coefficient (K/kPa)
+ * @param[out] Kappa Isentropic Exponent
+ * @param[out] A Helmholtz energy (J/mol)
+ */
 void PropertiesGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa, double &A)
 {
-    // Sub PropertiesGERG(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A)
-
-    // Calculate thermodynamic properties as a function of temperature and density.  Calls are made to the subroutines
-    // ReducingParametersGERG, IdealGERG, and ResidualGERG.  If the density is not known, call subroutine DENSITY first
-    // with the known values of pressure and temperature.
-
-    // Inputs:
-    //      T - Temperature (K)
-    //      D - Density (mol/l)
-    //    x() - Composition (mole fraction)
-
-    // Outputs:
-    //      P - Pressure (kPa)
-    //      Z - Compressibility factor
-    //   dPdD - First derivative of pressure with respect to density at constant temperature [kPa/(mol/l)]
-    // d2PdD2 - Second derivative of pressure with respect to density at constant temperature [kPa/(mol/l)^2]
-    // d2PdTD - Second derivative of pressure with respect to temperature and density [kPa/(mol/l)/K]
-    //   dPdT - First derivative of pressure with respect to temperature at constant density (kPa/K)
-    //      U - Internal energy (J/mol)
-    //      H - Enthalpy (J/mol)
-    //      S - Entropy [J/(mol-K)]
-    //     Cv - Isochoric heat capacity [J/(mol-K)]
-    //     Cp - Isobaric heat capacity [J/(mol-K)]
-    //      W - Speed of sound (m/s)
-    //      G - Gibbs energy (J/mol)
-    //     JT - Joule-Thomson coefficient (K/kPa)
-    //  Kappa - Isentropic Exponent
-    //      A - Helmholtz energy (J/mol)
-
     double a0[2+1], ar[3+1][3+1], Mm, R, RT;
 
     // Calculate molar mass
@@ -366,19 +407,28 @@ void PropertiesGERG(const double T, const double D, const std::vector<double> &x
 
 
 // The following routines are low-level routines that should not be called outside of this code.
+/**
+ * @brief Calculates reducing variables for temperature and density in GERG-2008 EOS
+ * 
+ * This function calculates the reducing variables for temperature and density
+ * according to the GERG-2008 equation of state. It only needs to be called
+ * when the composition has changed.
+ * 
+ * @param x Vector of composition (mole fraction)
+ * @param[out] Tr Reducing temperature [K]
+ * @param[out] Dr Reducing density [mol/l]
+ * 
+ * @details The function first checks if the composition has changed from the previous call.
+ * If not, it returns the previously calculated values. If the composition has changed,
+ * it calculates new reducing parameters using the GERG-2008 mixing rules.
+ * 
+ * @note The function uses global variables xold, Drold, Trold, Told, Trold2, epsilon,
+ * NcGERG, gvij, bvij, gtij, and btij.
+ * 
+ * @warning Input vector x must be sized appropriately (at least NcGERG+1 elements)
+ */
 static void ReducingParametersGERG(const std::vector<double> &x, double &Tr, double &Dr)
 {
-    // Private Sub ReducingParametersGERG(x, Tr, Dr)
-
-    // Calculate reducing variables.  Only need to call this if the composition has changed.
-
-    // Inputs:
-    //    x() - Composition (mole fraction)
-
-    // Outputs:
-    //     Tr - Reducing temperature (K)
-    //     Dr - Reducing density (mol/l)
-
   double Vr, xij, F;
   int icheck;
 
@@ -418,23 +468,19 @@ static void ReducingParametersGERG(const std::vector<double> &x, double &Tr, dou
   Trold = Tr;
 }
 
+/**
+ * @brief Calculate alpha0 - Ideal gas Helmholtz energy and derivatives
+ *
+ * @param T Temperature (K)
+ * @param D Density (mol/l) 
+ * @param x Composition (mole fraction)
+ * @param[out] a0 Dimensionless ideal gas Helmholtz energy and derivatives:
+ *               - a0[0]: Alpha0 Ideal gas Helmholtz energy (all dimensionless [i.e., divided by RT])
+ *               - a0[1]: tau*d(alpha0)/d(tau) 
+ *               - a0[2]: tau^2*d^2(alpha0)/d(tau)^2
+ */
 static void Alpha0GERG(const double T, const double D, const std::vector<double> &x, double a0[3])
 {
-    // Private Sub Alpha0GERG(T, D, x, a0)
-
-    // Calculate the ideal gas Helmholtz energy and its derivatives with respect to tau and delta.
-    // This routine is not needed when only P (or Z) is calculated.
-
-    // Inputs:
-    //      T - Temperature (K)
-    //      D - Density (mol/l)
-    //    x() - Composition (mole fraction)
-
-    // Outputs:
-    //  a0(0) - Ideal gas Helmholtz energy (all dimensionless [i.e., divided by RT])
-    //  a0(1) - tau*partial(a0)/partial(tau)
-    //  a0(2) - tau^2*partial^2(a0)/partial(tau)^2
-
   double LogT, LogD, LogHyp, th0T, LogxD;
   double SumHyp0, SumHyp1, SumHyp2;
   double em, ep, hcn, hsn;
@@ -476,28 +522,25 @@ static void Alpha0GERG(const double T, const double D, const std::vector<double>
   }
 }
 
+/**
+ * @brief Calculate alphar - Residual Helmholtz energy and derivatives
+ * 
+ * @param itau Calculate tau derivatives if 1
+ * @param idelta Currently unused, for future density derivative specs
+ * @param T Temperature (K)
+ * @param D Density (mol/l)
+ * @param x Composition (mole fraction)
+ * @param[out] ar Dimensionless residual Helmholtz derivatives:
+ *               - ar[0][0]: Residual Helmholtz energy (dimensionless, =a/RT)
+ *               - ar[0][1]: delta*d(ar)/d(delta)
+ *               - ar[0][2]: delta^2*d^2(ar)/d(delta)^2
+ *               - ar[0][3]: delta^3*d^3(ar)/d(delta)^3
+ *               - ar[1][0]: tau*d(ar)/d(tau)
+ *               - ar[1][1]: tau*delta*d^2(ar)/d(tau)/d(delta)
+ *               - ar[2][0]: tau^2*d^2(ar)/d(tau)^2
+ */
 static void AlpharGERG(const int itau, const int idelta, const double T, const double D, const std::vector<double> &x, double ar[4][4])
 {
-    // Private Sub AlpharGERG(itau, idelta, T, D, x, ar)
-
-    // Calculate dimensionless residual Helmholtz energy and its derivatives with respect to tau and delta.
-
-    // Inputs:
-    //   itau - Set this to 1 to calculate "ar" derivatives with respect to tau [i.e., ar(1,0), ar(1,1), and ar(2,0)], otherwise set it to 0.
-    // idelta - Currently not used, but kept as an input for future use in specifing the highest density derivative needed.
-    //      T - Temperature (K)
-    //      D - Density (mol/l)
-    //    x() - Composition (mole fraction)
-
-    // Outputs:
-    //  ar(0,0) - Residual Helmholtz energy (dimensionless, =a/RT)
-    //  ar(0,1) -     delta*partial  (ar)/partial(delta)
-    //  ar(0,2) -   delta^2*partial^2(ar)/partial(delta)^2
-    //  ar(0,3) -   delta^3*partial^3(ar)/partial(delta)^3
-    //  ar(1,0) -       tau*partial  (ar)/partial(tau)
-    //  ar(1,1) - tau*delta*partial^2(ar)/partial(tau)/partial(delta)
-    //  ar(2,0) -     tau^2*partial^2(ar)/partial(tau)^2
-
     int mn;
     double Tr, Dr, del, tau;
     double lntau, ex, ex2, ex3, cij0, eij0;
@@ -610,12 +653,31 @@ static void AlpharGERG(const int itau, const int idelta, const double T, const d
     }
 }
 
+/**
+ * @brief Calculates temperature dependent parts of the GERG-2008 equation of state
+ * 
+ * This function computes the temperature-dependent terms used in the GERG-2008 
+ * equation of state for natural gas mixtures. It handles both pure fluid and 
+ * mixture calculations.
+ *
+ * @param lntau The natural logarithm of the inverse reduced temperature (ln(Tc/T))
+ * @param x Vector of mole fractions for each component in the mixture
+ *
+ * @details
+ * The function calculates:
+ * - Temperature-dependent terms for pure fluids using propane as reference
+ * - Special handling for components 1-4, 15, 18, and 20
+ * - Binary interaction parameters for mixture calculations
+ * 
+ * The results are stored in global arrays:
+ * - taup[][] for pure fluid terms
+ * - taupijk[][] for mixture interaction terms
+ * 
+ * @note This is an internal helper function used in the GERG-2008 EOS calculations
+ * @note Components with mole fractions below epsilon are skipped for optimization
+ */
 static void tTermsGERG(const double lntau, const std::vector<double> &x)
 {
-    // Private Sub tTermsGERG(lntau, x)
-
-    // Calculate temperature dependent parts of the GERG-2008 equation of state
-
     int i, mn;
     double taup0[12+1];
 
@@ -654,7 +716,15 @@ static void tTermsGERG(const double lntau, const std::vector<double> &x)
     }
 }
 
-
+/**
+ * @brief Calculate pseudo-critical point
+ *
+ * Calculates mole fraction average of critical temperatures and volumes
+ *
+ * @param x Composition array (mole fraction)
+ * @param[out] Tcx Pseudo-critical temperature (K)
+ * @param[out] Dcx Pseudo-critical density (mol/l)
+ */
 static void PseudoCriticalPointGERG(const std::vector<double> &x, double &Tcx, double &Dcx)
 {
     // PseudoCriticalPointGERG(x, Tcx, Dcx)
@@ -672,7 +742,29 @@ static void PseudoCriticalPointGERG(const std::vector<double> &x, double &Tcx, d
     if (Vcx > epsilon){ Dcx = 1 / Vcx; }
 }
 
-// The following routine must be called once before any other routine.
+/**
+ * @brief Initializes all the constants and parameters in the GERG-2008 model.
+ * 
+ * This function sets up the GERG-2008 model by initializing various constants, 
+ * parameters, and coefficients used in the model. It includes the initialization 
+ * of molar masses, critical densities, critical temperatures, exponents, 
+ * coefficients for pure fluid equations, mixture parameters, and ideal gas parameters.
+ * 
+ * The function does not take any parameters and does not return any value.
+ * 
+ * The initialization includes:
+ * - Molar masses for different components.
+ * - Number of polynomial and exponential terms.
+ * - Critical densities and temperatures.
+ * - Exponents and coefficients in pure fluid equations.
+ * - Exponents and coefficients in mixture equations.
+ * - Generalized parameters for binary mixtures.
+ * - Ideal gas parameters.
+ * 
+ * The function also includes code to produce nearly exact values for n0(1) and n0(2), 
+ * which is not called in the current code but is included for reference.
+ * This routine must be called once before any other routine.
+ */
 void SetupGERG()
 {
   // Initialize all the constants and parameters in the GERG-2008 model.
