@@ -1,16 +1,17 @@
 var searchData=
 [
-  ['c_0',['C',['../structBmixResult.html#aa5fd08429d4c701474f500e922939643',1,'BmixResult']]],
-  ['c0_1',['c0',['../Gross_8cpp.html#a551f4167338c4bdf1e3c672d717d8387',1,'Gross.cpp']]],
-  ['c1_2',['c1',['../Gross_8cpp.html#a50c04abf4d8d551ed2bc1fc79a8f711e',1,'Gross.cpp']]],
-  ['c2_3',['c2',['../Gross_8cpp.html#a677b8fa6a606817e8087983862e45c5c',1,'Gross.cpp']]],
-  ['carbon_5fdioxide_4',['CARBON_DIOXIDE',['../bindings_8cpp.html#a3a6cb6dd008d4af0c3278059467af063acac6a58a1868e005781b5f99c6b4db2e',1,'bindings.cpp']]],
-  ['carbon_5fmonoxide_5',['CARBON_MONOXIDE',['../bindings_8cpp.html#a3a6cb6dd008d4af0c3278059467af063aeee4f9886f552f3815981a7daec927d2',1,'bindings.cpp']]],
-  ['cchx_6',['cCHx',['../Gross_8cpp.html#ad3272da6cc31e28dc66f2f7ffe1e47cc',1,'Gross.cpp']]],
-  ['cijk_7',['cijk',['../GERG2008_8cpp.html#a0576fd9f676357a77670a6e40ec6a8b7',1,'GERG2008.cpp']]],
-  ['coik_8',['coik',['../GERG2008_8cpp.html#a2d627249d83cadc740dc1731ad4a3f4e',1,'GERG2008.cpp']]],
-  ['cosh_9',['Cosh',['../GERG2008_8cpp.html#a8308c3707883f8b48c1357702ba74ac5',1,'GERG2008.cpp']]],
-  ['cp_10',['Cp',['../structPropertiesDetailResult.html#a75701bf1938af3702c48e2746cddb4e2',1,'PropertiesDetailResult::Cp'],['../structPropertiesGERGResult.html#ad16004889171026398dfbea18f139cf8',1,'PropertiesGERGResult::Cp']]],
-  ['csn_11',['Csn',['../Detail_8cpp.html#ae5de92646edc8318471c88c1d2944541',1,'Detail.cpp']]],
-  ['cv_12',['Cv',['../structPropertiesDetailResult.html#a906f517eef2608f59bb96f2304ebb8da',1,'PropertiesDetailResult::Cv'],['../structPropertiesGERGResult.html#a1c09d1e01520f067040dfe4c8168ba7c',1,'PropertiesGERGResult::Cv']]]
+  ['a_0',['A',['../structPropertiesGERGResult.html#a7d81ad1ec098ee903588bbe55505ad7c',1,'PropertiesGERGResult']]],
+  ['aga_208_20gross_20and_20detail_20equations_20of_20state_1',['AGA 8 , GROSS and DETAIL Equations of State',['../index.html',1,'']]],
+  ['aga8_20gerg_202008_20gross_20and_20detail_20gas_20properties_20calculator_2',['AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator',['../index.html#autotoc_md0',1,'']]],
+  ['alpha0detail_3',['Alpha0Detail',['../Detail_8cpp.html#a7dba815a096bfbba5ede040f58a6c08b',1,'Detail.cpp']]],
+  ['alpha0gerg_4',['Alpha0GERG',['../GERG2008_8cpp.html#ab9f48555601ddf740ea2ded63f3b019c',1,'GERG2008.cpp']]],
+  ['alphardetail_5',['AlpharDetail',['../Detail_8cpp.html#acbb2fd714d89a7819236f9df7ea9e38f',1,'Detail.cpp']]],
+  ['alphargerg_6',['AlpharGERG',['../GERG2008_8cpp.html#a3890061c7a9eb9af7418252e4e90ab1e',1,'GERG2008.cpp']]],
+  ['an_7',['an',['../Detail_8cpp.html#a1a983d3179b22ce77ef059ad0f0a8385',1,'Detail.cpp']]],
+  ['and_20detail_20equations_20of_20state_8',['AGA 8 , GROSS and DETAIL Equations of State',['../index.html',1,'']]],
+  ['and_20detail_20gas_20properties_20calculator_9',['AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator',['../index.html#autotoc_md0',1,'']]],
+  ['api_20documentation_10',['API Documentation',['../index.html#autotoc_md4',1,'']]],
+  ['argon_11',['ARGON',['../bindings_8cpp.html#a3a6cb6dd008d4af0c3278059467af063a93a6004eb5904bec7c3cc81edb4991e1',1,'bindings.cpp']]],
+  ['array_5fto_5fvector_12',['array_to_vector',['../bindings_8cpp.html#ac2d8b4312c262a4177196668b90e92c3',1,'bindings.cpp']]],
+  ['available_20methods_13',['Available Methods',['../index.html#autotoc_md6',1,'']]]
 ];

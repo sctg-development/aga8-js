@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['u_0',['U',['../structPropertiesDetailResult.html#af484ddeb81b0cb687ada55fe0dee3fe7',1,'PropertiesDetailResult::U'],['../structPropertiesGERGResult.html#ac4baddc1e7b584dbbfc7a0cb56705487',1,'PropertiesGERGResult::U']]],
-  ['uij5_1',['Uij5',['../Detail_8cpp.html#a32825cb80ff5cce2ed18940ebf3044f4',1,'Detail.cpp']]],
-  ['un_2',['un',['../Detail_8cpp.html#ab69c63bb78141316cc7a6991116a1508',1,'Detail.cpp']]]
+  ['rdetail_0',['RDetail',['../Detail_8cpp.html#a61db7f6d7e1ecc920f3bafa01e51e729',1,'Detail.cpp']]],
+  ['reducingparametersgerg_1',['ReducingParametersGERG',['../GERG2008_8cpp.html#a7569676b79f1f7ffb6075157d57ca878',1,'GERG2008.cpp']]],
+  ['rgerg_2',['RGERG',['../GERG2008_8cpp.html#a07ab1a0449a166f35a27d72e5db3248e',1,'GERG2008.cpp']]],
+  ['rgross_3',['RGross',['../Gross_8cpp.html#a36ad4d1da6094b88ad6ca877f9b6f88d',1,'Gross.cpp']]]
 ];

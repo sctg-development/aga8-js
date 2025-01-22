@@ -25,6 +25,7 @@
 var NAVTREE =
 [
   [ "AGA8 WebAssembly", "index.html", [
+    [ "AGA 8 , GROSS and DETAIL Equations of State", "index.html", "index" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -49,7 +50,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "Detail_8cpp.html",
-"structPressureGrossResult.html#a363513e3b49fb30ba60e5d063c5008a6"
+"structGrossMethod1Result.html#a80f2d6f65ef14065c5d274dbd1c19dbc"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';
