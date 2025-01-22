@@ -1,3 +1,33 @@
+/**
+ * @file bindings.cpp
+ * @brief Emscripten bindings for the AGA8 gas calculation library
+ * 
+ * This file provides WebAssembly bindings for the AGA8 gas calculation library,
+ * enabling its use in JavaScript environments. It implements three main calculation methods:
+ * - Detail method (high accuracy)
+ * - GERG-2008 method (reference equations)
+ * - Gross method (simplified calculations)
+ * 
+ * The gas composition is represented using a 21-component system where:
+ * - Index 1: Methane
+ * - Index 2: Nitrogen
+ * - Index 3: Carbon dioxide
+ * - Index 4-14: Various hydrocarbons (Ethane through n-Decane)
+ * - Index 15-21: Other components (Hydrogen, Oxygen, CO, Water, H2S, Helium, Argon)
+ * 
+ * @note All compositions must be provided as mole fractions (not percentages)
+ * @note Temperature inputs are in Kelvin
+ * @note Pressure inputs are in kPa
+ * @note Density inputs are in mol/l (mol/dm³)
+ * 
+ * Example mixture (94% methane, 5% CO2, 1% helium):
+ * gazMixtureInMolePercent(1) = 0.94  // Methane
+ * gazMixtureInMolePercent(3) = 0.05  // CO2
+ * gazMixtureInMolePercent(20) = 0.01 // Helium
+ * 
+ * @copyright (C) 2025 Ronan LE MEILLAT
+ * @license GNU Affero General Public License v3.0
+ */
 /*
  * Copyright (C) 2025 Ronan LE MEILLAT
  *
@@ -154,6 +184,16 @@ struct GrossMethod2Result
 };
 
 // Helper function to convert a JavaScript array to a C++ vector
+/**
+ * @brief Converts a JavaScript array to a C++ vector of doubles
+ * 
+ * @param js_array JavaScript array object passed as an emscripten::val
+ * @return std::vector<double> C++ vector containing the converted values
+ * 
+ * @details This function takes a JavaScript array passed through emscripten's val
+ * interface and converts it to a C++ std::vector<double>. Each element in the 
+ * JavaScript array is converted to a double value.
+ */
 std::vector<double> array_to_vector(const val &js_array)
 {
     auto length = js_array["length"].as<unsigned>();
@@ -166,6 +206,16 @@ std::vector<double> array_to_vector(const val &js_array)
 }
 
 // Helper function to convert a C++ vector to a JavaScript array
+/**
+ * @brief Converts a C++ vector of doubles to a JavaScript array
+ * 
+ * @param vec The input vector containing double values to convert
+ * @return val A JavaScript array containing the values from the input vector
+ * 
+ * This function takes a C++ vector of doubles and creates a new JavaScript array,
+ * copying each element from the vector to the corresponding index in the JavaScript array.
+ * The function is typically used for interoperability between C++ and JavaScript/WebAssembly.
+ */
 val vector_to_array(const std::vector<double> &vec)
 {
     val result = val::array();
@@ -177,6 +227,17 @@ val vector_to_array(const std::vector<double> &vec)
 }
 
 // Detail wrappers
+/**
+ * @brief Calculates the molar mass of a gas mixture given mole percentages
+ * 
+ * This function wraps the MolarMassDetail calculation for use with external bindings.
+ * It converts the input array to a vector before calculating the molar mass.
+ * 
+ * @param x_array Gas mixture composition in mole percentages
+ * @return double Molar mass of the gas mixture in kg/mol
+ * 
+ * @see MolarMassDetail For the underlying calculation implementation
+ */
 double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
@@ -185,6 +246,20 @@ double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
     return Mm;
 }
 
+/**
+ * @brief Wraps the PressureDetail function to calculate pressure and compressibility factor
+ * 
+ * @param T Temperature in Kelvin
+ * @param D Density in mol/l
+ * @param x_array Gas mixture composition in mole percent
+ * @return PressureResult Struct containing:
+ *         - P: Pressure in kPa
+ *         - Z: Compressibility factor (dimensionless)
+ * 
+ * This wrapper function converts the input array to a vector and handles the pressure
+ * calculation using PressureDetail, returning the results in a convenient struct.
+ * @see PressureDetail For the underlying calculation implementation
+ */
 PressureResult PressureDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
@@ -194,6 +269,20 @@ PressureResult PressureDetail_wrapper(double T, double D, gazMixtureInMolePercen
     return result;
 }
 
+/**
+ * @brief Calculates the density of a gas mixture given temperature, pressure and composition
+ * 
+ * This function wraps the DensityDetail calculation for easier interface handling.
+ * 
+ * @param T Temperature in K
+ * @param P Pressure in kPa
+ * @param x_array Gas mixture composition in mole percent
+ * @return DensityResult struct containing:
+ *         - D: Density in kg/m³
+ *         - ierr: Error code (0 = successful)
+ *         - herr: Error message
+ * @see DensityDetail For the underlying calculation implementation
+ */
 DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
@@ -207,6 +296,32 @@ DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent 
     return result;
 }
 
+
+/**
+ * @brief Wrapper function to calculate detailed thermodynamic properties of a gas mixture
+ * 
+ * @param T Temperature [K]
+ * @param D Density [mol/l]
+ * @param x_array Gas mixture composition in mole percent
+ * 
+ * @return PropertiesDetailResult struct containing:
+ *   - P: Pressure [kPa]
+ *   - Z: Compressibility factor [-]
+ *   - dPdD: Pressure derivative with respect to density [(kPa·l)/mol]
+ *   - d2PdD2: Second pressure derivative with respect to density [(kPa·l²)/mol²]
+ *   - d2PdTD: Mixed pressure derivative with respect to temperature and density [(kPa·l)/(mol·K)]
+ *   - dPdT: Pressure derivative with respect to temperature [kPa/K]
+ *   - U: Internal energy [J/mol]
+ *   - H: Enthalpy [J/mol]
+ *   - S: Entropy [J/(mol·K)]
+ *   - Cv: Isochoric heat capacity [J/(mol·K)]
+ *   - Cp: Isobaric heat capacity [J/(mol·K)]
+ *   - W: Speed of sound [m/s]
+ *   - G: Gibbs energy [J/mol]
+ *   - JT: Joule-Thomson coefficient [K/kPa]
+ *   - Kappa: Isentropic exponent [-]
+ * @see PropertiesDetail For the underlying calculation implementation
+ */
 PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
@@ -230,6 +345,8 @@ PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureIn
  * 
  * This function serves as a wrapper for the MolarMassGERG calculation.
  * It converts the input array to a vector format before performing the calculation.
+ * 
+ * @see MolarMassGERG For the underlying calculation implementation
  */
 double MolarMassGERG_wrapper(gazMixtureInMolePercent x_array)
 {
@@ -251,6 +368,8 @@ double MolarMassGERG_wrapper(gazMixtureInMolePercent x_array)
  *
  * This function is a wrapper around the PressureGERG function that handles
  * the conversion between array and vector representations of the gas mixture composition.
+ * 
+ * @see PressureGERG For the underlying calculation implementation
  */
 PressureResult PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
@@ -273,6 +392,8 @@ PressureResult PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent 
  *         - D: Density [kg/m³]
  *         - ierr: Error flag (0: successful, non-zero: error occurred)
  *         - herr: Error message string
+ * 
+ * @see DensityGERG For the underlying calculation implementation
  */
 DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMolePercent x_array)
 {
@@ -311,6 +432,8 @@ DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMol
  *   - JT: Joule-Thomson coefficient [K/kPa]
  *   - Kappa: Isentropic exponent [-]
  *   - A: Helmholtz energy [J/kg]
+ * 
+ * @see PropertiesGERG For the underlying calculation implementation
  */
 PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
@@ -334,6 +457,8 @@ PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMole
  * 
  * @param x_array Gas mixture composition in mole percent
  * @return double Gross molar mass of the mixture in g/mol
+ * 
+ * @see MolarMassGross For the underlying calculation implementation
  */
 double MolarMassGross_wrapper(gazMixtureInMolePercent x_array)
 {
@@ -359,6 +484,8 @@ double MolarMassGross_wrapper(gazMixtureInMolePercent x_array)
  *         - Z: Compressibility factor
  *         - ierr: Error code (0 = success)
  *         - herr: Error message
+ * 
+ * @see PressureGross For the underlying calculation implementation
  */
 PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_array, double HCH)
 {
@@ -387,6 +514,7 @@ PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_arr
  *         - ierr: Error code (0 = successful)
  *         - herr: Error message string
  * 
+ * @see DensityGross For the underlying calculation implementation
  * @note This is a wrapper function that converts the input array to a vector before calling the main DensityGross function
  */
 DensityResult DensityGross_wrapper(double T, double P, xGrsArray xGrs_array, double HCH)
@@ -414,6 +542,8 @@ DensityResult DensityGross_wrapper(double T, double P, xGrsArray xGrs_array, dou
  * This function serves as a wrapper around the GrossHv calculation, converting
  * between array and vector data structures while maintaining the computational
  * logic of the original GERG-2008 implementation.
+ * 
+ * @see GrossHv For the underlying calculation implementation
  */
 GrossHvResult GrossHv_wrapper(gazMixtureInMolePercent x_array)
 {
@@ -441,6 +571,7 @@ GrossHvResult GrossHv_wrapper(gazMixtureInMolePercent x_array)
  *         - HCH: Heating value (combustion conditions) [MJ/m³]
  *         - ierr: Error code (0 = success)
  *         - herr: Error message
+ * @see GrossInputs For the underlying calculation implementation
  */
 GrossInputsResult GrossInputs_wrapper(double T, double P, gazMixtureInMolePercent x_array)
 {
@@ -470,6 +601,8 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gazMixtureInMolePercen
  * 
  * This function serves as a wrapper for the Bmix calculation, converting array inputs
  * to the required vector format and returning results in a structured format.
+ * 
+ * @see Bmix For the underlying calculation implementation
  */
 BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
 {
@@ -501,6 +634,8 @@ BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
  *         - HN (Heat value normalized)
  *         - ierr (Error code, 0 = success)
  *         - herr (Error message string)
+ * 
+ * @see GrossMethod1 For the underlying calculation implementation
  */
 GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr, double Hv)
 {
@@ -532,6 +667,8 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArr
  *         - HN: Number related to heating value
  *         - ierr: Error code (0 = success)
  *         - herr: Error message string
+ * 
+ * @see GrossMethod2 For the underlying calculation implementation
  */
 GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr)
 {
