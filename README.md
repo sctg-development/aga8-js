@@ -85,7 +85,7 @@ The sum of all components must be equal to 1.
 - `MolarMassDetail()`, `MolarMassGERG()`, `MolarMassGross()`: Calculate molar mass
 - `DensityDetail()`, `DensityGERG()`, `DensityGross()`: Calculate density
 - `PropertiesDetail()`, `PropertiesGERG()`: Calculate thermodynamic properties
-- Others see <https://pages.nist.gov/AGA8/>
+- Others see [Detail.h](https://sctg-development.github.io/aga8-js/Detail_8h.html), [GERG_2008.h](https://sctg-development.github.io/aga8-js/GERG2008_8h.html), [Gross.h](https://sctg-development.github.io/aga8-js/Gross_8h.html)
 
 ## Development
 
