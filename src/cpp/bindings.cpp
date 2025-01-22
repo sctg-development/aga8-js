@@ -1,4 +1,7 @@
 /**
+ *  * \mainpage AGA 8 , GROSS and DETAIL Equations of State
+ * This is the introduction.
+ * @includedoc README.md
  * @file bindings.cpp
  * @brief Emscripten bindings for the AGA8 gas calculation library
  * 
