@@ -172,6 +172,20 @@
                                     placeholder="0" class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
                             </td>
                         </tr>
+                        <tr>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="helium"
+                                    class="block text-xs font-medium text-gray-700">Helium in %</label></td>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
+                                    v-model="heliumConcentration" type="number" id="helium" placeholder="0"
+                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="argon"
+                                    class="block text-xs font-medium text-gray-700">Argon in %</label></td>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
+                                    v-model="argonConcentration" type="number" id="argon" placeholder="0"
+                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -280,7 +294,7 @@ import { onMounted, ref } from 'vue';
 const moduleLoaded = ref(false);
 
 const methaneConcentration = ref(0);
-const nitrogenConcentration = ref(100);
+const nitrogenConcentration = ref(78.08);
 const carbonDioxideConcentration = ref(0);
 const ethaneConcentration = ref(0);
 const propaneConcentration = ref(0);
@@ -294,12 +308,12 @@ const nOctaneConcentration = ref(0);
 const nNonaneConcentration = ref(0);
 const nDecaneConcentration = ref(0);
 const hydrogenConcentration = ref(0);
-const oxygenConcentration = ref(0);
+const oxygenConcentration = ref(20.95);
 const carbonMonoxideConcentration = ref(0);
-const waterConcentration = ref(0);
+const waterConcentration = ref(0.04);
 const hydrogenSulfideConcentration = ref(0);
 const heliumConcentration = ref(0);
-const argonConcentration = ref(0);
+const argonConcentration = ref(0.93);
 
 const T = ref(273.15 + 20); // °K
 const P = ref(101.325);     // kPa
@@ -429,6 +443,6 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
     if (concentration !== 1) {
         console.error(`Total concentration is not 100%: ${concentration * 100}%`);
     }
-    return concentration === 1;
+    return ((1-concentration) <= 1e-12);
 }
 </script>
