@@ -495,6 +495,10 @@ onMounted(() => {
     })
 })
 
+/**
+ * Get the MathML representation of a LaTeX string
+ * @param latex - LaTeX string
+ */
 function getMathMLFromLatex(latex: string): string {
     return Temml.renderToString(latex);
 }
