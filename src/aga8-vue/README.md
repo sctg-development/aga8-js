@@ -3,7 +3,8 @@
 This project is a Vue.js website that demonstrates the DETAIL computation using the main WebAssembly binding of the AGA8 code.
 
 A working demo is available at [Lasersmart AGA8](https://aga8.lasersmart.work/) all computations are done in the browser.
-[<img width="1164" alt="image" src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" />](https://aga8.lasersmart.work/)  
+[<img width="821" alt="image" src="https://github.com/user-attachments/assets/148f537c-e6ca-43c7-8b41-c50f770c64e8" />
+](https://aga8.lasersmart.work/)  
 
 Source code is available at [sctg-development/aga8-js/src/aga8-vue](https://github.com/sctg-development/aga8-js/tree/main/src/aga8-vue)
 
