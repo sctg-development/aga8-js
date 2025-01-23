@@ -266,7 +266,7 @@
                     <tbody class="divide-y divide-gray-200">
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Molar mass in g/mol
+                                Molar mass in <span v-html="getMathMLFromLatex('\\frac{\\text{g}}{\\text{mol}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ mm }}
@@ -274,7 +274,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Density in mol/L
+                                Density in <span v-html="getMathMLFromLatex('\\frac{\\text{mol}}{\\text{L}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ density }}
@@ -282,7 +282,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                                Density [kg/m³]
+                                Density <span v-html="getMathMLFromLatex('\\frac{\\text{kg}}{\\text{m}^3}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ mm * density }}
@@ -290,7 +290,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Pressure in kPa
+                                Pressure in <span v-html="getMathMLFromLatex('\\text{kPa}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.P }}
@@ -306,9 +306,10 @@
                         </tr>
                         <tr>
                             <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                                <div
-                                    v-html="getMathMLFromLatex('\\text{First derivative of pressure with respect to density at constant temperature } \\frac{\\text{kPa}}{\\text{mol}.\\text{L}^{-1}}')">
-                                </div>
+                                First derivative of pressure with respect to density at constant temperature
+                                <span
+                                    v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{mol} \\cdot \\text{L}^{-1}}')">
+                                </span>
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.dPdD }}
@@ -316,27 +317,18 @@
                         </tr>
                         <tr>
                             <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                                <div
-                                    v-html="getMathMLFromLatex('\\text{Second derivative of pressure with respect to density at constant temperature }\\frac{\\text{kPa}}{(\\text{mol}/\\text{L})^2}')">
-                                </div>
+                                Second derivative of pressure with respect to density at constant temperature
+                                <span v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{(\\text{mol}/\\text{L})^2}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.d2PdD2 }}
                             </td>
                         </tr>
-                        <!-- <tr>
-              <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                Second derivative of
-                pressure with respect to temperature and density [kPa/(mol/l)/K]
-              </td>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.d2PdTD }}
-              </td>
-            </tr> -->
                         <tr>
                             <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                                 First derivative of
-                                pressure with respect to temperature at constant density (kPa/K)
+                                pressure with respect to temperature at constant density <span
+                                    v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{K}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.dPdT }}
@@ -344,7 +336,8 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Internal energy in J/mol
+                                Internal energy in <span
+                                    v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.U }}
@@ -352,7 +345,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Enthalpy in J/mol
+                                Enthalpy in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.H }}
@@ -360,7 +353,8 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Entropy in J/(mol-K)
+                                Entropy in <span
+                                    v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.S }}
@@ -369,7 +363,8 @@
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 Isochoric heat capacity in
-                                J/(mol-K)
+                                <span
+                                    v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.Cv }}
@@ -378,7 +373,8 @@
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 Isobaric heat capacity in
-                                J/(mol-K)
+                                <span
+                                    v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.Cp }}
@@ -386,7 +382,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Speed of sound in m/s
+                                Speed of sound in <span v-html="getMathMLFromLatex('\\frac{\\text{m}}{\\text{s}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.W }}
@@ -394,7 +390,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Gibbs energy in J/mol
+                                Gibbs energy in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.G }}
@@ -403,7 +399,7 @@
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 Joule-Thomson coefficient
-                                in K/kPa
+                                in <span v-html="getMathMLFromLatex('\\frac{\\text{K}}{\\text{kPa}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.JT }}
