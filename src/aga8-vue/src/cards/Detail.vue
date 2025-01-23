@@ -362,7 +362,8 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Isochoric heat capacity (Cv) in
+                                Isochoric heat capacity (<span
+                                v-html="getMathMLFromLatex('C_v')" />) in
                                 <span
                                     v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
@@ -372,7 +373,9 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Isobaric heat capacity (Cp) in
+                                Isobaric heat capacity (<span
+                                    v-html="getMathMLFromLatex('C_p')" />
+                            ) in
                                 <span
                                     v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
@@ -591,7 +594,7 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
 }
 </script>
 
-<style lang="postcss">
+<!-- <style lang="postcss">
 @import "tailwindcss";
 
 math,
@@ -604,4 +607,4 @@ mn {
     @apply font-medium text-gray-900;
     font-family: Arial, Helvetica, sans-serif;
 }
-</style>
+</style> -->
