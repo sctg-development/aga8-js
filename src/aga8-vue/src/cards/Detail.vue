@@ -33,7 +33,7 @@
         @click="computeDetail"
       >
         {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute' :
-          `Total must be 100%` }}
+          `Total must be 100% (${totalPercent}%)` }}
       </button>
     </div>
   </div>
@@ -611,6 +611,7 @@ const P = ref(101.325);     // kPa
 
 const mm = ref(0); // Molar mass in g/mol
 const density = ref(0);  // Density in mol/l
+const totalPercent = ref(100); // Total percentage
 
 /**
 [out]	P	Pressure in kPa
@@ -695,7 +696,7 @@ function getGasMixture(): gazMixtureInMolePercent {
  * 
  * @returns {void} - Results are logged to console
  */
-function computeDetail() {
+function computeDetail(): void {
   if (AGA8) {
     AGA8.SetupDetail();
     const gasMixture = getGasMixture();
@@ -731,9 +732,11 @@ function computeTotalConcentration(x: gazMixtureInMolePercent): number {
  */
 function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
   const concentration = computeTotalConcentration(x);
-  if (concentration !== 1) {
+  const delta = Math.abs(1 - concentration);
+  if (delta > 1e-12) {
     console.error(`Total concentration is not 100%: ${concentration * 100}%`);
   }
-  return ((1 - concentration) <= 1e-12);
+  totalPercent.value = concentration * 100;
+  return (delta <= 1e-12);
 }
 </script>
