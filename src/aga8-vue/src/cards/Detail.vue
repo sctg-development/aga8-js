@@ -1,16 +1,20 @@
 <template>
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8 items-center">
-        <div class="h-32 rounded-lg bg-gray-200">
-            <label for="temperature" class="block text-xs font-medium text-gray-700">Temperature in K</label>
-            <input v-model="T" type="number" id="temperature" placeholder="293.15"
-                class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
+        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+            <div>
+                <label for="temperature" class="block text-xs font-medium text-gray-700">Temperature in K</label>
+                <input v-model="T" type="number" id="temperature" placeholder="293.15"
+                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
+            </div>
         </div>
-        <div class="h-32 rounded-lg bg-gray-200">
-            <label for="pressure" class="block text-xs font-medium text-gray-700">Pressure in kPa</label>
-            <input v-model="P" type="number" id="pressure" placeholder="101.325"
-                class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
+        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+            <div>
+                <label for="pressure" class="block text-xs font-medium text-gray-700">Pressure in kPa</label>
+                <input v-model="P" type="number" id="pressure" placeholder="101.325"
+                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
+            </div>
         </div>
-        <div class="h-32 rounded-lg bg-gray-200">
+        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
             <button :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-indigo-600'"
                 :disabled="!isTotalConcentrationValid(getGasMixture())"
                 class="inline-block rounded bg-indigo-600 px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
@@ -18,10 +22,10 @@
                     `Total must be 100%` }}</button>
         </div>
     </div>
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
-        <div class="h-32 rounded-lg bg-gray-200">
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+    <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
+        <div class="rounded-lg bg-gray-200">
+            <div class="m-1 overflow-x-auto ">
+                <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
                     <thead class="ltr:text-left rtl:text-right">
                         <tr>
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Gas mixture composition
@@ -173,9 +177,9 @@
             </div>
 
         </div>
-        <div class="h-32 rounded-lg bg-gray-200">
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+        <div class="rounded-lg bg-gray-200">
+            <div class="m-1 overflow-x-auto">
+                <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
                     <thead class="ltr:text-left rtl:text-right">
                         <tr>
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Property</th>
@@ -201,24 +205,24 @@
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.Z }}</td>
                         </tr>
                         <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">First derivative of
+                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">First derivative of
                                 pressure with respect to density at constant temperature [kPa/(mol/l)]</td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.dPdD }}</td>
                         </tr>
                         <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Second derivative of
+                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">Second derivative of
                                 pressure with respect to density at constant temperature [kPa/(mol/l)^2]</td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.d2PdD2 }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Second derivative of
+                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">Second derivative of
                                 pressure with respect to temperature and density [kPa/(mol/l)/K]</td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.d2PdTD }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">First derivative of
+                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">First derivative of
                                 pressure with respect to temperature at constant density (kPa/K)</td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.dPdT }}</td>
                         </tr>

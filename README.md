@@ -15,6 +15,10 @@ WebAssembly bindings for [AGA8](https://github.com/usnistgov/AGA8) gas propertie
 - 🔍 TypeScript type definitions included
 - 📄 [Full documentation available](https://sctg-development.github.io/aga8-js/Detail_8h.html)
 
+## Demo
+
+A working demo is available at [Lasersmart AGA8](https://aga8.lasersmart.work/) all computations are done in the browser.
+
 ## Installation
 
 ```bash
