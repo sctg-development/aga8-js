@@ -44,4 +44,4 @@ This demo allows users to input gas composition and other parameters to compute 
 
 ## License
 
-This project is licensed under the Affero General Public License v3.0. See the [LICENSE](../LICENSE.md) file for details.
+This project is licensed under the Affero General Public License v3.0. See the [LICENSE](../../LICENSE.md) file for details.
