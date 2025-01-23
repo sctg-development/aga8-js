@@ -18,6 +18,8 @@ WebAssembly bindings for [AGA8](https://github.com/usnistgov/AGA8) gas propertie
 ## Demo
 
 A working demo is available at [Lasersmart AGA8](https://aga8.lasersmart.work/) all computations are done in the browser.
+[<img width="1164" alt="image" src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" />](https://aga8.lasersmart.work/)
+
 
 ## Installation
 
