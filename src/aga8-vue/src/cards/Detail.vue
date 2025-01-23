@@ -290,7 +290,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Pressure in <span v-html="getMathMLFromLatex('\\text{kPa}')" />
+                                Pressure (P) in <span v-html="getMathMLFromLatex('\\text{kPa}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.P }}
@@ -298,7 +298,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Compressibility factor
+                                Compressibility factor (Z)
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.Z }}
@@ -345,7 +345,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Enthalpy in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
+                                Enthalpy (H) in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.H }}
@@ -353,7 +353,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Entropy in <span
+                                Entropy (S) in <span
                                     v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
@@ -362,7 +362,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Isochoric heat capacity in
+                                Isochoric heat capacity (Cv) in
                                 <span
                                     v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
@@ -372,7 +372,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Isobaric heat capacity in
+                                Isobaric heat capacity (Cp) in
                                 <span
                                     v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
                             </td>
@@ -398,7 +398,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Joule-Thomson coefficient
+                                Joule-Thomson coefficient (<span v-html="getMathMLFromLatex('\\mu_{JT}')" />)
                                 in <span v-html="getMathMLFromLatex('\\frac{\\text{K}}{\\text{kPa}}')" />
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
@@ -407,7 +407,7 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Isentropic Exponent
+                                Isentropic Exponent (<span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />)
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 {{ properties.Kappa }}
