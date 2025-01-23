@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [vue()],
   optimizeDeps: {
     exclude: ['@sctg/aga8-js']
-  }
+  },
 })

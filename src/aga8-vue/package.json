@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@sctg/aga8-js": "^1.0.1",
+    "temml": "^0.10.32",
     "vue": "^3.5.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
     "@tailwindcss/postcss": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
@@ -25,6 +27,7 @@
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^15.14.0",
     "postcss": "^8.5.1",
+    "sass-embedded": "^1.83.4",
     "tailwindcss": "^4.0.0",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.21.0",
