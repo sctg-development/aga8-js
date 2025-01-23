@@ -15,9 +15,9 @@
             </div>
         </div>
         <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-            <button :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-indigo-600'"
+            <button :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
                 :disabled="!isTotalConcentrationValid(getGasMixture())"
-                class="inline-block rounded bg-indigo-600 px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
+                class="inline-block rounded px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
                 v-if="moduleLoaded" @click="computeDetail">{{ isTotalConcentrationValid(getGasMixture()) ? 'Compute' :
                     `Total must be 100%` }}</button>
         </div>
