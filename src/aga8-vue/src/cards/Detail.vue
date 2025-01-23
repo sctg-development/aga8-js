@@ -1,291 +1,582 @@
 <template>
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
-        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-            <div>
-                <label for="temperature" class="block text-xs font-medium text-gray-700">Temperature in K</label>
-                <input v-model="T" type="number" id="temperature" placeholder="293.15"
-                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
-            </div>
-        </div>
-        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-            <div>
-                <label for="pressure" class="block text-xs font-medium text-gray-700">Pressure in kPa</label>
-                <input v-model="P" type="number" id="pressure" placeholder="101.325"
-                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
-            </div>
-        </div>
-        <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-            <button :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
-                :disabled="!isTotalConcentrationValid(getGasMixture())"
-                class="inline-block rounded px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
-                v-if="moduleLoaded" @click="computeDetail">{{ isTotalConcentrationValid(getGasMixture()) ? 'Compute' :
-                    `Total must be 100%` }}</button>
-        </div>
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
+    <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+      <div>
+        <label for="temperature" class="block text-xs font-medium text-gray-700">Temperature in K</label>
+        <input
+          id="temperature"
+          v-model="T"
+          type="number"
+          placeholder="293.15"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
+      </div>
     </div>
-    <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
-        <div class="rounded-lg bg-gray-200">
-            <div class="m-1 overflow-x-auto ">
-                <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                    <thead class="ltr:text-left rtl:text-right">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Gas mixture composition
-                            </th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Concentration</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="methane"
-                                    class="block text-xs font-medium text-gray-700">Methane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="methaneConcentration" type="number" id="methane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nitrogen"
-                                    class="block text-xs font-medium text-gray-700">Nitrogen in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nitrogenConcentration" type="number" id="nitrogen" placeholder="1"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="carbonDioxide"
-                                    class="block text-xs font-medium text-gray-700">Carbon Dioxide in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="carbonDioxideConcentration" type="number" id="carbonDioxide"
-                                    placeholder="0" class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="ethane"
-                                    class="block text-xs font-medium text-gray-700">Ethane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="ethaneConcentration" type="number" id="ethane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="propane"
-                                    class="block text-xs font-medium text-gray-700">Propane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="propaneConcentration" type="number" id="propane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="isobutane"
-                                    class="block text-xs font-medium text-gray-700">Isobutane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="isobutaneConcentration" type="number" id="isobutane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nButane"
-                                    class="block text-xs font-medium text-gray-700">n-Butane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nButaneConcentration" type="number" id="nButane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="isopentane"
-                                    class="block text-xs font-medium text-gray-700">Isopentane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="isopentaneConcentration" type="number" id="isopentane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nPentane"
-                                    class="block text-xs font-medium text-gray-700">n-Pentane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nPentaneConcentration" type="number" id="nPentane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nHexane"
-                                    class="block text-xs font-medium text-gray-700">n-Hexane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nHexaneConcentration" type="number" id="nHexane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nHeptane"
-                                    class="block text-xs font-medium text-gray-700">n-Heptane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nHeptaneConcentration" type="number" id="nHeptane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nOctane"
-                                    class="block text-xs font-medium text-gray-700">n-Octane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nOctaneConcentration" type="number" id="nOctane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nNonane"
-                                    class="block text-xs font-medium text-gray-700">n-Nonane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nNonaneConcentration" type="number" id="nNonane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="nDecane"
-                                    class="block text-xs font-medium text-gray-700">n-Decane in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="nDecaneConcentration" type="number" id="nDecane" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="hydrogen"
-                                    class="block text-xs font-medium text-gray-700">Hydrogen in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="hydrogenConcentration" type="number" id="hydrogen" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="oxygen"
-                                    class="block text-xs font-medium text-gray-700">Oxygen in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="oxygenConcentration" type="number" id="oxygen" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label
-                                    for="carbonMonoxide" class="block text-xs font-medium text-gray-700">Carbon Monoxide
-                                    in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="carbonMonoxideConcentration" type="number" id="carbonMonoxide"
-                                    placeholder="0" class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="water"
-                                    class="block text-xs font-medium text-gray-700">Water in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="waterConcentration" type="number" id="water" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label
-                                    for="hydrogenSulfide" class="block text-xs font-medium text-gray-700">Hydrogen
-                                    Sulfide in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="hydrogenSulfideConcentration" type="number" id="hydrogenSulfide"
-                                    placeholder="0" class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="helium"
-                                    class="block text-xs font-medium text-gray-700">Helium in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="heliumConcentration" type="number" id="helium" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><label for="argon"
-                                    class="block text-xs font-medium text-gray-700">Argon in %</label></td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"><input
-                                    v-model="argonConcentration" type="number" id="argon" placeholder="0"
-                                    class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm" /></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-        <div class="rounded-lg bg-gray-200">
-            <div class="m-1 overflow-x-auto">
-                <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                    <thead class="ltr:text-left rtl:text-right">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Property</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Value</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Molar mass in g/mol</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ mm }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Density in mol/l</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ density }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Pressure in kPa</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.P }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Compressibility factor
-                            </td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.Z }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">First derivative of
-                                pressure with respect to density at constant temperature [kPa/(mol/l)]</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.dPdD }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">Second derivative of
-                                pressure with respect to density at constant temperature [kPa/(mol/l)^2]</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.d2PdD2 }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">Second derivative of
-                                pressure with respect to temperature and density [kPa/(mol/l)/K]</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.d2PdTD }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">First derivative of
-                                pressure with respect to temperature at constant density (kPa/K)</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.dPdT }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Internal energy in J/mol
-                            </td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.U }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Enthalpy in J/mol</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.H }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Entropy in J/(mol-K)</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.S }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Isochoric heat capacity in
-                                J/(mol-K)</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.Cv }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Isobaric heat capacity in
-                                J/(mol-K)</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.Cp }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Speed of sound in m/s</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.W }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Gibbs energy in J/mol</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.G }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Joule-Thomson coefficient
-                                in K/kPa</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.JT }}</td>
-                        </tr>
-                        <tr>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Isentropic Exponent</td>
-                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ properties.Kappa }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+      <div>
+        <label for="pressure" class="block text-xs font-medium text-gray-700">Pressure in kPa</label>
+        <input
+          id="pressure"
+          v-model="P"
+          type="number"
+          placeholder="101.325"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
+      </div>
     </div>
+    <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+      <button
+        v-if="moduleLoaded"
+        :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
+        :disabled="!isTotalConcentrationValid(getGasMixture())"
+        class="inline-block rounded px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
+        @click="computeDetail"
+      >
+        {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute' :
+          `Total must be 100%` }}
+      </button>
+    </div>
+  </div>
+  <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
+    <div class="rounded-lg bg-gray-200">
+      <div class="m-1 overflow-x-auto ">
+        <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+          <thead class="ltr:text-left rtl:text-right">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Gas mixture composition
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Concentration
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="methane"
+                  class="block text-xs font-medium text-gray-700"
+                >Methane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="methane"
+                  v-model="methaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nitrogen"
+                  class="block text-xs font-medium text-gray-700"
+                >Nitrogen in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nitrogen"
+                  v-model="nitrogenConcentration"
+                  type="number"
+                  placeholder="1"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="carbonDioxide"
+                  class="block text-xs font-medium text-gray-700"
+                >Carbon Dioxide in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="carbonDioxide"
+                  v-model="carbonDioxideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="ethane"
+                  class="block text-xs font-medium text-gray-700"
+                >Ethane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="ethane"
+                  v-model="ethaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="propane"
+                  class="block text-xs font-medium text-gray-700"
+                >Propane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="propane"
+                  v-model="propaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="isobutane"
+                  class="block text-xs font-medium text-gray-700"
+                >Isobutane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="isobutane"
+                  v-model="isobutaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nButane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Butane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nButane"
+                  v-model="nButaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="isopentane"
+                  class="block text-xs font-medium text-gray-700"
+                >Isopentane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="isopentane"
+                  v-model="isopentaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nPentane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Pentane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nPentane"
+                  v-model="nPentaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nHexane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Hexane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nHexane"
+                  v-model="nHexaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nHeptane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Heptane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nHeptane"
+                  v-model="nHeptaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nOctane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Octane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nOctane"
+                  v-model="nOctaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nNonane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Nonane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nNonane"
+                  v-model="nNonaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="nDecane"
+                  class="block text-xs font-medium text-gray-700"
+                >n-Decane in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="nDecane"
+                  v-model="nDecaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="hydrogen"
+                  class="block text-xs font-medium text-gray-700"
+                >Hydrogen in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="hydrogen"
+                  v-model="hydrogenConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="oxygen"
+                  class="block text-xs font-medium text-gray-700"
+                >Oxygen in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="oxygen"
+                  v-model="oxygenConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="carbonMonoxide"
+                  class="block text-xs font-medium text-gray-700"
+                >Carbon Monoxide
+                  in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="carbonMonoxide"
+                  v-model="carbonMonoxideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="water"
+                  class="block text-xs font-medium text-gray-700"
+                >Water in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="water"
+                  v-model="waterConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="hydrogenSulfide"
+                  class="block text-xs font-medium text-gray-700"
+                >Hydrogen
+                  Sulfide in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="hydrogenSulfide"
+                  v-model="hydrogenSulfideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="helium"
+                  class="block text-xs font-medium text-gray-700"
+                >Helium in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="helium"
+                  v-model="heliumConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <label
+                  for="argon"
+                  class="block text-xs font-medium text-gray-700"
+                >Argon in %</label>
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <input
+                  id="argon"
+                  v-model="argonConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="rounded-lg bg-gray-200">
+      <div class="m-1 overflow-x-auto">
+        <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+          <thead class="ltr:text-left rtl:text-right">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Property
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Value
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Molar mass in g/mol
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ mm }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Density in mol/l
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ density }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Pressure in kPa
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.P }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Compressibility factor
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.Z }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
+                First derivative of
+                pressure with respect to density at constant temperature [kPa/(mol/l)]
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.dPdD }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
+                Second derivative of
+                pressure with respect to density at constant temperature [kPa/(mol/l)^2]
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.d2PdD2 }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
+                Second derivative of
+                pressure with respect to temperature and density [kPa/(mol/l)/K]
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.d2PdTD }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
+                First derivative of
+                pressure with respect to temperature at constant density (kPa/K)
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.dPdT }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Internal energy in J/mol
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.U }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Enthalpy in J/mol
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.H }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Entropy in J/(mol-K)
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.S }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Isochoric heat capacity in
+                J/(mol-K)
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.Cv }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Isobaric heat capacity in
+                J/(mol-K)
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.Cp }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Speed of sound in m/s
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.W }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Gibbs energy in J/mol
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.G }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Joule-Thomson coefficient
+                in K/kPa
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.JT }}
+              </td>
+            </tr>
+            <tr>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Isentropic Exponent
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                {{ properties.Kappa }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult } from '@sctg/aga8-js'
@@ -350,11 +641,11 @@ let AGA8: MainModule | null = null;
  * @requires moduleLoaded - Reactive reference to the module load status
  */
 onMounted(() => {
-    AGA8wasm().then((AGA8module) => {
-        AGA8 = AGA8module;
-        moduleLoaded.value = true;
-        console.log("AGA8 module loaded");
-    })
+  AGA8wasm().then((AGA8module) => {
+    AGA8 = AGA8module;
+    moduleLoaded.value = true;
+    console.warn("AGA8 module loaded");
+  })
 })
 
 /**
@@ -363,29 +654,29 @@ onMounted(() => {
  * @returns {gazMixtureInMolePercent} - Array of gas mixture components in mole percent
  */
 function getGasMixture(): gazMixtureInMolePercent {
-    return [
-        0, //Placeholder for the total mole percent
-        methaneConcentration.value / 100,
-        nitrogenConcentration.value / 100,
-        carbonDioxideConcentration.value / 100,
-        ethaneConcentration.value / 100,
-        propaneConcentration.value / 100,
-        isobutaneConcentration.value / 100,
-        nButaneConcentration.value / 100,
-        isopentaneConcentration.value / 100,
-        nPentaneConcentration.value / 100,
-        nHexaneConcentration.value / 100,
-        nHeptaneConcentration.value / 100,
-        nOctaneConcentration.value / 100,
-        nNonaneConcentration.value / 100,
-        nDecaneConcentration.value / 100,
-        hydrogenConcentration.value / 100,
-        oxygenConcentration.value / 100,
-        carbonMonoxideConcentration.value / 100,
-        waterConcentration.value / 100,
-        hydrogenSulfideConcentration.value / 100,
-        heliumConcentration.value / 100,
-        argonConcentration.value / 100];
+  return [
+    0, //Placeholder for the total mole percent
+    methaneConcentration.value / 100,
+    nitrogenConcentration.value / 100,
+    carbonDioxideConcentration.value / 100,
+    ethaneConcentration.value / 100,
+    propaneConcentration.value / 100,
+    isobutaneConcentration.value / 100,
+    nButaneConcentration.value / 100,
+    isopentaneConcentration.value / 100,
+    nPentaneConcentration.value / 100,
+    nHexaneConcentration.value / 100,
+    nHeptaneConcentration.value / 100,
+    nOctaneConcentration.value / 100,
+    nNonaneConcentration.value / 100,
+    nDecaneConcentration.value / 100,
+    hydrogenConcentration.value / 100,
+    oxygenConcentration.value / 100,
+    carbonMonoxideConcentration.value / 100,
+    waterConcentration.value / 100,
+    hydrogenSulfideConcentration.value / 100,
+    heliumConcentration.value / 100,
+    argonConcentration.value / 100];
 }
 
 /**
@@ -405,20 +696,20 @@ function getGasMixture(): gazMixtureInMolePercent {
  * @returns {void} - Results are logged to console
  */
 function computeDetail() {
-    if (AGA8) {
-        AGA8.SetupDetail();
-        const gasMixture = getGasMixture();
-        // Compute the molar mass
-        mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
-        console.log(`Molar mass: ${mm} g/mol`);
-        // Compute the density in mol/l
-        const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
-        density.value = D;
-        console.log(`Density: ${D} mol/l`);
-        properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
-    } else {
-        console.log("AGA8 module is not loaded");
-    }
+  if (AGA8) {
+    AGA8.SetupDetail();
+    const gasMixture = getGasMixture();
+    // Compute the molar mass
+    mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
+    console.warn(`Molar mass: ${mm.value} g/mol`);
+    // Compute the density in mol/l
+    const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
+    density.value = D;
+    console.warn(`Density: ${D} mol/l`);
+    properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
+  } else {
+    console.warn("AGA8 module is not loaded");
+  }
 }
 
 
@@ -429,7 +720,7 @@ function computeDetail() {
  * @returns {number} - Total concentration as sum of all components except first one
  */
 function computeTotalConcentration(x: gazMixtureInMolePercent): number {
-    return x.slice(1).reduce((a, b) => a + b, 0);
+  return x.slice(1).reduce((a, b) => a + b, 0);
 }
 
 /**
@@ -439,10 +730,10 @@ function computeTotalConcentration(x: gazMixtureInMolePercent): number {
  * @returns {boolean} - True if total concentration is 100%, false otherwise
  */
 function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
-    const concentration = computeTotalConcentration(x);
-    if (concentration !== 1) {
-        console.error(`Total concentration is not 100%: ${concentration * 100}%`);
-    }
-    return ((1-concentration) <= 1e-12);
+  const concentration = computeTotalConcentration(x);
+  if (concentration !== 1) {
+    console.error(`Total concentration is not 100%: ${concentration * 100}%`);
+  }
+  return ((1 - concentration) <= 1e-12);
 }
 </script>

@@ -9,25 +9,27 @@ Source code is available at [sctg-development/aga8-js/src/aga8-vue](https://gith
 
 ## Project setup
 
-```
+```bash
+git clone https://github.com/sctg-development/aga8-js.git
+cd aga8-js/src/aga8-vue
 npm install
 ```
 
 ### Compiles and hot-reloads for development
 
-```
+```bash
 npm run serve
 ```
 
 ### Compiles and minifies for production
 
-```
+```bash
 npm run build
 ```
 
 ### Lints and fixes files
 
-```
+```bash
 npm run lint
 ```
 
