@@ -10,7 +10,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.1",
+    "@sctg/aga8-js": "^1.0.2",
     "temml": "^0.10.32",
     "vue": "^3.5.13"
   },
