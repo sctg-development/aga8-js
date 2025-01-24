@@ -20,7 +20,7 @@ import AGA8wasm, {gazMixtureInMolePercent} from '../dist/index.js';
 describe('Detail', () => {
   const EPSILON = 1.0e-8;
   
-  // Valeurs de référence
+  // References values from Detail.cpp main() function
   const references = {
     mm: 20.54333051,
     D: 12.80792403648801,
@@ -29,7 +29,15 @@ describe('Detail', () => {
     dPdD: 6971.387690924090,
     d2PdD2: 1118.803636639520,
     dPdT: 235.6641493068212,
-    U: -2739.134175817231
+    U: -2739.134175817231,
+    H: 1164.699096269404,
+    S: -38.54882684677111,
+    Cv: 39.12076154430332,
+    Cp: 58.54617672380667,
+    W: 712.6393684057903,
+    G: 16584.22983497785,
+    JT: 7.432969304794577E-05,
+    Kappa: 2.672509225184606
   };
 
   test('Detail properties calculation', async () => {
@@ -44,21 +52,21 @@ describe('Detail', () => {
       0.004, 0.005, 0.002, 0.0001, 0.0025, 0.007, 0.001
     ];
 
-    // Paramètres d'entrée
+    // Pressure and temperature
     const T = 400;
     const P = 50000;
 
-    // Calcul de la masse molaire
+    // Compute molar mass
     const mm = AGA8.MolarMassDetail(x);
 
-    // Calcul de la densité
+    // Compute density
     const densityResult = AGA8.DensityDetail(T, P, x);
     const D = densityResult.D;
 
-    // Calcul des propriétés
+    // Compute properties
     const props = AGA8.PropertiesDetail(T, D, x);
 
-    // Vérifications
+    // Check results
     expect(Math.abs(references.mm - mm)).toBeLessThan(EPSILON);
     expect(Math.abs(references.D - D)).toBeLessThan(EPSILON);
     expect(Math.abs(references.P - props.P)).toBeLessThan(EPSILON);
@@ -67,5 +75,13 @@ describe('Detail', () => {
     expect(Math.abs(references.d2PdD2 - props.d2PdD2)).toBeLessThan(EPSILON);
     expect(Math.abs(references.dPdT - props.dPdT)).toBeLessThan(EPSILON);
     expect(Math.abs(references.U - props.U)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.H - props.H)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.S - props.S)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cv - props.Cv)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cp - props.Cp)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.W - props.W)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.G - props.G)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.JT - props.JT)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Kappa - props.Kappa)).toBeLessThan(EPSILON);
   });
 });

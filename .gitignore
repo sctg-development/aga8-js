@@ -10,3 +10,6 @@ dist/
 type_definition.d.ts
 .DS_Store
 docs/
+src/cpp/DetailTest
+CopyOfCMakeCache.txt
+src/cpp/GERG2008Test

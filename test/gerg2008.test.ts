@@ -19,17 +19,24 @@ import AGA8wasm, { gazMixtureInMolePercent, PropertiesGERGResult } from '../dist
 describe('GERG2008', () => {
   const EPSILON = 1.0e-8;
 
-  // Reference values
+  // Reference values from GERG2008.cpp main() function
   const references = {
     mm: 20.5427445016,
     D: 12.79828626082062,
     P: 50000.0,
     Z: 1.174690666383717,
     dPdD: 7000.694030193327,
-    d2PdD2: 1129.526655214841,
+    d2PdD2: 1129.526655214841, // Note that GERG2008.cpp has 1130.481239114938, 1129.526655214841 is the result from the C++ test
     dPdT: 235.9832292593096,
     U: -2746.492901212530,
-    H: 1160.280160510973
+    H: 1160.280160510973,
+    S: -38.57590392409089,
+    Cv: 39.02948218156372,
+    Cp: 58.45522051000366,
+    W: 714.4248840596024,
+    G: 16590.64173014733,
+    JT: 7.155629581480913E-05,
+    Kappa: 2.683820255058032
   };
 
   test('GERG2008 properties calculation', async () => {
@@ -64,5 +71,12 @@ describe('GERG2008', () => {
     expect(Math.abs(references.dPdT - props.dPdT)).toBeLessThan(EPSILON);
     expect(Math.abs(references.U - props.U)).toBeLessThan(EPSILON);
     expect(Math.abs(references.H - props.H)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.S - props.S)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cv - props.Cv)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cp - props.Cp)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.W - props.W)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.G - props.G)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.JT - props.JT)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Kappa - props.Kappa)).toBeLessThan(EPSILON);
   });
 });
