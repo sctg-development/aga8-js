@@ -410,6 +410,14 @@
                         </tr>
                         <tr>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
+                            </td>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                {{ properties.Cp / properties.Cv }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 Isentropic Exponent (<span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />)
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
@@ -453,7 +461,7 @@ const argonConcentration = ref(0.93);
 
 const T = ref(273.15 + 20); // °K
 const P = ref(101.325);     // kPa
-
+const R = 8.31446261815324;      // J•mol^-1•K^-1)
 const mm = ref(0); // Molar mass in g/mol
 const density = ref(0);  // Density in mol/l
 const totalPercent = ref(100); // Total percentage
@@ -593,18 +601,3 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
     return (delta <= 1e-12);
 }
 </script>
-
-<!-- <style lang="postcss">
-@import "tailwindcss";
-
-math,
-mrow,
-mtext,
-mi,
-msup,
-mo,
-mn {
-    @apply font-medium text-gray-900;
-    font-family: Arial, Helvetica, sans-serif;
-}
-</style> -->
