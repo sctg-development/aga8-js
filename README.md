@@ -3,37 +3,48 @@
 [![npm version](https://badge.fury.io/js/@sctg%2Faga8-js.svg)](https://www.npmjs.com/package/@sctg/aga8-js)
 [![Build Status](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml/badge.svg)](https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml)
 [![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://sctg-development.github.io/aga8-js/)
 
-WebAssembly bindings for [AGA8](https://github.com/usnistgov/AGA8) gas properties calculation methods (Detail, GERG-2008, and Gross).
+High-performance WebAssembly implementation of the GERG-2008 equation of state and AGA8 methods for natural gas properties calculations. This package provides JavaScript/TypeScript bindings to the industry-standard algorithms for precise gas property calculations.
 
-## Features
+## 🌟 Features
 
-- 📊 Supports Detail, GERG-2008, and Gross calculation methods
-- 🧪 All 22 NIST gas components support
-- 🚀 High-performance WebAssembly implementation
-- 📦 Easy to use npm package
-- 🔍 TypeScript type definitions included
-- 📄 [Full documentation available](https://sctg-development.github.io/aga8-js/Detail_8h.html)
+- **Three Calculation Methods**:
+  - 📊 GERG-2008 (Reference equations for high-accuracy calculations)
+  - 🔍 Detail (AGA8 Part 1 method for precise gas mixtures)
+  - 📈 Gross (AGA8 Part 2 method for simplified calculations)
+  
+- **Complete Gas Support**:
+  - 🧪 Full support for all 21 gas components defined by AGA8
+  - 🎯 High-precision calculations for natural gas mixtures
+  - 🌡️ Wide range of temperature and pressure conditions
 
-## Demo
+- **Technical Excellence**:
+  - ⚡ WebAssembly-powered for near-native performance
+  - 📦 Tree-shakeable npm package
+  - 💪 TypeScript type definitions included
+  - 📚 Comprehensive [API documentation](https://sctg-development.github.io/aga8-js/)
 
-A working demo is available at [Lasersmart AGA8](https://aga8.lasersmart.work/) all computations are done in the browser.
-[<img width="1164" alt="image" src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" />](https://aga8.lasersmart.work/)  
+## 🚀 Live Demo
 
-Source code is available at [sctg-development/aga8-js/src/aga8-vue](https://github.com/sctg-development/aga8-js/tree/main/src/aga8-vue)
+Try it now at [Lasersmart AGA8](https://aga8.lasersmart.work/)!
 
-## Installation
+[<img width="1164" alt="AGA8 Calculator Demo" src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" />](https://aga8.lasersmart.work/)
+
+View the demo source code in our [Vue.js implementation](https://github.com/sctg-development/aga8-js/tree/main/src/aga8-vue).
+
+## 📦 Installation
 
 ```bash
 npm install @sctg/aga8-js
 ```
 
-## Quick Start
+## 💻 Quick Start
 
 ```typescript
 import AGA8wasm, { gazMixtureInMolePercent } from '@sctg/aga8-js';
 
-// Initialize module
+// Initialize AGA8 module
 const AGA8 = await AGA8wasm();
 AGA8.SetupGERG();
 
@@ -51,58 +62,33 @@ const mixture: gazMixtureInMolePercent = [
 
 // Calculate properties
 const molarMass = AGA8.MolarMassGERG(mixture);
-const density = AGA8.DensityGERG(0, 400, 50000, mixture);
-const properties = AGA8.PropertiesGERG(400, density.D, mixture);
+const { D: density } = AGA8.DensityGERG(0, 400, 50000, mixture);
+const properties = AGA8.PropertiesGERG(400, density, mixture);
+
+console.log('Results:', {
+  molarMass: `${molarMass.toFixed(4)} g/mol`,
+  density: `${density.toFixed(4)} mol/L`,
+  compressibility: properties.Z.toFixed(6),
+  soundSpeed: `${properties.W.toFixed(2)} m/s`
+});
 ```
 
-## API Documentation
+## 📚 Documentation
 
-### Gas Components
+- [API Reference](https://sctg-development.github.io/aga8-js/)
+- [GERG-2008 Method](https://sctg-development.github.io/aga8-js/GERG2008_8h.html)
+- [Detail Method](https://sctg-development.github.io/aga8-js/Detail_8h.html)
+- [Gross Method](https://sctg-development.github.io/aga8-js/Gross_8h.html)
 
-The gas mixture array must contain 22 elements in the following order:
-
-1. PLACEHOLDER (must be 0)
-2. METHANE
-3. NITROGEN
-4. CARBON_DIOXIDE
-5. ETHANE
-6. PROPANE
-7. ISOBUTANE
-8. N_BUTANE
-9. ISOPENTANE
-10. N_PENTANE
-11. N_HEXANE
-12. N_HEPTANE
-13. N_OCTANE
-14. N_NONANE
-15. N_DECANE
-16. HYDROGEN
-17. OXYGEN
-18. CARBON_MONOXIDE
-19. WATER
-20. HYDROGEN_SULFIDE
-21. HELIUM
-22. ARGON
-
-The sum of all components must be equal to 1.
-
-### Available Methods
-
-- `SetupDetail()`, `SetupGERG()`, `SetupGross()`: Initialize calculation methods
-- `MolarMassDetail()`, `MolarMassGERG()`, `MolarMassGross()`: Calculate molar mass
-- `DensityDetail()`, `DensityGERG()`, `DensityGross()`: Calculate density
-- `PropertiesDetail()`, `PropertiesGERG()`: Calculate thermodynamic properties
-- Others see [Detail.h](https://sctg-development.github.io/aga8-js/Detail_8h.html), [GERG_2008.h](https://sctg-development.github.io/aga8-js/GERG2008_8h.html), [Gross.h](https://sctg-development.github.io/aga8-js/Gross_8h.html)
-
-## Development
+## 🛠️ Development
 
 ### Prerequisites
 
-- Node.js >= 22
-- Emscripten SDK >= 4.0
-- CMake >= 3.10
+- Node.js ≥ 22.0.0
+- Emscripten SDK ≥ 4.0.0
+- CMake ≥ 3.10
 
-### Setup
+### Building from Source
 
 ```bash
 # Clone repository
@@ -114,24 +100,25 @@ npm install
 
 # Build WebAssembly module
 npm run build
-```
 
-### Testing
-
-```bash
+# Run tests
 npm test
 ```
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions!
 
-## License
+## 📄 License
 
-This project is licensed under the GNU Affero General Public License v3.0 - see the LICENSE file for details.  
-NISt AGA8 is published by the National Institute of Standards and Technology (NIST) and use its own license (see the code).
+- **AGA8-JS**: GNU Affero General Public License v3.0
+- **Original AGA8 Implementation**: Public Domain (NIST)
 
-## Credits
+## 🙏 Acknowledgments
 
-- Original AGA8 implementation by NIST
-- WebAssembly port by Ronan LE MEILLAT for SCTG and LaserSmart
+- Original AGA8 implementation by the National Institute of Standards and Technology (NIST)
+- WebAssembly port, AGA8 modifications and maintenance by Ronan LE MEILLAT
+
+## 📧 Support
+
+- Create an [Issue](https://github.com/sctg-development/aga8-js/issues)

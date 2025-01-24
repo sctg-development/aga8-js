@@ -434,7 +434,8 @@
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                First derivative of pressure with respect to density at constant temperature
+                First derivative of pressure with respect to density at constant temperature <span
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial D}\\right)_T')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :left="true">
@@ -446,7 +447,8 @@
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                Second derivative of pressure with respect to density at constant temperature
+                Second derivative of pressure with respect to density at constant temperature <span
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial^2 P}{\\partial D^2}\\right)_T')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :left="true">
@@ -457,7 +459,8 @@
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 First derivative of
-                pressure with respect to temperature at constant density
+                pressure with respect to temperature at constant density <span
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial T}\\right)_D')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :left="true">
@@ -469,7 +472,7 @@
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Internal energy
+                Internal energy (U)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :left="true">
@@ -538,7 +541,7 @@
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Gibbs energy
+                Gibbs energy (G)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :left="true">
