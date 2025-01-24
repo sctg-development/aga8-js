@@ -1,5 +1,5 @@
 <template>
-  <span v-if="!left" :id="uniqueId" ref="spanRef">
+  <span v-if="!props.left" :id="uniqueId" ref="spanRef">
     <slot />
   </span>
   <button
@@ -25,7 +25,7 @@
       <div class="tooltip-arrow" data-popper-arrow />
     </div>
   </button>
-  {{ left ? "&nbsp;" : "" }}<span v-if="left" :id="uniqueId" ref="spanRef">{{ !left ? "&nbsp;" : "" }}
+  {{ left ? "&nbsp;" : "" }}<span v-if="props.left" :id="uniqueId" ref="spanRef">{{ !left ? "&nbsp;" : "" }}
     <slot />
   </span>
 </template>
