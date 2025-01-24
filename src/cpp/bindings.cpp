@@ -154,13 +154,14 @@ struct DensityResult
  * - G: Gibbs free energy
  * - JT: Joule-Thomson coefficient
  * - Kappa: Isothermal compressibility
+ * - Cf Critical flow factor [-]
  * 
  * @see PropertiesDetail For the underlying calculation implementation
  */
 struct PropertiesDetailResult
 {
     double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
-    double U, H, S, Cv, Cp, W, G, JT, Kappa;
+    double U, H, S, Cv, Cp, W, G, JT, Kappa, Cf;
 };
 
 /**
@@ -182,13 +183,14 @@ struct PropertiesDetailResult
  * @param JT Joule-Thomson coefficient [K/Pa]
  * @param Kappa Isothermal compressibility [1/Pa]
  * @param A Helmholtz free energy [J/kg]
+ * @param Cf Critical flow factor [-]
  * 
  * @see PropertiesGERG For the underlying calculation implementation
  */
 struct PropertiesGERGResult
 {
     double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
-    double U, H, S, Cv, Cp, W, G, JT, Kappa, A;
+    double U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf;
 };
 
 /**
@@ -396,18 +398,19 @@ DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent 
  *   - G: Gibbs energy [J/mol]
  *   - JT: Joule-Thomson coefficient [K/kPa]
  *   - Kappa: Isentropic exponent [-]
+ *   - Cf: Critical flow factor [-]
  * @see PropertiesDetail For the underlying calculation implementation
  */
 PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
-    double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0;
+    double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0, Cf = 0;
 
     PropertiesDetail(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT,
-                     U, H, S, Cv, Cp, W, G, JT, Kappa);
+                     U, H, S, Cv, Cp, W, G, JT, Kappa, Cf);
 
-    PropertiesDetailResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa};
+    PropertiesDetailResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, Cf};
 
     return result;
 }
@@ -508,6 +511,7 @@ DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMol
  *   - JT: Joule-Thomson coefficient [K/kPa]
  *   - Kappa: Isentropic exponent [-]
  *   - A: Helmholtz energy [J/kg]
+ *   - Cf: Critical flow factor [-]
  * 
  * @see PropertiesGERG For the underlying calculation implementation
  */
@@ -515,12 +519,12 @@ PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMole
 {
     std::vector<double> x = array_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
-    double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0, A = 0;
+    double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0, A = 0, Cf = 0;
 
     PropertiesGERG(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT,
-                   U, H, S, Cv, Cp, W, G, JT, Kappa, A);
+                   U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf);
 
-    PropertiesGERGResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A};
+    PropertiesGERGResult result = {P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf};
     return result;
 }
 
@@ -865,7 +869,8 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .field("W", &PropertiesDetailResult::W)
         .field("G", &PropertiesDetailResult::G)
         .field("JT", &PropertiesDetailResult::JT)
-        .field("Kappa", &PropertiesDetailResult::Kappa);
+        .field("Kappa", &PropertiesDetailResult::Kappa)
+        .field("Cf", &PropertiesDetailResult::Cf);
 
     value_object<PropertiesGERGResult>("PropertiesGERGResult")
         .field("P", &PropertiesGERGResult::P)
@@ -883,7 +888,8 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .field("G", &PropertiesGERGResult::G)
         .field("JT", &PropertiesGERGResult::JT)
         .field("Kappa", &PropertiesGERGResult::Kappa)
-        .field("A", &PropertiesGERGResult::A);
+        .field("A", &PropertiesGERGResult::A)
+        .field("Cf", &PropertiesGERGResult::Cf);
 
     value_object<PressureGrossResult>("PressureGrossResult")
         .field("P", &PressureGrossResult::P)

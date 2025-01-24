@@ -37,7 +37,8 @@ describe('Detail', () => {
     W: 712.6393684057903,
     G: 16584.22983497785,
     JT: 7.432969304794577E-05,
-    Kappa: 2.672509225184606
+    Kappa: 2.672509225184606,
+    Cf: 0.8388544508582146,
   };
 
   test('Detail properties calculation', async () => {
@@ -83,5 +84,6 @@ describe('Detail', () => {
     expect(Math.abs(references.G - props.G)).toBeLessThan(EPSILON);
     expect(Math.abs(references.JT - props.JT)).toBeLessThan(EPSILON);
     expect(Math.abs(references.Kappa - props.Kappa)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cf - props.Cf)).toBeLessThan(EPSILON);
   });
 });

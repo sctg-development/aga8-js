@@ -1,6 +1,6 @@
 {
   "name": "@sctg/aga8-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "WebAssembly bindings for AGA8 gas properties calculation",
   "type": "module",
   "main": "dist/index.js",

@@ -2,12 +2,12 @@
  * @file Detail.cpp
  * @brief Implementation of the AGA 8 Part 1 DETAIL equation of state for natural gas mixtures
  *
- * This implementation is based on the AGA Report No. 8, Part 1 - DETAIL method for the calculation 
+ * This implementation is based on the AGA Report No. 8, Part 1 - DETAIL method for the calculation
  * of thermodynamic properties of natural gas mixtures. The code provides routines for calculating:
  * - Pressure from temperature and density
  * - Density from temperature and pressure (iterative)
  * - Various thermodynamic properties
- * 
+ *
  * The mixture compositions are specified using mole fractions for 21 components in the following order:
  * 1. Methane        8. Isopentane    15. Hydrogen
  * 2. Nitrogen       9. n-Pentane     16. Oxygen
@@ -23,27 +23,27 @@
  * @author Ian H. Bell (C++ Translation)
  * @author Volker Heinemann, RMG Messtechnik GmbH (Contributor)
  * @author Jason Lu, Thermo Fisher Scientific (Contributor)
- * 
+ *
  * @copyright Public Domain - developed by NIST employees
  * @version 2.0 (April 2017)
  */
 /*
-This software was developed by employees of the National Institute of Standards and Technology (NIST), 
-an agency of the Federal Government and is being made available as a public service. Pursuant to title 17 
-United States Code Section 105, works of NIST employees are not subject to copyright protection in the 
-United States. This software may be subject to foreign copyright. Permission in the United States and in 
-foreign countries, to the extent that NIST may hold copyright, to use, copy, modify, create derivative works, 
-and distribute this software and its documentation without fee is hereby granted on a non-exclusive basis, 
+This software was developed by employees of the National Institute of Standards and Technology (NIST),
+an agency of the Federal Government and is being made available as a public service. Pursuant to title 17
+United States Code Section 105, works of NIST employees are not subject to copyright protection in the
+United States. This software may be subject to foreign copyright. Permission in the United States and in
+foreign countries, to the extent that NIST may hold copyright, to use, copy, modify, create derivative works,
+and distribute this software and its documentation without fee is hereby granted on a non-exclusive basis,
 provided that this notice and disclaimer of warranty appears in all copies.
 
-THE SOFTWARE IS PROVIDED 'AS IS' WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, 
-INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND FREEDOM FROM INFRINGEMENT, AND ANY 
-WARRANTY THAT THE DOCUMENTATION WILL CONFORM TO THE SOFTWARE, OR ANY WARRANTY THAT THE SOFTWARE WILL BE 
-ERROR FREE. IN NO EVENT SHALL NIST BE LIABLE FOR ANY DAMAGES, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT, 
-SPECIAL OR CONSEQUENTIAL DAMAGES, ARISING OUT OF, RESULTING FROM, OR IN ANY WAY CONNECTED WITH THIS SOFTWARE, 
-WHETHER OR NOT BASED UPON WARRANTY, CONTRACT, TORT, OR OTHERWISE, WHETHER OR NOT INJURY WAS SUSTAINED BY 
-PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER OR NOT LOSS WAS SUSTAINED FROM, OR AROSE OUT OF THE RESULTS OF, 
+THE SOFTWARE IS PROVIDED 'AS IS' WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND FREEDOM FROM INFRINGEMENT, AND ANY
+WARRANTY THAT THE DOCUMENTATION WILL CONFORM TO THE SOFTWARE, OR ANY WARRANTY THAT THE SOFTWARE WILL BE
+ERROR FREE. IN NO EVENT SHALL NIST BE LIABLE FOR ANY DAMAGES, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT,
+SPECIAL OR CONSEQUENTIAL DAMAGES, ARISING OUT OF, RESULTING FROM, OR IN ANY WAY CONNECTED WITH THIS SOFTWARE,
+WHETHER OR NOT BASED UPON WARRANTY, CONTRACT, TORT, OR OTHERWISE, WHETHER OR NOT INJURY WAS SUSTAINED BY
+PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER OR NOT LOSS WAS SUSTAINED FROM, OR AROSE OUT OF THE RESULTS OF,
 OR USE OF, THE SOFTWARE OR SERVICES PROVIDED HEREUNDER.
 */
 
@@ -141,18 +141,17 @@ static double dPdDsave; // Calculated in the Pressure subroutine, but not includ
 
 inline double sq(double x) { return x * x; }
 
-
 /**
  * @brief Calculate molar mass of a mixture based on composition
- * 
- * This function calculates the molar mass of a mixture using the mole fractions 
+ *
+ * This function calculates the molar mass of a mixture using the mole fractions
  * of each component provided in the composition array.
- * 
+ *
  * @param x Vector of mole fractions for each component in the mixture.
  *          Must sum to 1.0. Use mole fractions only (not mass fractions or mole percents).
  *          Components must be ordered according to the fluid order defined in the implementation.
  * @param[out] Mm Calculated molar mass of the mixture in g/mol
- * 
+ *
  * @note The composition array x must contain valid mole fractions that sum to 1.0
  * @see MolarMassDetail_wrapper for the Emscripten wrapped version of this function
  */
@@ -178,17 +177,17 @@ void MolarMassDetail(const std::vector<double> &x, double &Mm)
 
 /**
  * @brief Calculates pressure and compressibility factor as a function of temperature and density
- * 
+ *
  * This function computes the pressure and compressibility factor for a gas mixture
  * using the GERG-2008 equation of state. It also calculates d(P)/d(D) which is cached
  * for use in iterative density calculations.
- * 
+ *
  * @param T Temperature in Kelvin (K)
  * @param D Density in moles per liter (mol/l)
  * @param x Vector of composition mole fractions (must sum to 1.0)
  * @param[out] P Pressure in kiloPascals (kPa)
  * @param[out] Z Compressibility factor (dimensionless)
- * 
+ *
  * @note The composition vector x must contain mole fractions, not mole percents or mass fractions
  * @note The sum of all mole fractions in x must equal 1.0
  * @note The derivative d(P)/d(D) is cached internally but not returned as an argument
@@ -224,12 +223,12 @@ void PressureDetail(const double T, const double D, const std::vector<double> &x
 
 /**
  * @brief Calculates density as a function of temperature and pressure using an iterative method.
- * 
+ *
  * This function uses an iterative Newton's method that calls PressureDetail to find the correct state point.
- * Generally only 6 iterations at most are required. If the iteration fails to converge, the ideal gas density 
- * and an error message are returned. No checks are made to determine the phase boundary, which would have 
- * guaranteed that the output is in the gas phase. It is up to the user to locate the phase boundary, and 
- * thus identify the phase of the T and P inputs. If the state point is 2-phase, the output density will 
+ * Generally only 6 iterations at most are required. If the iteration fails to converge, the ideal gas density
+ * and an error message are returned. No checks are made to determine the phase boundary, which would have
+ * guaranteed that the output is in the gas phase. It is up to the user to locate the phase boundary, and
+ * thus identify the phase of the T and P inputs. If the state point is 2-phase, the output density will
  * represent a metastable state.
  *
  * @param T Temperature in Kelvin (K)
@@ -323,7 +322,7 @@ void DensityDetail(const double T, const double P, const std::vector<double> &x,
 
 /**
  * @brief Calculates thermodynamic properties as a function of temperature and density.
- * 
+ *
  * If density is unknown, call DensityDetail first with known pressure and temperature values.
  * Makes calls to Molarmass, Alpha0Detail, and AlpharDetail subroutines.
  *
@@ -345,9 +344,10 @@ void DensityDetail(const double T, const double P, const std::vector<double> &x,
  * @param[out] G Gibbs energy in J/mol
  * @param[out] JT Joule-Thomson coefficient in K/kPa
  * @param[out] Kappa Isentropic Exponent
+ * @param[out] Cf Critical Flow Factor (dimensionless)
  * @see PropertiesDetail_wrapper for the Emscripten wrapped version of this function
  */
-void PropertiesDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa)
+void PropertiesDetail(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa, double &Cf)
 {
     // Sub Properties(T, D, x, P, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa)
 
@@ -376,6 +376,7 @@ void PropertiesDetail(const double T, const double D, const std::vector<double> 
     //      G - Gibbs energy (J/mol)
     //     JT - Joule-Thomson coefficient (K/kPa)
     //  Kappa - Isentropic Exponent
+    //     Cf - Critical Flow Factor (dimensionless)
 
     double a0[2 + 1], ar[3 + 1][3 + 1], Mm, A, R, RT;
 
@@ -421,6 +422,7 @@ void PropertiesDetail(const double T, const double D, const std::vector<double> 
     }
     W = sqrt(W);
     Kappa = W * W * Mm / (RT * 1000 * Z);
+    Cf = sqrt(Kappa * pow( (2 / (Kappa + 1)), ((Kappa + 1) / (Kappa - 1))));
     d2PdTD = 0;
 }
 
@@ -526,9 +528,9 @@ static void xTermsDetail(const std::vector<double> &x)
 
 /**
  * @brief Calculates the ideal gas Helmholtz energy and its derivatives with respect to T and D.
- * 
- * This function computes the ideal gas Helmholtz energy and its first and second 
- * temperature derivatives. This calculation is not required when only pressure (P) 
+ *
+ * This function computes the ideal gas Helmholtz energy and its first and second
+ * temperature derivatives. This calculation is not required when only pressure (P)
  * or compressibility factor (Z) is needed.
  *
  * @param T Temperature in Kelvin (K)
@@ -641,7 +643,7 @@ static void Alpha0Detail(const double T, const double D, const std::vector<doubl
  *        - ar[2][0]: T*∂²(ar)/∂T² [J/(mol-K)]
  *
  * @note This function is part of the GERG-2008 equation of state calculations
- * @note The function assumes that global variables Told, Tun, K3, RDetail, un, Bs, Csn, bn, kn 
+ * @note The function assumes that global variables Told, Tun, K3, RDetail, un, Bs, Csn, bn, kn
  *       are properly initialized
  */
 static void AlpharDetail(const int itau, const int idel, const double T, const double D, double ar[4][4])
@@ -770,10 +772,10 @@ static void AlpharDetail(const int itau, const int idel, const double T, const d
 /// The following routine must be called once before any other routine.
 /**
  * @brief Initializes all constants and parameters for the DETAIL model equations of state
- * 
+ *
  * This function sets up all the necessary parameters for the AGA8 equation of state
  * in its "DETAIL" version. It initializes:
- * 
+ *
  * - Gas constant (RDetail)
  * - Molar masses for 21 components (MMiDetail)
  * - Equation of state coefficients (an)
@@ -782,7 +784,7 @@ static void AlpharDetail(const int itau, const int idel, const double T, const d
  * - Various flags (fn, gn, qn, sn, wn)
  * - Binary interaction parameters:
  *   - Energy parameters (Eij)
- *   - Size parameters (Kij)  
+ *   - Size parameters (Kij)
  *   - Orientation parameters (Gij)
  *   - Conformal energy parameters (Uij)
  * - Component-specific parameters:
@@ -793,10 +795,10 @@ static void AlpharDetail(const int itau, const int idel, const double T, const d
  *   - Dipole parameters (Si)
  *   - Association parameters (Wi)
  * - Ideal gas parameters (n0i, th0i)
- * 
+ *
  * The function also performs necessary precalculations of constants used in the
  * equation of state calculations to optimize performance.
- * 
+ *
  * This implementation corresponds to the reference equations for natural gas
  * mixtures as published in the DETAIL formulation.
  * @note this function is directly bind to SetupDetail() in the Emscripten wrapper
@@ -1656,8 +1658,8 @@ int main()
     DensityDetail(T, P, x, D, ierr, herr);
 
     // Sub PropertiesDetail(T, D, x, P, Z, dPdD, dPdD2, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A)
-    double Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa;
-    PropertiesDetail(T, D, x, P, Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa);
+    double Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, Cf;
+    PropertiesDetail(T, D, x, P, Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, Cf);
 
     printf("Inputs-----\n");
     printf("Temperature [K]:                    400.0000000000000 != %0.16g\n", T);
@@ -1679,5 +1681,6 @@ int main()
     printf("Gibbs energy [J/mol]:               16584.22983497785 != %0.16g\n", G);
     printf("Joule-Thomson coefficient [K/kPa]:  7.432969304794577E-05 != %0.16g\n", JT);
     printf("Isentropic exponent:                2.672509225184606 != %0.16g\n", Kappa);
+    printf("Critical flow coefficient:          0.000000000000000 != %0.16g\n", Cf);
 }
 #endif

@@ -251,7 +251,7 @@ void DensityGERG(const int iFlag, const double T, const double P, const std::vec
     double Tcx, Dcx;
 
     double dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, A;
-    double Cv, Cp, W, G, JT, Kappa, PP;
+    double Cv, Cp, W, G, JT, Kappa, PP, Cf;
 
     ierr = 0;
     herr = "";
@@ -320,7 +320,7 @@ void DensityGERG(const int iFlag, const double T, const double P, const std::vec
 
                     // If requested, check to see if point is possibly 2-phase
                     if (iFlag > 0){
-                        PropertiesGERG(T, D, x, PP, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A);
+                        PropertiesGERG(T, D, x, PP, Z, dPdD, d2PdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf);
                         if ((PP <= 0 || dPdD <= 0 || d2PdTD <= 0) || (Cv <= 0 || Cp <= 0 || W <= 0)) {
                             // Iteration failed (above loop did find a solution or checks made below indicate possible 2-phase state)
                             ierr = 1;
@@ -365,9 +365,10 @@ void DensityGERG(const int iFlag, const double T, const double P, const std::vec
  * @param[out] JT Joule-Thomson coefficient (K/kPa)
  * @param[out] Kappa Isentropic Exponent
  * @param[out] A Helmholtz energy (J/mol)
+ * @param[out] Cf Critical Flow Factor (dimensionless)
  * @see PropertiesGERG_wrapper for the Emscripten wrapped version of this function
  */
-void PropertiesGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa, double &A)
+void PropertiesGERG(const double T, const double D, const std::vector<double> &x, double &P, double &Z, double &dPdD, double &d2PdD2, double &d2PdTD, double &dPdT, double &U, double &H, double &S, double &Cv, double &Cp, double &W, double &G, double &JT, double &Kappa, double &A, double &Cf)
 {
     double a0[2+1], ar[3+1][3+1], Mm, R, RT;
 
@@ -407,6 +408,7 @@ void PropertiesGERG(const double T, const double D, const std::vector<double> &x
     if (W < 0) { W = 0; }
     W = sqrt(W);
     Kappa = pow(W, 2) * Mm / (RT * 1000 * Z);
+    Cf = sqrt(Kappa * pow( (2 / (Kappa + 1)), ((Kappa + 1) / (Kappa - 1))));
 }
 
 
@@ -1703,13 +1705,13 @@ int main()
     printf("Temperature [K]:                    400.0000000000000 != %0.16g\n", T);
     printf("Pressure [kPa]:                     50000.00000000000 != %0.16g\n", P);
 
-    double dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A;
+    double dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf;
 
     // void DensityGERG(const int iFlag, const double T, const double P, const std::vector<double> &x, double &D, int &ierr, std::string &herr)
     DensityGERG(0, T, P, x, D, ierr, herr);
 
     // Sub PropertiesGERG(T, D, x, P, Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa)
-    PropertiesGERG(T, D, x, P, Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A);
+    PropertiesGERG(T, D, x, P, Z, dPdD, dPdD2, d2PdTD, dPdT, U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf);
 
     printf("Outputs-----\n");
     printf("Molar mass [g/mol]:                 20.54274450160000 != %0.16g\n",mm);
@@ -1728,6 +1730,6 @@ int main()
     printf("Gibbs energy [J/mol]:               16590.64173014733 != %0.16g\n",G);
     printf("Joule-Thomson coefficient [K/kPa]:  7.155629581480913E-05 != %0.16g\n",JT);
     printf("Isentropic exponent:                2.683820255058032 != %0.16g\n",Kappa);
-
+    printf("Critical Flow Factor:               0.83985218377 != %0.16g\n",Cf);
 }
 #endif

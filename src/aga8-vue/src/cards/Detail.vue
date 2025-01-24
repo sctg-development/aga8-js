@@ -424,6 +424,13 @@
                                 {{ properties.Kappa }}
                             </td>
                         </tr>
+                        <tr>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                Critical Flow coefficient
+                            </td>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                {{ properties.Cf }}
+                            </td>
                     </tbody>
                 </table>
             </div>

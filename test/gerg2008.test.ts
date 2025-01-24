@@ -36,7 +36,8 @@ describe('GERG2008', () => {
     W: 714.4248840596024,
     G: 16590.64173014733,
     JT: 7.155629581480913E-05,
-    Kappa: 2.683820255058032
+    Kappa: 2.683820255058032,
+    Cf: 0.8398521837767355,
   };
 
   test('GERG2008 properties calculation', async () => {
@@ -78,5 +79,6 @@ describe('GERG2008', () => {
     expect(Math.abs(references.G - props.G)).toBeLessThan(EPSILON);
     expect(Math.abs(references.JT - props.JT)).toBeLessThan(EPSILON);
     expect(Math.abs(references.Kappa - props.Kappa)).toBeLessThan(EPSILON);
+    expect(Math.abs(references.Cf - props.Cf)).toBeLessThan(EPSILON);
   });
 });
