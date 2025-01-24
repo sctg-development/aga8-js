@@ -6,7 +6,7 @@ var GERG2008_8cpp =
     [ "DensityGERG", "GERG2008_8cpp.html#adb236302fa900597278c6de68bca99c4", null ],
     [ "MolarMassGERG", "GERG2008_8cpp.html#a2841323c18b9dd0265c42c0bfc5c80e7", null ],
     [ "PressureGERG", "GERG2008_8cpp.html#af00400fff6e2832f4ea9ef579c83015e", null ],
-    [ "PropertiesGERG", "GERG2008_8cpp.html#a9ae8d4502183b339f0566044315f896f", null ],
+    [ "PropertiesGERG", "GERG2008_8cpp.html#a94509e0be793a690946c67315992e79a", null ],
     [ "PseudoCriticalPointGERG", "GERG2008_8cpp.html#ac5984f66d2e7288f2611704e21aefa15", null ],
     [ "ReducingParametersGERG", "GERG2008_8cpp.html#a7569676b79f1f7ffb6075157d57ca878", null ],
     [ "SetupGERG", "GERG2008_8cpp.html#a7141790181ae0167a7309194af85d0dd", null ],

@@ -129,7 +129,7 @@ $(function(){initNavTree('structPropertiesDetailResult.html',''); initResizable(
 <div class="dynheader">
 Collaboration diagram for PropertiesDetailResult:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="structPropertiesDetailResult__coll__graph.svg" width="171" height="356"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="structPropertiesDetailResult__coll__graph.svg" width="171" height="276"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -164,6 +164,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:ab2916c6ee9073929f3bd1fe236ee6ef2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c5566e4e9ac96dcbb34a48f06f55d24" id="r_a8c5566e4e9ac96dcbb34a48f06f55d24"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c5566e4e9ac96dcbb34a48f06f55d24">Kappa</a></td></tr>
 <tr class="separator:a8c5566e4e9ac96dcbb34a48f06f55d24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cccfd9407b11680fe23c80706f1b32e" id="r_a8cccfd9407b11680fe23c80706f1b32e"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8cccfd9407b11680fe23c80706f1b32e">Cf</a></td></tr>
+<tr class="separator:a8cccfd9407b11680fe23c80706f1b32e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structure containing thermodynamic properties for DETAIL calculations. </p>
@@ -183,11 +185,30 @@ Data Fields</h2></td></tr>
 <li>G: Gibbs free energy</li>
 <li>JT: Joule-Thomson coefficient</li>
 <li>Kappa: Isothermal compressibility</li>
+<li>Cf Critical flow factor [-]</li>
 </ul>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="Detail_8cpp.html#a4f3130afebbd764f2a7e03066bc3da04" title="Calculates thermodynamic properties as a function of temperature and density.">PropertiesDetail</a> For the underlying calculation implementation </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="Detail_8cpp.html#a7e9bdbb2df9332abd4140d1735749e01" title="Calculates thermodynamic properties as a function of temperature and density.">PropertiesDetail</a> For the underlying calculation implementation </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00160">160</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00161">161</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a8cccfd9407b11680fe23c80706f1b32e" name="a8cccfd9407b11680fe23c80706f1b32e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cccfd9407b11680fe23c80706f1b32e">&#9670;&#160;</a></span>Cf</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double PropertiesDetailResult::Cf</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
+
+</div>
+</div>
 <a id="a75701bf1938af3702c48e2746cddb4e2" name="a75701bf1938af3702c48e2746cddb4e2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75701bf1938af3702c48e2746cddb4e2">&#9670;&#160;</a></span>Cp</h2>
 
@@ -200,9 +221,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -218,9 +239,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -236,9 +257,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -254,9 +275,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -272,9 +293,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -290,9 +311,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -308,9 +329,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -326,9 +347,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -344,9 +365,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -362,9 +383,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -380,9 +401,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -398,9 +419,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -416,9 +437,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -434,9 +455,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00164">164</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>
@@ -452,9 +473,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00162">162</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bindings_8cpp_source.html#l00163">163</a> of file <a class="el" href="bindings_8cpp_source.html">bindings.cpp</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00814">EMSCRIPTEN_BINDINGS()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="bindings_8cpp_source.html#l00818">EMSCRIPTEN_BINDINGS()</a>.</p>
 
 </div>
 </div>

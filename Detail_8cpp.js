@@ -5,7 +5,7 @@ var Detail_8cpp =
     [ "DensityDetail", "Detail_8cpp.html#af738dedddeb3ddc62487bd2ed1c32b64", null ],
     [ "MolarMassDetail", "Detail_8cpp.html#a7bdf8c044463940ed7beaa83222d627d", null ],
     [ "PressureDetail", "Detail_8cpp.html#a3b96dc9a50b61bc37d54d6b62b9f0c51", null ],
-    [ "PropertiesDetail", "Detail_8cpp.html#a4f3130afebbd764f2a7e03066bc3da04", null ],
+    [ "PropertiesDetail", "Detail_8cpp.html#a7e9bdbb2df9332abd4140d1735749e01", null ],
     [ "SetupDetail", "Detail_8cpp.html#a8185dc1fe1da64b9312b00bedf5c116c", null ],
     [ "sq", "Detail_8cpp.html#a6034cf3f0f9c07b8a7a78839cf9889a3", null ],
     [ "xTermsDetail", "Detail_8cpp.html#afb1fb4554f619bbba97536baee3f4b59", null ],

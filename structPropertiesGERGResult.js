@@ -1,6 +1,7 @@
 var structPropertiesGERGResult =
 [
     [ "A", "structPropertiesGERGResult.html#a7d81ad1ec098ee903588bbe55505ad7c", null ],
+    [ "Cf", "structPropertiesGERGResult.html#a9ce8941290efe09ef9c5b72c4b7a89a4", null ],
     [ "Cp", "structPropertiesGERGResult.html#ad16004889171026398dfbea18f139cf8", null ],
     [ "Cv", "structPropertiesGERGResult.html#a1c09d1e01520f067040dfe4c8168ba7c", null ],
     [ "d2PdD2", "structPropertiesGERGResult.html#a38f954ffcfa72aef98db2f1f168e29a4", null ],

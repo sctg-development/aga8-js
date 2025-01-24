@@ -6,7 +6,7 @@ var searchData=
   ['maxtrmp_3',['MaxTrmP',['../GERG2008_8cpp.html#a8c744bcb9acf05fc1cc406dd28f0a93f',1,'GERG2008.cpp']]],
   ['mco2_4',['mCO2',['../Gross_8cpp.html#a91d30f8476b8687ca8b7e800926abc7c',1,'Gross.cpp']]],
   ['methane_5',['METHANE',['../bindings_8cpp.html#a3a6cb6dd008d4af0c3278059467af063ab014407f029f3db642b8e7dc741a91c0',1,'bindings.cpp']]],
-  ['methods_6',['Available Methods',['../index.html#autotoc_md6',1,'']]],
+  ['methods_6',['Available Methods',['../index.html#autotoc_md7',1,'']]],
   ['mm_7',['Mm',['../structGrossMethod1Result.html#a413d450831c9eac121adf039e53e5bcb',1,'GrossMethod1Result::Mm'],['../structGrossMethod2Result.html#ae93ef96bbcb7ffe5418af982de1f9eae',1,'GrossMethod2Result::Mm']]],
   ['mmidetail_8',['MMiDetail',['../Detail_8cpp.html#ae57d848ffe8001000e3402cf4143cbed',1,'Detail.cpp']]],
   ['mmigerg_9',['MMiGERG',['../GERG2008_8cpp.html#ab1ca8db4f50094795dbcd3dd00ca5d09',1,'GERG2008.cpp']]],

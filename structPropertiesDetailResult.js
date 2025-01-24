@@ -1,5 +1,6 @@
 var structPropertiesDetailResult =
 [
+    [ "Cf", "structPropertiesDetailResult.html#a8cccfd9407b11680fe23c80706f1b32e", null ],
     [ "Cp", "structPropertiesDetailResult.html#a75701bf1938af3702c48e2746cddb4e2", null ],
     [ "Cv", "structPropertiesDetailResult.html#a906f517eef2608f59bb96f2304ebb8da", null ],
     [ "d2PdD2", "structPropertiesDetailResult.html#a74fb3b27523a5b44cdea06c30aa6ddba", null ],
