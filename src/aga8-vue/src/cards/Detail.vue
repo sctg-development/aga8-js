@@ -384,34 +384,42 @@
           <tbody class="divide-y divide-gray-200">
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Molar mass in <span v-html="getMathMLFromLatex('\\frac{\\text{g}}{\\text{mol}}')" />
+                Molar mass
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ mm }}
+                <Clipboard :left="true">
+                  {{ mm }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{g}}{\\text{mol}}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Density in <span v-html="getMathMLFromLatex('\\frac{\\text{mol}}{\\text{L}}')" />
+                Density
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ density }}
+                <Clipboard :left="true">
+                  {{ density }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{mol}}{\\text{L}}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
-                Density <span v-html="getMathMLFromLatex('\\frac{\\text{kg}}{\\text{m}^3}')" />
+                Density
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ mm * density }}
+                <Clipboard :left="true">
+                  {{ mm * density }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{kg}}{\\text{m}^3}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Pressure (P) in <span v-html="getMathMLFromLatex('\\text{kPa}')" />
+                Pressure (P)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.P }}
+                <Clipboard :left="true">
+                  {{ properties.P }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\text{kPa}')" />
               </td>
             </tr>
             <tr>
@@ -419,114 +427,135 @@
                 Compressibility factor (Z)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Z }}
+                <Clipboard :left="true">
+                  {{ properties.Z }}
+                </Clipboard>
               </td>
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 First derivative of pressure with respect to density at constant temperature
-                <span
-                  v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{mol} \\cdot \\text{L}^{-1}}')"
-                />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.dPdD }}
+                <Clipboard :left="true">
+                  {{ properties.dPdD }}
+                </Clipboard> <span
+                  v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{mol} \\cdot \\text{L}^{-1}}')"
+                />
               </td>
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 Second derivative of pressure with respect to density at constant temperature
-                <span v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{(\\text{mol}/\\text{L})^2}')" />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.d2PdD2 }}
+                <Clipboard :left="true">
+                  {{ properties.d2PdD2 }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{(\\text{mol}/\\text{L})^2}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 First derivative of
-                pressure with respect to temperature at constant density <span
+                pressure with respect to temperature at constant density
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <Clipboard :left="true">
+                  {{ properties.dPdT }}
+                </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{K}}')"
                 />
               </td>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.dPdT }}
-              </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Internal energy in <span
+                Internal energy
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <Clipboard :left="true">
+                  {{ properties.U }}
+                </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
                 />
               </td>
+            </tr>
+            <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.U }}
+                Enthalpy (H)
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <Clipboard :left="true">
+                  {{ properties.H }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Enthalpy (H) in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
+                Entropy (S)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.H }}
-              </td>
-            </tr>
-            <tr>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Entropy (S) in <span
+                <Clipboard :left="true">
+                  {{ properties.S }}
+                </Clipboard> <span
                   v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
                 />
               </td>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.S }}
-              </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Isochoric heat capacity (<span v-html="getMathMLFromLatex('C_v')" />) in
-                <span
-                  v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
-                />
+                Isochoric heat capacity (<span v-html="getMathMLFromLatex('C_v')" />)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Cv }}
+                <Clipboard :left="true">
+                  {{ properties.Cv }}
+                </Clipboard> <span
+                  v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
+                />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 Isobaric heat capacity (<span v-html="getMathMLFromLatex('C_p')" />
-                ) in
-                <span
+                )
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <Clipboard :left="true">
+                  {{ properties.Cp }}
+                </Clipboard> <span
                   v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
                 />
               </td>
+            </tr>
+            <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Cp }}
+                Speed of sound
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                <Clipboard :left="true">
+                  {{ properties.W }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{m}}{\\text{s}}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Speed of sound in <span v-html="getMathMLFromLatex('\\frac{\\text{m}}{\\text{s}}')" />
+                Gibbs energy
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.W }}
-              </td>
-            </tr>
-            <tr>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Gibbs energy in <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
-              </td>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.G }}
+                <Clipboard :left="true">
+                  {{ properties.G }}
+                </Clipboard> <span
+                  v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
+                />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 Joule-Thomson coefficient (<span v-html="getMathMLFromLatex('\\mu_{JT}')" />)
-                in <span v-html="getMathMLFromLatex('\\frac{\\text{K}}{\\text{kPa}}')" />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.JT }}
+                <Clipboard :left="true">
+                  {{ properties.JT }}
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{K}}{\\text{kPa}}')" />
               </td>
             </tr>
             <tr>
@@ -534,7 +563,9 @@
                 <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Cp / properties.Cv }}
+                <Clipboard :left="true">
+                  {{ (properties.Cp / properties.Cv) || '∞' }}
+                </Clipboard>
               </td>
             </tr>
             <tr>
@@ -542,7 +573,9 @@
                 Isentropic Exponent
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Kappa }}
+                <Clipboard :left="true">
+                  {{ properties.Kappa }}
+                </Clipboard>
               </td>
             </tr>
             <tr>
@@ -553,7 +586,9 @@
                 />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                {{ properties.Cf }}
+                <Clipboard :left="true">
+                  {{ properties.Cf }}
+                </Clipboard>
               </td>
             </tr>
           </tbody>
@@ -564,9 +599,10 @@
 </template>
 <script setup lang="ts">
 import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult } from '@sctg/aga8-js'
+import Clipboard from '../components/Clipboard.vue';
 import { onMounted, ref } from 'vue';
 import Temml from 'temml';
-// type gazMixtureInMolePercent = [number, methane: number, nitrogen: number, carbon_dioxide: number, ethane: number, propane: number, isobutane: number, n_butane: number, isopentane: number, n_pentane: number, n_hexane: number, n_heptane: number, n_octane: number, n_nonane: number, n_decane: number, hydrogen: number, oxygen: number, carbon_monoxyde: number, water: number, hydrogen_sulfide: number, helium: number, argon: number]
+
 const moduleLoaded = ref(false);
 
 const methaneConcentration = ref(0);
@@ -614,6 +650,7 @@ const totalPercent = ref(100); // Total percentage
 [out]	G	Gibbs energy in J/mol
 [out]	JT	Joule-Thomson coefficient in K/kPa
 [out]	Kappa	Isentropic Exponent
+[out]	Cf	Critical Flow coefficient
  */
 const properties = ref<PropertiesDetailResult>({ P: 0, Z: 0, dPdD: 0, d2PdD2: 0, d2PdTD: 0, dPdT: 0, U: 0, H: 0, S: 0, Cv: 0, Cp: 0, W: 0, G: 0, JT: 0, Kappa: 0, Cf: 0 });
 let AGA8: MainModule | null = null;
@@ -695,11 +732,9 @@ function computeDetail(): void {
     const gasMixture = getGasMixture();
     // Compute the molar mass
     mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
-    console.warn(`Molar mass: ${mm.value} g/mol`);
     // Compute the density in mol/l
     const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
     density.value = D;
-    console.warn(`Density: ${D} mol/l`);
     properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
   } else {
     console.warn("AGA8 module is not loaded");
