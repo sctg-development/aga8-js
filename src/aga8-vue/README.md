@@ -86,6 +86,7 @@ The demo uses:
 The AGA8 equations are industry-standard methods for calculating thermodynamic properties of natural gas mixtures. This implementation includes:
 
 - **DETAIL**: High-precision calculations (AGA Report No. 8, Part 1)
+- **GERG-2008**: Reference equations for high-accuracy calculations
 
 ## 📄 License
 

@@ -31,11 +31,11 @@
       <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
-            AGA8 DETAIL computation
+            AGA8 DETAIL or GERG-2008 computation
           </h1>
 
           <p class="mt-1.5 text-sm text-gray-500">
-            Implements the DETAIL equation of state described in AGA Report No. 8, Part 1, Third Edition, April 2017.
+            Implements the DETAIL and GERG-2008 equations of state described in AGA Report No. 8, Part 1, Third Edition, April 2017.
           </p>
         </div>
 

@@ -25,17 +25,80 @@
         >
       </div>
     </div>
-    <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+    <!-- <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <button
         v-if="moduleLoaded"
         :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
         :disabled="!isTotalConcentrationValid(getGasMixture())"
         class="inline-block rounded px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
-        @click="computeDetail"
+        @click="computeDetail(method)"
       >
-        {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute' :
-          `Total must be 100% (${totalPercent}%)` }}
+        <select
+          id="MethodSelect"
+          v-model="method"
+          name="MethodSelect"
+          class="mt-1.5 w-full rounded-lg border-gray-300 text-white sm:text-sm"
+        >
+          <option value="DETAIL">
+            {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute with Detail' :
+              `Total must be 100% (${totalPercent}%)` }}
+          </option>
+          <option value="GERG-2008">
+            {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute with GERG-2008' :
+              `Total must be 100% (${totalPercent}%)` }}
+          </option>
+        </select>
       </button>
+    </div> -->
+
+
+    <div class="relative">
+      <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
+        <button
+          :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
+          class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-800 hover:text-white"
+          @click="computeProperties(method)"
+        >
+          {{ isTotalConcentrationValid(getGasMixture()) ? `Compute with ${method}` :
+            `Total must be 100% (${totalPercent}%)` }}
+        </button>
+        <button
+          class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+          @click="menuOpen = !menuOpen"
+        >
+          <span class="sr-only">Method</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div v-if="menuOpen" :ref="menu" class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg">
+        <div class="p-2">
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="method = 'GERG-2008'; menuOpen = false"
+          >
+            GERG-2008
+          </button>
+
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="method = 'DETAIL'; menuOpen = false"
+          >
+            DETAIL
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
@@ -377,7 +440,7 @@
                 Property
               </th>
               <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Value
+                Value {{ methodComputed.length ? `(${methodComputed})` : ''}}
               </th>
             </tr>
           </thead>
@@ -435,7 +498,8 @@
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 First derivative of pressure with respect to density at constant temperature <span
-                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial D}\\right)_T')"/>
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial D}\\right)_T')"
+                />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.dPdD.toString()" :left="true">
@@ -448,7 +512,8 @@
             <tr>
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 Second derivative of pressure with respect to density at constant temperature <span
-                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial^2 P}{\\partial D^2}\\right)_T')"/>
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial^2 P}{\\partial D^2}\\right)_T')"
+                />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.d2PdD2.toString()" :left="true">
@@ -460,14 +525,13 @@
               <td class="whitespace-wrap px-4 py-2 font-medium text-gray-900">
                 First derivative of
                 pressure with respect to temperature at constant density <span
-                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial T}\\right)_D')"/>
+                  v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial T}\\right)_D')"
+                />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.dPdT.toString()" :left="true">
                   {{ properties.dPdT.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{K}}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{K}}')" />
               </td>
             </tr>
             <tr>
@@ -477,9 +541,7 @@
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.U.toString()" :left="true">
                   {{ properties.U.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
               </td>
             </tr>
             <tr>
@@ -499,9 +561,7 @@
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.S.toString()" :left="true">
                   {{ properties.S.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
               </td>
             </tr>
             <tr>
@@ -511,9 +571,7 @@
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.Cv.toString()" :left="true">
                   {{ properties.Cv.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
               </td>
             </tr>
             <tr>
@@ -524,9 +582,7 @@
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.Cp.toString()" :left="true">
                   {{ properties.Cp.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')" />
               </td>
             </tr>
             <tr>
@@ -546,9 +602,7 @@
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.G.toString()" :left="true">
                   {{ properties.G.toPrecision(5) }}
-                </Clipboard> <span
-                  v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
-                />
+                </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
               </td>
             </tr>
             <tr>
@@ -591,11 +645,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult } from '@sctg/aga8-js'
+import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
 import Clipboard from '../components/Clipboard.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type VNodeRef } from 'vue';
 import Temml from 'temml';
 
+type Method = 'DETAIL' | 'GERG-2008';
+const method = ref<Method>('DETAIL');
+const methodComputed = ref<Method | ''>('');
+const menuOpen = ref(false);
+const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
 
 const methaneConcentration = ref(0);
@@ -645,7 +704,7 @@ const totalPercent = ref(100); // Total percentage
 [out]	Kappa	Isentropic Exponent
 [out]	Cf	Critical Flow coefficient
  */
-const properties = ref<PropertiesDetailResult>({ P: 0, Z: 0, dPdD: 0, d2PdD2: 0, d2PdTD: 0, dPdT: 0, U: 0, H: 0, S: 0, Cv: 0, Cp: 0, W: 0, G: 0, JT: 0, Kappa: 0, Cf: 0 });
+const properties = ref<PropertiesDetailResult | PropertiesGERGResult>({ P: 0, Z: 0, dPdD: 0, d2PdD2: 0, d2PdTD: 0, dPdT: 0, U: 0, H: 0, S: 0, Cv: 0, Cp: 0, W: 0, G: 0, JT: 0, Kappa: 0, Cf: 0 });
 let AGA8: MainModule | null = null;
 
 /**
@@ -704,7 +763,7 @@ function getGasMixture(): gazMixtureInMolePercent {
 }
 
 /**
- * Calculates gas properties using AGA8 Detail method
+ * Calculates gas properties using AGA8 DETAIL or GERG-2008 method
  * 
  * This function performs the following operations when AGA8 module is available:
  * 1. Initializes the AGA8 Detail method
@@ -716,19 +775,33 @@ function getGasMixture(): gazMixtureInMolePercent {
  * @requires gasMixture - Reactive reference to the gas composition
  * @requires T - Reactive reference to temperature
  * @requires P - Reactive reference to pressure
+ * @param method - Method to use for the calculation, either "GERG2008" or "DETAIL"
  * 
  * @returns {void} - Results are logged to console
  */
-function computeDetail(): void {
+function computeProperties(method: Method): void {
   if (AGA8) {
-    AGA8.SetupDetail();
-    const gasMixture = getGasMixture();
-    // Compute the molar mass
-    mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
-    // Compute the density in mol/l
-    const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
-    density.value = D;
-    properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
+    if (method == "DETAIL") {
+      AGA8.SetupDetail();
+      const gasMixture = getGasMixture();
+      // Compute the molar mass
+      mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
+      // Compute the density in mol/l
+      const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
+      density.value = D;
+      properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
+      methodComputed.value = method;
+    } else if (method == "GERG-2008") {
+      AGA8.SetupGERG();
+      const gasMixture = getGasMixture();
+      // Compute the molar mass
+      mm.value = AGA8.MolarMassGERG(gasMixture); // g/mol
+      // Compute the density in mol/l
+      const { D } = AGA8.DensityGERG(2, T.value, P.value, gasMixture); // mol/l
+      density.value = D;
+      properties.value = AGA8.PropertiesGERG(T.value, D, gasMixture);
+      methodComputed.value = method;
+    }
   } else {
     console.warn("AGA8 module is not loaded");
   }
