@@ -563,7 +563,7 @@
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Isentropic Exponent <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
+                Heat capacity ratio <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <Clipboard :content="properties.Kappa.toString()" :left="true">
