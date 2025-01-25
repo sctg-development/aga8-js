@@ -387,8 +387,8 @@
                 Molar mass
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ mm }}
+                <Clipboard :content="mm.toString()" :left="true">
+                  {{ mm.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{g}}{\\text{mol}}')" />
               </td>
             </tr>
@@ -397,8 +397,8 @@
                 Density
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ density }}
+                <Clipboard :content="density.toString()" :left="true">
+                  {{ density.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{mol}}{\\text{L}}')" />
               </td>
             </tr>
@@ -407,8 +407,8 @@
                 Density
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ mm * density }}
+                <Clipboard :content="(mm * density).toString()" :left="true">
+                  {{ (mm * density).toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{kg}}{\\text{m}^3}')" />
               </td>
             </tr>
@@ -417,8 +417,8 @@
                 Pressure (P)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.P }}
+                <Clipboard :content="properties.P.toString()" :left="true">
+                  {{ properties.P.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\text{kPa}')" />
               </td>
             </tr>
@@ -427,8 +427,8 @@
                 Compressibility factor (Z)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.Z }}
+                <Clipboard :content="properties.Z.toString()" :left="true">
+                  {{ properties.Z.toPrecision(5) }}
                 </Clipboard>
               </td>
             </tr>
@@ -438,8 +438,8 @@
                   v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial D}\\right)_T')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.dPdD }}
+                <Clipboard :content="properties.dPdD.toString()" :left="true">
+                  {{ properties.dPdD.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{mol} \\cdot \\text{L}^{-1}}')"
                 />
@@ -451,8 +451,8 @@
                   v-html="getMathMLFromLatex('\\left(\\frac{\\partial^2 P}{\\partial D^2}\\right)_T')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.d2PdD2 }}
+                <Clipboard :content="properties.d2PdD2.toString()" :left="true">
+                  {{ properties.d2PdD2.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{(\\text{mol}/\\text{L})^2}')" />
               </td>
             </tr>
@@ -463,8 +463,8 @@
                   v-html="getMathMLFromLatex('\\left(\\frac{\\partial P}{\\partial T}\\right)_D')"/>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.dPdT }}
+                <Clipboard :content="properties.dPdT.toString()" :left="true">
+                  {{ properties.dPdT.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{kPa}}{\\text{K}}')"
                 />
@@ -475,8 +475,8 @@
                 Internal energy (U)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.U }}
+                <Clipboard :content="properties.U.toString()" :left="true">
+                  {{ properties.U.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
                 />
@@ -487,8 +487,8 @@
                 Enthalpy (H)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.H }}
+                <Clipboard :content="properties.H.toString()" :left="true">
+                  {{ properties.H.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')" />
               </td>
             </tr>
@@ -497,8 +497,8 @@
                 Entropy (S)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.S }}
+                <Clipboard :content="properties.S.toString()" :left="true">
+                  {{ properties.S.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
                 />
@@ -509,8 +509,8 @@
                 Isochoric heat capacity (<span v-html="getMathMLFromLatex('C_v')" />)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.Cv }}
+                <Clipboard :content="properties.Cv.toString()" :left="true">
+                  {{ properties.Cv.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
                 />
@@ -522,8 +522,8 @@
                 )
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.Cp }}
+                <Clipboard :content="properties.Cp.toString()" :left="true">
+                  {{ properties.Cp.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\text{J}\\cdot\\text{mol}^{-1}\\cdot\\text{K}^{-1}')"
                 />
@@ -534,8 +534,8 @@
                 Speed of sound
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.W }}
+                <Clipboard :content="properties.W.toString()" :left="true">
+                  {{ properties.W.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{m}}{\\text{s}}')" />
               </td>
             </tr>
@@ -544,8 +544,8 @@
                 Gibbs energy (G)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.G }}
+                <Clipboard :content="properties.G.toString()" :left="true">
+                  {{ properties.G.toPrecision(5) }}
                 </Clipboard> <span
                   v-html="getMathMLFromLatex('\\frac{\\text{J}}{\\text{mol}}')"
                 />
@@ -556,28 +556,18 @@
                 Joule-Thomson coefficient (<span v-html="getMathMLFromLatex('\\mu_{JT}')" />)
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.JT }}
+                <Clipboard :content="properties.JT.toString()" :left="true">
+                  {{ properties.JT.toPrecision(5) }}
                 </Clipboard> <span v-html="getMathMLFromLatex('\\frac{\\text{K}}{\\text{kPa}}')" />
               </td>
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
+                Isentropic Exponent <span v-html="getMathMLFromLatex('\\kappa = \\frac{C_p}{C_v}')" />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ (properties.Cp / properties.Cv) || '∞' }}
-                </Clipboard>
-              </td>
-            </tr>
-            <tr>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Isentropic Exponent
-              </td>
-              <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.Kappa }}
+                <Clipboard :content="properties.Kappa.toString()" :left="true">
+                  {{ properties.Kappa.toPrecision(5) }}
                 </Clipboard>
               </td>
             </tr>
@@ -589,8 +579,8 @@
                 />
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <Clipboard :left="true">
-                  {{ properties.Cf }}
+                <Clipboard :content="properties.Cf.toString()" :left="true">
+                  {{ properties.Cf.toPrecision(5) }}
                 </Clipboard>
               </td>
             </tr>

@@ -7,7 +7,7 @@
     ref="btnRef"
     :data-tooltip-target="`tp${uniqueId}`"
     data-tooltip-trigger="click"
-    :data-clipboard-target="`#${uniqueId}`"
+    :data-clipboard-text="props.content"
   >
     <img
       :id="`img${uniqueId}`"
@@ -36,6 +36,7 @@ import { initFlowbite } from 'flowbite'
 import ClipboardJS from 'clipboard';
 export interface Props {
   msg?: string
+  content: string
   altMsg?: string
   left?: boolean
 }
