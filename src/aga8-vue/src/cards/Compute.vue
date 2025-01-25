@@ -25,38 +25,11 @@
         >
       </div>
     </div>
-    <!-- <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-      <button
-        v-if="moduleLoaded"
-        :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
-        :disabled="!isTotalConcentrationValid(getGasMixture())"
-        class="inline-block rounded px-8 py-3 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500"
-        @click="computeDetail(method)"
-      >
-        <select
-          id="MethodSelect"
-          v-model="method"
-          name="MethodSelect"
-          class="mt-1.5 w-full rounded-lg border-gray-300 text-white sm:text-sm"
-        >
-          <option value="DETAIL">
-            {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute with Detail' :
-              `Total must be 100% (${totalPercent}%)` }}
-          </option>
-          <option value="GERG-2008">
-            {{ isTotalConcentrationValid(getGasMixture()) ? 'Compute with GERG-2008' :
-              `Total must be 100% (${totalPercent}%)` }}
-          </option>
-        </select>
-      </button>
-    </div> -->
-
-
     <div class="relative">
       <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
         <button
           :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
-          class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-800 hover:text-white"
+          class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-500 hover:text-white"
           @click="computeProperties(method)"
         >
           {{ isTotalConcentrationValid(getGasMixture()) ? `Compute with ${method}` :
