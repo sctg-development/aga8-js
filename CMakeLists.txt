@@ -80,9 +80,9 @@ file(WRITE ${CMAKE_BINARY_DIR}/type_definition.d.ts
  * 
  * @example
  * // 94% methane, 5% CO2, 1% helium
- * const mixture: gazMixtureInMolePercent = [0, 0.94, 0, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.01, 0];
+ * const mixture: gasMixtureInMolePercent = [0, 0.94, 0, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.01, 0];
  */
- export type gazMixtureInMolePercent = [
+ export type gasMixtureInMolePercent = [
   number,                  // PLACEHOLDER must be 0
   methane: number,         // METHANE
   nitrogen: number,        // NITROGEN

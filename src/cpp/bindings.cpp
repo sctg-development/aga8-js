@@ -24,9 +24,9 @@
  * @note Density inputs are in mol/l (mol/dm³)
  * 
  * Example mixture (94% methane, 5% CO2, 1% helium):
- * gazMixtureInMolePercent(1) = 0.94  // Methane
- * gazMixtureInMolePercent(3) = 0.05  // CO2
- * gazMixtureInMolePercent(20) = 0.01 // Helium
+ * gasMixtureInMolePercent(1) = 0.94  // Methane
+ * gasMixtureInMolePercent(3) = 0.05  // CO2
+ * gasMixtureInMolePercent(20) = 0.01 // Helium
  * 
  * @copyright (C) 2025 Ronan LE MEILLAT
  * @license GNU Affero General Public License v3.0
@@ -53,11 +53,11 @@
 #include "GERG2008.h"
 #include "Gross.h"
 
-EMSCRIPTEN_DECLARE_VAL_TYPE(gazMixtureInMolePercent);
+EMSCRIPTEN_DECLARE_VAL_TYPE(gasMixtureInMolePercent);
 EMSCRIPTEN_DECLARE_VAL_TYPE(xGrsArray);
 
 using namespace emscripten;
-// The compositions in the gazMixtureInMolePercent array use the following order and must be sent as mole fractions:
+// The compositions in the gasMixtureInMolePercent array use the following order and must be sent as mole fractions:
 //     0 - PLACEHOLDER
 //     1 - Methane
 //     2 - Nitrogen
@@ -82,7 +82,7 @@ using namespace emscripten;
 //    21 - Argon
 //
 // For example, a mixture (in moles) of 94% methane, 5% CO2, and 1% helium would be (in mole fractions):
-// gazMixtureInMolePercent(1)=0.94, gazMixtureInMolePercent(3)=0.05, gazMixtureInMolePercent(20)=0.01
+// gasMixtureInMolePercent(1)=0.94, gasMixtureInMolePercent(3)=0.05, gasMixtureInMolePercent(20)=0.01
 enum class GasComponent
 {
     PLACEHOLDER = 0,
@@ -107,6 +107,56 @@ enum class GasComponent
     HYDROGEN_SULFIDE = 19,
     HELIUM = 20,
     ARGON = 21
+};
+
+/**
+ * @brief Structure to hold gas mixture composition in mole percent
+ * @details Contains mole fractions for each gas component in the mixture sum must be 1
+ * @var methane Methane mole fraction
+ * @var nitrogen Nitrogen mole fraction
+ * @var carbon_dioxide Carbon dioxide mole fraction
+ * @var ethane Ethane mole fraction
+ * @var propane Propane mole fraction
+ * @var isobutane Isobutane mole fraction
+ * @var n_butane n-Butane mole fraction
+ * @var isopentane Isopentane mole fraction
+ * @var n_pentane n-Pentane mole fraction
+ * @var n_hexane n-Hexane mole fraction
+ * @var n_heptane n-Heptane mole fraction
+ * @var n_octane n-Octane mole fraction
+ * @var n_nonane n-Nonane mole fraction
+ * @var n_decane n-Decane mole fraction
+ * @var hydrogen Hydrogen mole fraction
+ * @var oxygen Oxygen mole fraction
+ * @var carbon_monoxide Carbon monoxide mole fraction
+ * @var water Water mole fraction
+ * @var hydrogen_sulfide Hydrogen sulfide mole fraction
+ * @var helium Helium mole fraction
+ * @var argon Argon mole fraction
+ */
+struct gasMixture
+{
+    double methane;
+    double nitrogen;
+    double carbon_dioxide;
+    double ethane;
+    double propane;
+    double isobutane;
+    double n_butane;
+    double isopentane;
+    double n_pentane;
+    double n_hexane;
+    double n_heptane;
+    double n_octane;
+    double n_nonane;
+    double n_decane;
+    double hydrogen;
+    double oxygen;
+    double carbon_monoxide;
+    double water;
+    double hydrogen_sulfide;
+    double helium;
+    double argon;
 };
 
 /**
@@ -261,6 +311,38 @@ struct GrossMethod2Result
     std::string herr;
 };
 
+// Helper function to convert a JavaScript object to a C++ struct
+/**
+ * @brief Converts a JavaScript gasMixture Object to a C++ struct
+ */
+std::vector<double> gasMixture_to_vector(gasMixture js_object)
+{
+    std::vector<double> result(22);
+    result[0] = 0;
+    result[1] = js_object.methane;
+    result[2] = js_object.nitrogen;
+    result[3] = js_object.carbon_dioxide;
+    result[4] = js_object.ethane;
+    result[5] = js_object.propane;
+    result[6] = js_object.isobutane;
+    result[7] = js_object.n_butane;
+    result[8] = js_object.isopentane;
+    result[9] = js_object.n_pentane;
+    result[10] = js_object.n_hexane;
+    result[11] = js_object.n_heptane;
+    result[12] = js_object.n_octane;
+    result[13] = js_object.n_nonane;
+    result[14] = js_object.n_decane;
+    result[15] = js_object.hydrogen;
+    result[16] = js_object.oxygen;
+    result[17] = js_object.carbon_monoxide;
+    result[18] = js_object.water;
+    result[19] = js_object.hydrogen_sulfide;
+    result[20] = js_object.helium;
+    result[21] = js_object.argon;
+    return result;
+}
+
 // Helper function to convert a JavaScript array to a C++ vector
 /**
  * @brief Converts a JavaScript array to a C++ vector of doubles
@@ -316,9 +398,9 @@ val vector_to_array(const std::vector<double> &vec)
  * 
  * @see MolarMassDetail For the underlying calculation implementation
  */
-double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
+double MolarMassDetail_wrapper(gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double Mm = 0;
     MolarMassDetail(x, Mm);
     return Mm;
@@ -338,9 +420,9 @@ double MolarMassDetail_wrapper(gazMixtureInMolePercent x_array)
  * calculation using PressureDetail, returning the results in a convenient struct.
  * @see PressureDetail For the underlying calculation implementation
  */
-PressureResult PressureDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PressureResult PressureDetail_wrapper(double T, double D, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double P = 0, Z = 0;
     PressureDetail(T, D, x, P, Z);
     PressureResult result = {P, Z};
@@ -361,9 +443,9 @@ PressureResult PressureDetail_wrapper(double T, double D, gazMixtureInMolePercen
  *         - herr: Error message
  * @see DensityDetail For the underlying calculation implementation
  */
-DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent x_array)
+DensityResult DensityDetail_wrapper(double T, double P, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double D = 0;
     int ierr = 0;
     std::string herr;
@@ -401,9 +483,9 @@ DensityResult DensityDetail_wrapper(double T, double P, gazMixtureInMolePercent 
  *   - Cf: Critical flow factor [-]
  * @see PropertiesDetail For the underlying calculation implementation
  */
-PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
     double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0, Cf = 0;
 
@@ -427,9 +509,9 @@ PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gazMixtureIn
  * 
  * @see MolarMassGERG For the underlying calculation implementation
  */
-double MolarMassGERG_wrapper(gazMixtureInMolePercent x_array)
+double MolarMassGERG_wrapper(gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double Mm = 0;
     MolarMassGERG(x, Mm);
     return Mm;
@@ -450,9 +532,9 @@ double MolarMassGERG_wrapper(gazMixtureInMolePercent x_array)
  * 
  * @see PressureGERG For the underlying calculation implementation
  */
-PressureResult PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PressureResult PressureGERG_wrapper(double T, double D, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double P = 0, Z = 0;
     PressureGERG(T, D, x, P, Z);
 
@@ -474,9 +556,9 @@ PressureResult PressureGERG_wrapper(double T, double D, gazMixtureInMolePercent 
  * 
  * @see DensityGERG For the underlying calculation implementation
  */
-DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMolePercent x_array)
+DensityResult DensityGERG_wrapper(int iflag, double T, double P, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double D = 0;
     int ierr = 0;
     std::string herr;
@@ -515,9 +597,9 @@ DensityResult DensityGERG_wrapper(int iflag, double T, double P, gazMixtureInMol
  * 
  * @see PropertiesGERG For the underlying calculation implementation
  */
-PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMolePercent x_array)
+PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double P = 0, Z = 0, dPdD = 0, d2PdD2 = 0, d2PdTD = 0, dPdT = 0;
     double U = 0, H = 0, S = 0, Cv = 0, Cp = 0, W = 0, G = 0, JT = 0, Kappa = 0, A = 0, Cf = 0;
 
@@ -540,9 +622,9 @@ PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gazMixtureInMole
  * 
  * @see MolarMassGross For the underlying calculation implementation
  */
-double MolarMassGross_wrapper(gazMixtureInMolePercent x_array)
+double MolarMassGross_wrapper(gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     double Mm = 0;
     MolarMassGross(x, Mm);
     return Mm;
@@ -625,9 +707,9 @@ DensityResult DensityGross_wrapper(double T, double P, xGrsArray xGrs_array, dou
  * 
  * @see GrossHv For the underlying calculation implementation
  */
-GrossHvResult GrossHv_wrapper(gazMixtureInMolePercent x_array)
+GrossHvResult GrossHv_wrapper(gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     std::vector<double> xGrs(x.size());
     double HN = 0, HCH = 0;
 
@@ -653,9 +735,9 @@ GrossHvResult GrossHv_wrapper(gazMixtureInMolePercent x_array)
  *         - herr: Error message
  * @see GrossInputs For the underlying calculation implementation
  */
-GrossInputsResult GrossInputs_wrapper(double T, double P, gazMixtureInMolePercent x_array)
+GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
 {
-    std::vector<double> x = array_to_vector(x_array);
+    std::vector<double> x = gasMixture_to_vector(x_array);
     std::vector<double> xGrs(x.size());
     double Gr = 0, HN = 0, HCH = 0;
     int ierr = 0;
@@ -773,7 +855,7 @@ GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrsArr
  * - GasComponent: Enumeration of different gas components (methane, nitrogen, etc.)
  * 
  * Types:
- * - gazMixtureInMolePercent: Gas mixture composition in mole percent
+ * - gasMixtureInMolePercent: Gas mixture composition in mole percent
  * - xGrsArray: Array for gross method calculations
  * - VectorDouble: Vector of double precision numbers
  * 
@@ -841,9 +923,32 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .value("HELIUM", GasComponent::HELIUM)
         .value("ARGON", GasComponent::ARGON);
 
-    register_type<gazMixtureInMolePercent>("gazMixtureInMolePercent");
+    register_type<gasMixtureInMolePercent>("gasMixtureInMolePercent");
     register_type<xGrsArray>("xGrsArray");
     register_vector<double>("VectorDouble");
+
+    value_object<gasMixture>("GasMixture")
+        .field("methane", &gasMixture::methane)
+        .field("nitrogen", &gasMixture::nitrogen)
+        .field("carbon_dioxide", &gasMixture::carbon_dioxide)
+        .field("ethane", &gasMixture::ethane)
+        .field("propane", &gasMixture::propane)
+        .field("isobutane", &gasMixture::isobutane)
+        .field("n_butane", &gasMixture::n_butane)
+        .field("isopentane", &gasMixture::isopentane)
+        .field("n_pentane", &gasMixture::n_pentane)
+        .field("n_hexane", &gasMixture::n_hexane)
+        .field("n_heptane", &gasMixture::n_heptane)
+        .field("n_octane", &gasMixture::n_octane)
+        .field("n_nonane", &gasMixture::n_nonane)
+        .field("n_decane", &gasMixture::n_decane)
+        .field("hydrogen", &gasMixture::hydrogen)
+        .field("oxygen", &gasMixture::oxygen)
+        .field("carbon_monoxide", &gasMixture::carbon_monoxide)
+        .field("water", &gasMixture::water)
+        .field("hydrogen_sulfide", &gasMixture::hydrogen_sulfide)
+        .field("helium", &gasMixture::helium)
+        .field("argon", &gasMixture::argon);
 
     value_object<PressureResult>("PressureResult")
         .field("P", &PressureResult::P)
