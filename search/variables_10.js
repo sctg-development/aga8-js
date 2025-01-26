@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['s_0',['S',['../structPropertiesDetailResult.html#a9060897ba0bd5036c21d2b38047d08af',1,'PropertiesDetailResult::S'],['../structPropertiesGERGResult.html#a76246f0b4f9d1f277b8a1fa8c8f59107',1,'PropertiesGERGResult::S']]]
+  ['rdetail_0',['RDetail',['../Detail_8cpp.html#a61db7f6d7e1ecc920f3bafa01e51e729',1,'Detail.cpp']]],
+  ['rgerg_1',['RGERG',['../GERG2008_8cpp.html#a07ab1a0449a166f35a27d72e5db3248e',1,'GERG2008.cpp']]],
+  ['rgross_2',['RGross',['../Gross_8cpp.html#a36ad4d1da6094b88ad6ca877f9b6f88d',1,'Gross.cpp']]]
 ];

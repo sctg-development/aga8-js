@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['z_0',['Z',['../structPressureResult.html#abb2c63c394a881fb5b0e931927ad9cc2',1,'PressureResult::Z'],['../structPropertiesDetailResult.html#ace6083a5b50f2bc48689afa183603fa4',1,'PropertiesDetailResult::Z'],['../structPropertiesGERGResult.html#af1bd139aa3bf3a4c64d01f185f9f8dcd',1,'PropertiesGERGResult::Z'],['../structPressureGrossResult.html#a363513e3b49fb30ba60e5d063c5008a6',1,'PressureGrossResult::Z']]]
+  ['xgrs_0',['xGrs',['../structGrossHvResult.html#a084d7ec1a08c4c6cab834aae525a169a',1,'GrossHvResult::xGrs'],['../structGrossInputsResult.html#ac470b0e72f915a2ec2c24e22ceaacd25',1,'GrossInputsResult::xGrs'],['../structGrossMethod1Result.html#abe079eea23516f4128e2eb0434ba1d40',1,'GrossMethod1Result::xGrs'],['../structGrossMethod2Result.html#a2e7c74badad6fac5fb0e4d65b1afa8d2',1,'GrossMethod2Result::xGrs']]],
+  ['xhn_1',['xHN',['../Gross_8cpp.html#a71bf090bfa8699be83c8c454edb2f7c0',1,'Gross.cpp']]],
+  ['xold_2',['xold',['../Detail_8cpp.html#a9e0d4508db4bbc5ada348c85b5c6f0ea',1,'xold:&#160;Detail.cpp'],['../GERG2008_8cpp.html#a9e0d4508db4bbc5ada348c85b5c6f0ea',1,'xold:&#160;GERG2008.cpp']]]
 ];

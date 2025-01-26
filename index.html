@@ -162,14 +162,14 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 <div class="fragment"><div class="line">npm install @sctg/aga8-js</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md4"></a>
 💻 Quick Start</h2>
-<div class="fragment"><div class="line">import AGA8wasm, { gazMixtureInMolePercent } from &#39;@sctg/aga8-js&#39;;</div>
+<div class="fragment"><div class="line">import AGA8wasm, { gasMixtureInMolePercent } from &#39;@sctg/aga8-js&#39;;</div>
 <div class="line"> </div>
 <div class="line">// Initialize AGA8 module</div>
 <div class="line">const AGA8 = await AGA8wasm();</div>
 <div class="line">AGA8.SetupGERG();</div>
 <div class="line"> </div>
 <div class="line">// Define gas mixture (94% methane, 5% CO2, 1% helium)</div>
-<div class="line">const mixture: gazMixtureInMolePercent = [</div>
+<div class="line">const mixture: gasMixtureInMolePercent = [</div>
 <div class="line">    0,     // PLACEHOLDER</div>
 <div class="line">    0.94,  // METHANE</div>
 <div class="line">    0,     // NITROGEN</div>

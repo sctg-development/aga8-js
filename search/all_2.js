@@ -12,5 +12,6 @@ var searchData=
   ['and_20detail_20equations_20of_20state_9',['AGA 8 , GROSS and DETAIL Equations of State',['../index.html',1,'']]],
   ['and_20detail_20gas_20properties_20calculator_10',['AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator',['../index.html#autotoc_md0',1,'']]],
   ['argon_11',['ARGON',['../bindings_8cpp.html#a3a6cb6dd008d4af0c3278059467af063a93a6004eb5904bec7c3cc81edb4991e1',1,'bindings.cpp']]],
-  ['array_5fto_5fvector_12',['array_to_vector',['../bindings_8cpp.html#ac2d8b4312c262a4177196668b90e92c3',1,'bindings.cpp']]]
+  ['argon_12',['argon',['../structgasMixture.html#a82bf37982487eb1939196310eca62d2f',1,'gasMixture']]],
+  ['array_5fto_5fvector_13',['array_to_vector',['../bindings_8cpp.html#ac2d8b4312c262a4177196668b90e92c3',1,'bindings.cpp']]]
 ];
