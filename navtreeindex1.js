@@ -1,7 +1,5 @@
 var NAVTREEINDEX1 =
 {
-"structGrossMethod1Result.html#a413d450831c9eac121adf039e53e5bcb":[1,0,4,4],
-"structGrossMethod1Result.html#a80f2d6f65ef14065c5d274dbd1c19dbc":[1,0,4,0],
 "structGrossMethod1Result.html#a8abe36966487d39a4816cf02d8d0d621":[1,0,4,2],
 "structGrossMethod1Result.html#abe079eea23516f4128e2eb0434ba1d40":[1,0,4,5],
 "structGrossMethod1Result.html#ac16b2108ef31d75921ed7944c095455d":[1,0,4,1],
