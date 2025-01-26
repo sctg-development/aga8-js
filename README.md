@@ -42,23 +42,36 @@ npm install @sctg/aga8-js
 ## 💻 Quick Start
 
 ```typescript
-import AGA8wasm, { gasMixtureInMolePercent } from '@sctg/aga8-js';
+import AGA8wasm, { {type GasMixture} } from '@sctg/aga8-js';
 
 // Initialize AGA8 module
 const AGA8 = await AGA8wasm();
 AGA8.SetupGERG();
 
 // Define gas mixture (94% methane, 5% CO2, 1% helium)
-const mixture: gasMixtureInMolePercent = [
-    0,     // PLACEHOLDER
-    0.94,  // METHANE
-    0,     // NITROGEN
-    0.05,  // CO2
-    0,     // ETHANE
-    // ... other components
-    0.01,  // HELIUM
-    0      // ARGON
-];
+const mixture: GasMixture = {
+    methane: 0.94,
+    nitrogen: 0,
+    carbon_dioxide: 0.05,
+    ethane: 0,
+    propane: 0,
+    isobutane: 0,
+    n_butane: 0,
+    isopentane: 0,
+    n_pentane: 0,
+    n_hexane: 0,
+    n_heptane: 0,
+    n_octane: 0,
+    n_nonane: 0,
+    n_decane: 0,
+    hydrogen: 0,
+    oxygen: 0,
+    carbon_monoxide: 0,
+    water: 0,
+    hydrogen_sulfide: 0,
+    helium: 0.01,
+    argon: 0
+}
 
 // Calculate properties
 const molarMass = AGA8.MolarMassGERG(mixture);

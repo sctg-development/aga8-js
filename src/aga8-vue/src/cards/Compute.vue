@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
+import AGA8wasm, { type MainModule, type GasMixture, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
 import Clipboard from '../components/Clipboard.vue';
 import { onMounted, ref, type VNodeRef } from 'vue';
 import Temml from 'temml';
@@ -29,8 +29,119 @@ const menuOpen = ref(false);
 const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
 
+/**
+ * Air mixture composition in mole fraction
+ */
+const air: GasMixture = {
+  methane: 0,
+  nitrogen: 0.7808,
+  carbon_dioxide: 0,
+  ethane: 0,
+  propane: 0,
+  isobutane: 0,
+  n_butane: 0,
+  isopentane: 0,
+  n_pentane: 0,
+  n_hexane: 0,
+  n_heptane: 0,
+  n_octane: 0,
+  n_nonane: 0,
+  n_decane: 0,
+  hydrogen: 0,
+  oxygen: 0.2095,
+  carbon_monoxide: 0,
+  water: 0.000400,
+  hydrogen_sulfide: 0,
+  helium: 0,
+  argon: 0.009300,
+}
+
+/**
+ *  NIST Reference Gas Mixture composition in mole fraction
+ */
+const NISTReferenceGasMixture: GasMixture = {
+  methane: 0.77824,
+  nitrogen: 0.02,
+  carbon_dioxide: 0.06,
+  ethane: 0.08,
+  propane: 0.03,
+  isobutane: 0.0015,
+  n_butane: 0.003,
+  isopentane: 0.0005,
+  n_pentane: 0.00165,
+  n_hexane: 0.00215,
+  n_heptane: 0.00088,
+  n_octane: 0.00024,
+  n_nonane: 0.00015,
+  n_decane: 0.00009,
+  hydrogen: 0.004,
+  oxygen: 0.005,
+  carbon_monoxide: 0.002,
+  water: 0.0001,
+  hydrogen_sulfide: 0.0025,
+  helium: 0.007,
+  argon: 0.001
+}
+
+/**
+ * Pure methane gas mixture in mole fraction
+ */
+const methane: GasMixture = {
+  methane: 1,
+  nitrogen: 0,
+  carbon_dioxide: 0,
+  ethane: 0,
+  propane: 0,
+  isobutane: 0,
+  n_butane: 0,
+  isopentane: 0,
+  n_pentane: 0,
+  n_hexane: 0,
+  n_heptane: 0,
+  n_octane: 0,
+  n_nonane: 0,
+  n_decane: 0,
+  hydrogen: 0,
+  oxygen: 0,
+  carbon_monoxide: 0,
+  water: 0,
+  hydrogen_sulfide: 0,
+  helium: 0,
+  argon: 0
+}
+
+/** 
+ * Pure nitrogen gas mixture in mole fraction 
+ */
+const nitrogen: GasMixture = {
+  methane: 0,
+  nitrogen: 1,
+  carbon_dioxide: 0,
+  ethane: 0,
+  propane: 0,
+  isobutane: 0,
+  n_butane: 0,
+  isopentane: 0,
+  n_pentane: 0,
+  n_hexane: 0,
+  n_heptane: 0,
+  n_octane: 0,
+  n_nonane: 0,
+  n_decane: 0,
+  hydrogen: 0,
+  oxygen: 0,
+  carbon_monoxide: 0,
+  water: 0,
+  hydrogen_sulfide: 0,
+  helium: 0,
+  argon: 0,
+}
+
+/**
+ * Reactive references to gas mixture components in mole percent
+ */
 const methaneConcentration = ref(0);
-const nitrogenConcentration = ref(78.08);
+const nitrogenConcentration = ref(0);
 const carbonDioxideConcentration = ref(0);
 const ethaneConcentration = ref(0);
 const propaneConcentration = ref(0);
@@ -44,12 +155,12 @@ const nOctaneConcentration = ref(0);
 const nNonaneConcentration = ref(0);
 const nDecaneConcentration = ref(0);
 const hydrogenConcentration = ref(0);
-const oxygenConcentration = ref(20.95);
+const oxygenConcentration = ref(0);
 const carbonMonoxideConcentration = ref(0);
-const waterConcentration = ref(0.04);
+const waterConcentration = ref(0);
 const hydrogenSulfideConcentration = ref(0);
 const heliumConcentration = ref(0);
-const argonConcentration = ref(0.93);
+const argonConcentration = ref(0);
 
 const T = ref(273.15 + 20); // °K
 const P = ref(101.325);     // kPa
@@ -88,6 +199,7 @@ let AGA8: MainModule | null = null;
  * @requires moduleLoaded - Reactive reference to the module load status
  */
 onMounted(() => {
+  setGasMixture(air);
   AGA8wasm().then((AGA8module) => {
     AGA8 = AGA8module;
     moduleLoaded.value = true;
@@ -106,32 +218,61 @@ function getMathMLFromLatex(latex: string): string {
 /**
  * Returns the gas mixture in mole percent
  * 
- * @returns {gazMixtureInMolePercent} - Array of gas mixture components in mole percent
+ * @returns {GasMixture} - Array of gas mixture components in mole percent
  */
-function getGasMixture(): gazMixtureInMolePercent {
-  return [
-    0, //Placeholder for the total mole percent
-    methaneConcentration.value / 100,
-    nitrogenConcentration.value / 100,
-    carbonDioxideConcentration.value / 100,
-    ethaneConcentration.value / 100,
-    propaneConcentration.value / 100,
-    isobutaneConcentration.value / 100,
-    nButaneConcentration.value / 100,
-    isopentaneConcentration.value / 100,
-    nPentaneConcentration.value / 100,
-    nHexaneConcentration.value / 100,
-    nHeptaneConcentration.value / 100,
-    nOctaneConcentration.value / 100,
-    nNonaneConcentration.value / 100,
-    nDecaneConcentration.value / 100,
-    hydrogenConcentration.value / 100,
-    oxygenConcentration.value / 100,
-    carbonMonoxideConcentration.value / 100,
-    waterConcentration.value / 100,
-    hydrogenSulfideConcentration.value / 100,
-    heliumConcentration.value / 100,
-    argonConcentration.value / 100];
+function getGasMixture(): GasMixture {
+  return {
+    methane: methaneConcentration.value / 100,
+    nitrogen: nitrogenConcentration.value / 100,
+    carbon_dioxide: carbonDioxideConcentration.value / 100,
+    ethane: ethaneConcentration.value / 100,
+    propane: propaneConcentration.value / 100,
+    isobutane: isobutaneConcentration.value / 100,
+    n_butane: nButaneConcentration.value / 100,
+    isopentane: isopentaneConcentration.value / 100,
+    n_pentane: nPentaneConcentration.value / 100,
+    n_hexane: nHexaneConcentration.value / 100,
+    n_heptane: nHeptaneConcentration.value / 100,
+    n_octane: nOctaneConcentration.value / 100,
+    n_nonane: nNonaneConcentration.value / 100,
+    n_decane: nDecaneConcentration.value / 100,
+    hydrogen: hydrogenConcentration.value / 100,
+    oxygen: oxygenConcentration.value / 100,
+    carbon_monoxide: carbonMonoxideConcentration.value / 100,
+    water: waterConcentration.value / 100,
+    hydrogen_sulfide: hydrogenSulfideConcentration.value / 100,
+    helium: heliumConcentration.value / 100,
+    argon: argonConcentration.value / 100,
+  }
+}
+
+/**
+ * Reset the gas mixture to a specific composition
+ * @param {GasMixture} x - Array of gas mixture components in mole percent
+ */
+
+function setGasMixture(x: GasMixture): void {
+  methaneConcentration.value = x.methane * 100;
+  nitrogenConcentration.value = x.nitrogen * 100;
+  carbonDioxideConcentration.value = x.carbon_dioxide * 100;
+  ethaneConcentration.value = x.ethane * 100;
+  propaneConcentration.value = x.propane * 100;
+  isobutaneConcentration.value = x.isobutane * 100;
+  nButaneConcentration.value = x.n_butane * 100;
+  isopentaneConcentration.value = x.isopentane * 100;
+  nPentaneConcentration.value = x.n_pentane * 100;
+  nHexaneConcentration.value = x.n_hexane * 100;
+  nHeptaneConcentration.value = x.n_heptane * 100;
+  nOctaneConcentration.value = x.n_octane * 100;
+  nNonaneConcentration.value = x.n_nonane * 100;
+  nDecaneConcentration.value = x.n_decane * 100;
+  hydrogenConcentration.value = x.hydrogen * 100;
+  oxygenConcentration.value = x.oxygen * 100;
+  carbonMonoxideConcentration.value = x.carbon_monoxide * 100;
+  waterConcentration.value = x.water * 100;
+  hydrogenSulfideConcentration.value = x.hydrogen_sulfide * 100;
+  heliumConcentration.value = x.helium * 100;
+  argonConcentration.value = x.argon * 100;
 }
 
 /**
@@ -183,20 +324,20 @@ function computeProperties(method: Method): void {
 /**
  * Calculates the sum of mole percentages for all components in a gas mixture, excluding the first element.
  * 
- * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
+ * @param {GasMixture} x - Array of gas mixture components in mole percent
  * @returns {number} - Total concentration as sum of all components except first one
  */
-function computeTotalConcentration(x: gazMixtureInMolePercent): number {
-  return x.slice(1).reduce((a, b) => a + b, 0);
+function computeTotalConcentration(x: GasMixture): number {
+  return Object.values(x).reduce((acc, val) => acc + val, 0);
 }
 
 /**
  * Checks if the total concentration of a gas mixture is 100%
  * 
- * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
+ * @param {GasMixture} x - Array of gas mixture components in mole percent
  * @returns {boolean} - True if total concentration is 100%, false otherwise
  */
-function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
+function isTotalConcentrationValid(x: GasMixture): boolean {
   const concentration = computeTotalConcentration(x);
   const delta = Math.abs(1 - concentration);
   if (delta > 1e-12) {
@@ -242,10 +383,7 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
           {{ isTotalConcentrationValid(getGasMixture()) ? `Compute with ${method}` :
             `Total must be 100% (${totalPercent}%)` }}
         </button>
-        <button
-          class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
-          @click="menuOpen = !menuOpen"
-        >
+        <button class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700" @click="menuOpen = !menuOpen">
           <span class="sr-only">Method</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -262,7 +400,11 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
         </button>
       </div>
 
-      <div v-if="menuOpen" :ref="menu" class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg">
+      <div
+        v-if="menuOpen"
+        :ref="menu"
+        class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg"
+      >
         <div class="p-2">
           <button
             class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -289,6 +431,65 @@ function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
             <tr>
               <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 Gas mixture composition
+                <button
+                  id="dropdownDefaultButton"
+                  data-dropdown-toggle="dropdown"
+                  class="border border-gray-200 rounded text-sm text-gray-900 px-1 py-0.5 text-center inline-flex items-center"
+                  type="button"
+                >
+                  Preset <svg
+                    class="w-2.5 h-2.5 ms-3"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m1 1 4 4 4-4"
+                    />
+                  </svg>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div
+                  id="dropdown"
+                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700"
+                >
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                    <li>
+                      <a
+                        href="#"
+                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        @click="setGasMixture(air)"
+                      >Air</a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        @click="setGasMixture(methane)"
+                      >Methane</a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        @click="setGasMixture(NISTReferenceGasMixture)"
+                      >NIST Reference gas</a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        @click="setGasMixture(nitrogen)"
+                      >Nitrogen</a>
+                    </li>
+                  </ul>
+                </div>
               </th>
               <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 Concentration

@@ -1,84 +1,80 @@
 // first install the package
 // npm install @sctg/aga8-js
-import AGA8wasm, { gazMixtureInMolePercent } from '@sctg/aga8-js';
+import AGA8wasm, { type GasMixture } from '@sctg/aga8-js';
 
 // Gas mixture composition (mole fractions, must sum to 1)
-const gasMixture: gazMixtureInMolePercent = [
-    0,        // [0] PLACEHOLDER (must be 0)
-    0.77824,  // [1] METHANE
-    0.02,     // [2] NITROGEN
-    0.06,     // [3] CARBON DIOXIDE
-    0.08,     // [4] ETHANE
-    0.03,     // [5] PROPANE
-    0.0015,   // [6] ISOBUTANE
-    0.003,    // [7] N-BUTANE
-    0.0005,   // [8] ISOPENTANE
-    0.00165,  // [9] N-PENTANE
-    0.00215,  // [10] N-HEXANE
-    0.00088,  // [11] N-HEPTANE
-    0.00024,  // [12] N-OCTANE
-    0.00015,  // [13] N-NONANE
-    0.00009,  // [14] N-DECANE
-    0.004,    // [15] HYDROGEN
-    0.005,    // [16] OXYGEN
-    0.002,    // [17] CARBON MONOXIDE
-    0.0001,   // [18] WATER
-    0.0025,   // [19] HYDROGEN SULFIDE
-    0.007,    // [20] HELIUM
-    0.001     // [21] ARGON
-];
+// NIST Reference Gas Mixture
+const gasMixture: GasMixture = {
+    methane: 0.77824,
+    nitrogen: 0.02,
+    carbon_dioxide: 0.06,
+    ethane: 0.08,
+    propane: 0.03,
+    isobutane: 0.0015,
+    n_butane: 0.003,
+    isopentane: 0.0005,
+    n_pentane: 0.00165,
+    n_hexane: 0.00215,
+    n_heptane: 0.00088,
+    n_octane: 0.00024,
+    n_nonane: 0.00015,
+    n_decane: 0.00009,
+    hydrogen: 0.004,
+    oxygen: 0.005,
+    carbon_monoxide: 0.002,
+    water: 0.0001,
+    hydrogen_sulfide: 0.0025,
+    helium: 0.007,
+    argon: 0.001
+}
+const pureNitrogen: GasMixture = {
+    methane: 0,
+    nitrogen: 1,
+    carbon_dioxide: 0,
+    ethane: 0,
+    propane: 0,
+    isobutane: 0,
+    n_butane: 0,
+    isopentane: 0,
+    n_pentane: 0,
+    n_hexane: 0,
+    n_heptane: 0,
+    n_octane: 0,
+    n_nonane: 0,
+    n_decane: 0,
+    hydrogen: 0,
+    oxygen: 0,
+    carbon_monoxide: 0,
+    water: 0,
+    hydrogen_sulfide: 0,
+    helium: 0,
+    argon: 0
+}
+const pureHydrogen: GasMixture = {
+    methane: 0,
+    nitrogen: 0,
+    carbon_dioxide: 0,
+    ethane: 0,
+    propane: 0,
+    isobutane: 0,
+    n_butane: 0,
+    isopentane: 0,
+    n_pentane: 0,
+    n_hexane: 0,
+    n_heptane: 0,
+    n_octane: 0,
+    n_nonane: 0,
+    n_decane: 0,
+    hydrogen: 1,
+    oxygen: 0,
+    carbon_monoxide: 0,
+    water: 0,
+    hydrogen_sulfide: 0,
+    helium: 0,
+    argon: 0
+}
 
-const pureNitrogen: gazMixtureInMolePercent = [
-    0,        // [0] PLACEHOLDER (must be 0)
-    0,        // [1] METHANE
-    1,        // [2] NITROGEN
-    0,        // [3] CARBON DIOXIDE
-    0,        // [4] ETHANE
-    0,        // [5] PROPANE
-    0,        // [6] ISOBUTANE
-    0,        // [7] N-BUTANE
-    0,        // [8] ISOPENTANE
-    0,        // [9] N-PENTANE
-    0,        // [10] N-HEXANE
-    0,        // [11] N-HEPTANE
-    0,        // [12] N-OCTANE
-    0,        // [13] N-NONANE
-    0,        // [14] N-DECANE
-    0,        // [15] HYDROGEN
-    0,        // [16] OXYGEN
-    0,        // [17] CARBON MONOXIDE
-    0,        // [18] WATER
-    0,        // [19] HYDROGEN SULFIDE
-    0,        // [20] HELIUM
-    0         // [21] ARGON
-];
-
-const pureHydrogen: gazMixtureInMolePercent = [
-    0,        // [0] PLACEHOLDER (must be 0)
-    0,        // [1] METHANE
-    0,        // [2] NITROGEN
-    0,        // [3] CARBON DIOXIDE
-    0,        // [4] ETHANE
-    0,        // [5] PROPANE
-    0,        // [6] ISOBUTANE
-    0,        // [7] N-BUTANE
-    0,        // [8] ISOPENTANE
-    0,        // [9] N-PENTANE
-    0,        // [10] N-HEXANE
-    0,        // [11] N-HEPTANE
-    0,        // [12] N-OCTANE
-    0,        // [13] N-NONANE
-    0,        // [14] N-DECANE
-    1,        // [15] HYDROGEN
-    0,        // [16] OXYGEN
-    0,        // [17] CARBON MONOXIDE
-    0,        // [18] WATER
-    0,        // [19] HYDROGEN SULFIDE
-    0,        // [20] HELIUM
-    0         // [21] ARGON
-];
-
-async function calculateGERGProperties(gaz: gazMixtureInMolePercent): Promise<void> {
+async function calculateGERGProperties(gaz: GasMixture): Promise<void> {
     // Initialize GERG-2008 module
     const AGA8 = await AGA8wasm();
     AGA8.SetupGERG();
