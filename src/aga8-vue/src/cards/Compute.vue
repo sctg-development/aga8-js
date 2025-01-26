@@ -1,4 +1,211 @@
 <!-- eslint-disable vue/no-v-html -->
+<script setup lang="ts">
+/**
+ * @copyright Copyright (c) 2024 Ronan LE MEILLAT
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
+import Clipboard from '../components/Clipboard.vue';
+import { onMounted, ref, type VNodeRef } from 'vue';
+import Temml from 'temml';
+
+type Method = 'DETAIL' | 'GERG-2008';
+const method = ref<Method>('DETAIL');
+const methodComputed = ref<Method | ''>('');
+const menuOpen = ref(false);
+const menu = ref<VNodeRef | null>(null);
+const moduleLoaded = ref(false);
+
+const methaneConcentration = ref(0);
+const nitrogenConcentration = ref(78.08);
+const carbonDioxideConcentration = ref(0);
+const ethaneConcentration = ref(0);
+const propaneConcentration = ref(0);
+const isobutaneConcentration = ref(0);
+const nButaneConcentration = ref(0);
+const isopentaneConcentration = ref(0);
+const nPentaneConcentration = ref(0);
+const nHexaneConcentration = ref(0);
+const nHeptaneConcentration = ref(0);
+const nOctaneConcentration = ref(0);
+const nNonaneConcentration = ref(0);
+const nDecaneConcentration = ref(0);
+const hydrogenConcentration = ref(0);
+const oxygenConcentration = ref(20.95);
+const carbonMonoxideConcentration = ref(0);
+const waterConcentration = ref(0.04);
+const hydrogenSulfideConcentration = ref(0);
+const heliumConcentration = ref(0);
+const argonConcentration = ref(0.93);
+
+const T = ref(273.15 + 20); // °K
+const P = ref(101.325);     // kPa
+// const R = 8.31446261815324;      // J•mol^-1•K^-1)
+const mm = ref(0); // Molar mass in g/mol
+const density = ref(0);  // Density in mol/l
+const totalPercent = ref(100); // Total percentage
+
+/**
+[out]	P	Pressure in kPa
+[out]	Z	Compressibility factor
+[out]	dPdD	First derivative of pressure with respect to density at constant temperature [kPa/(mol/l)]
+[out]	d2PdD2	Second derivative of pressure with respect to density at constant temperature [kPa/(mol/l)^2]
+[out]	d2PdTD	Second derivative of pressure with respect to temperature and density [kPa/(mol/l)/K]
+[out]	dPdT	First derivative of pressure with respect to temperature at constant density (kPa/K)
+[out]	U	Internal energy in J/mol
+[out]	H	Enthalpy in J/mol
+[out]	S	Entropy in J/(mol-K)
+[out]	Cv	Isochoric heat capacity in J/(mol-K)
+[out]	Cp	Isobaric heat capacity in J/(mol-K)
+[out]	W	Speed of sound in m/s
+[out]	G	Gibbs energy in J/mol
+[out]	JT	Joule-Thomson coefficient in K/kPa
+[out]	Kappa	Isentropic Exponent
+[out]	Cf	Critical Flow coefficient
+ */
+const properties = ref<PropertiesDetailResult | PropertiesGERGResult>({ P: 0, Z: 0, dPdD: 0, d2PdD2: 0, d2PdTD: 0, dPdT: 0, U: 0, H: 0, S: 0, Cv: 0, Cp: 0, W: 0, G: 0, JT: 0, Kappa: 0, Cf: 0 });
+let AGA8: MainModule | null = null;
+
+/**
+ * Loads the AGA8 WASM module
+ * 
+ * This function is called when the component is mounted
+ * 
+ * @requires AGA8wasm - The AGA8 WASM module
+ * @requires moduleLoaded - Reactive reference to the module load status
+ */
+onMounted(() => {
+  AGA8wasm().then((AGA8module) => {
+    AGA8 = AGA8module;
+    moduleLoaded.value = true;
+    console.warn("AGA8 module loaded");
+  })
+})
+
+/**
+ * Get the MathML representation of a LaTeX string
+ * @param latex - LaTeX string
+ */
+function getMathMLFromLatex(latex: string): string {
+  return Temml.renderToString(latex);
+}
+
+/**
+ * Returns the gas mixture in mole percent
+ * 
+ * @returns {gazMixtureInMolePercent} - Array of gas mixture components in mole percent
+ */
+function getGasMixture(): gazMixtureInMolePercent {
+  return [
+    0, //Placeholder for the total mole percent
+    methaneConcentration.value / 100,
+    nitrogenConcentration.value / 100,
+    carbonDioxideConcentration.value / 100,
+    ethaneConcentration.value / 100,
+    propaneConcentration.value / 100,
+    isobutaneConcentration.value / 100,
+    nButaneConcentration.value / 100,
+    isopentaneConcentration.value / 100,
+    nPentaneConcentration.value / 100,
+    nHexaneConcentration.value / 100,
+    nHeptaneConcentration.value / 100,
+    nOctaneConcentration.value / 100,
+    nNonaneConcentration.value / 100,
+    nDecaneConcentration.value / 100,
+    hydrogenConcentration.value / 100,
+    oxygenConcentration.value / 100,
+    carbonMonoxideConcentration.value / 100,
+    waterConcentration.value / 100,
+    hydrogenSulfideConcentration.value / 100,
+    heliumConcentration.value / 100,
+    argonConcentration.value / 100];
+}
+
+/**
+ * Calculates gas properties using AGA8 DETAIL or GERG-2008 method
+ * 
+ * This function performs the following operations when AGA8 module is available:
+ * 1. Initializes the AGA8 Detail method
+ * 2. Calculates the molar mass of the gas mixture in g/mol
+ * 3. Computes the density in mol/l based on temperature and pressure
+ * 4. Calculates additional gas properties using the computed density
+ * 
+ * @requires AGA8 - The AGA8 WASM module must be loaded
+ * @requires gasMixture - Reactive reference to the gas composition
+ * @requires T - Reactive reference to temperature
+ * @requires P - Reactive reference to pressure
+ * @param method - Method to use for the calculation, either "GERG2008" or "DETAIL"
+ * 
+ * @returns {void} - Results are logged to console
+ */
+function computeProperties(method: Method): void {
+  if (AGA8) {
+    if (method == "DETAIL") {
+      AGA8.SetupDetail();
+      const gasMixture = getGasMixture();
+      // Compute the molar mass
+      mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
+      // Compute the density in mol/l
+      const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
+      density.value = D;
+      properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
+      methodComputed.value = method;
+    } else if (method == "GERG-2008") {
+      AGA8.SetupGERG();
+      const gasMixture = getGasMixture();
+      // Compute the molar mass
+      mm.value = AGA8.MolarMassGERG(gasMixture); // g/mol
+      // Compute the density in mol/l
+      const { D } = AGA8.DensityGERG(2, T.value, P.value, gasMixture); // mol/l
+      density.value = D;
+      properties.value = AGA8.PropertiesGERG(T.value, D, gasMixture);
+      methodComputed.value = method;
+    }
+  } else {
+    console.warn("AGA8 module is not loaded");
+  }
+}
+
+
+/**
+ * Calculates the sum of mole percentages for all components in a gas mixture, excluding the first element.
+ * 
+ * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
+ * @returns {number} - Total concentration as sum of all components except first one
+ */
+function computeTotalConcentration(x: gazMixtureInMolePercent): number {
+  return x.slice(1).reduce((a, b) => a + b, 0);
+}
+
+/**
+ * Checks if the total concentration of a gas mixture is 100%
+ * 
+ * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
+ * @returns {boolean} - True if total concentration is 100%, false otherwise
+ */
+function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
+  const concentration = computeTotalConcentration(x);
+  const delta = Math.abs(1 - concentration);
+  if (delta > 1e-12) {
+    console.error(`Total concentration is not 100%: ${concentration * 100}%`);
+  }
+  totalPercent.value = concentration * 100;
+  return (delta <= 1e-12);
+}
+</script>
 <template>
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
@@ -617,193 +824,3 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import AGA8wasm, { type MainModule, type gazMixtureInMolePercent, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
-import Clipboard from '../components/Clipboard.vue';
-import { onMounted, ref, type VNodeRef } from 'vue';
-import Temml from 'temml';
-
-type Method = 'DETAIL' | 'GERG-2008';
-const method = ref<Method>('DETAIL');
-const methodComputed = ref<Method | ''>('');
-const menuOpen = ref(false);
-const menu = ref<VNodeRef | null>(null);
-const moduleLoaded = ref(false);
-
-const methaneConcentration = ref(0);
-const nitrogenConcentration = ref(78.08);
-const carbonDioxideConcentration = ref(0);
-const ethaneConcentration = ref(0);
-const propaneConcentration = ref(0);
-const isobutaneConcentration = ref(0);
-const nButaneConcentration = ref(0);
-const isopentaneConcentration = ref(0);
-const nPentaneConcentration = ref(0);
-const nHexaneConcentration = ref(0);
-const nHeptaneConcentration = ref(0);
-const nOctaneConcentration = ref(0);
-const nNonaneConcentration = ref(0);
-const nDecaneConcentration = ref(0);
-const hydrogenConcentration = ref(0);
-const oxygenConcentration = ref(20.95);
-const carbonMonoxideConcentration = ref(0);
-const waterConcentration = ref(0.04);
-const hydrogenSulfideConcentration = ref(0);
-const heliumConcentration = ref(0);
-const argonConcentration = ref(0.93);
-
-const T = ref(273.15 + 20); // °K
-const P = ref(101.325);     // kPa
-// const R = 8.31446261815324;      // J•mol^-1•K^-1)
-const mm = ref(0); // Molar mass in g/mol
-const density = ref(0);  // Density in mol/l
-const totalPercent = ref(100); // Total percentage
-
-/**
-[out]	P	Pressure in kPa
-[out]	Z	Compressibility factor
-[out]	dPdD	First derivative of pressure with respect to density at constant temperature [kPa/(mol/l)]
-[out]	d2PdD2	Second derivative of pressure with respect to density at constant temperature [kPa/(mol/l)^2]
-[out]	d2PdTD	Second derivative of pressure with respect to temperature and density [kPa/(mol/l)/K]
-[out]	dPdT	First derivative of pressure with respect to temperature at constant density (kPa/K)
-[out]	U	Internal energy in J/mol
-[out]	H	Enthalpy in J/mol
-[out]	S	Entropy in J/(mol-K)
-[out]	Cv	Isochoric heat capacity in J/(mol-K)
-[out]	Cp	Isobaric heat capacity in J/(mol-K)
-[out]	W	Speed of sound in m/s
-[out]	G	Gibbs energy in J/mol
-[out]	JT	Joule-Thomson coefficient in K/kPa
-[out]	Kappa	Isentropic Exponent
-[out]	Cf	Critical Flow coefficient
- */
-const properties = ref<PropertiesDetailResult | PropertiesGERGResult>({ P: 0, Z: 0, dPdD: 0, d2PdD2: 0, d2PdTD: 0, dPdT: 0, U: 0, H: 0, S: 0, Cv: 0, Cp: 0, W: 0, G: 0, JT: 0, Kappa: 0, Cf: 0 });
-let AGA8: MainModule | null = null;
-
-/**
- * Loads the AGA8 WASM module
- * 
- * This function is called when the component is mounted
- * 
- * @requires AGA8wasm - The AGA8 WASM module
- * @requires moduleLoaded - Reactive reference to the module load status
- */
-onMounted(() => {
-  AGA8wasm().then((AGA8module) => {
-    AGA8 = AGA8module;
-    moduleLoaded.value = true;
-    console.warn("AGA8 module loaded");
-  })
-})
-
-/**
- * Get the MathML representation of a LaTeX string
- * @param latex - LaTeX string
- */
-function getMathMLFromLatex(latex: string): string {
-  return Temml.renderToString(latex);
-}
-
-/**
- * Returns the gas mixture in mole percent
- * 
- * @returns {gazMixtureInMolePercent} - Array of gas mixture components in mole percent
- */
-function getGasMixture(): gazMixtureInMolePercent {
-  return [
-    0, //Placeholder for the total mole percent
-    methaneConcentration.value / 100,
-    nitrogenConcentration.value / 100,
-    carbonDioxideConcentration.value / 100,
-    ethaneConcentration.value / 100,
-    propaneConcentration.value / 100,
-    isobutaneConcentration.value / 100,
-    nButaneConcentration.value / 100,
-    isopentaneConcentration.value / 100,
-    nPentaneConcentration.value / 100,
-    nHexaneConcentration.value / 100,
-    nHeptaneConcentration.value / 100,
-    nOctaneConcentration.value / 100,
-    nNonaneConcentration.value / 100,
-    nDecaneConcentration.value / 100,
-    hydrogenConcentration.value / 100,
-    oxygenConcentration.value / 100,
-    carbonMonoxideConcentration.value / 100,
-    waterConcentration.value / 100,
-    hydrogenSulfideConcentration.value / 100,
-    heliumConcentration.value / 100,
-    argonConcentration.value / 100];
-}
-
-/**
- * Calculates gas properties using AGA8 DETAIL or GERG-2008 method
- * 
- * This function performs the following operations when AGA8 module is available:
- * 1. Initializes the AGA8 Detail method
- * 2. Calculates the molar mass of the gas mixture in g/mol
- * 3. Computes the density in mol/l based on temperature and pressure
- * 4. Calculates additional gas properties using the computed density
- * 
- * @requires AGA8 - The AGA8 WASM module must be loaded
- * @requires gasMixture - Reactive reference to the gas composition
- * @requires T - Reactive reference to temperature
- * @requires P - Reactive reference to pressure
- * @param method - Method to use for the calculation, either "GERG2008" or "DETAIL"
- * 
- * @returns {void} - Results are logged to console
- */
-function computeProperties(method: Method): void {
-  if (AGA8) {
-    if (method == "DETAIL") {
-      AGA8.SetupDetail();
-      const gasMixture = getGasMixture();
-      // Compute the molar mass
-      mm.value = AGA8.MolarMassDetail(gasMixture); // g/mol
-      // Compute the density in mol/l
-      const { D } = AGA8.DensityDetail(T.value, P.value, gasMixture); // mol/l
-      density.value = D;
-      properties.value = AGA8.PropertiesDetail(T.value, D, gasMixture);
-      methodComputed.value = method;
-    } else if (method == "GERG-2008") {
-      AGA8.SetupGERG();
-      const gasMixture = getGasMixture();
-      // Compute the molar mass
-      mm.value = AGA8.MolarMassGERG(gasMixture); // g/mol
-      // Compute the density in mol/l
-      const { D } = AGA8.DensityGERG(2, T.value, P.value, gasMixture); // mol/l
-      density.value = D;
-      properties.value = AGA8.PropertiesGERG(T.value, D, gasMixture);
-      methodComputed.value = method;
-    }
-  } else {
-    console.warn("AGA8 module is not loaded");
-  }
-}
-
-
-/**
- * Calculates the sum of mole percentages for all components in a gas mixture, excluding the first element.
- * 
- * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
- * @returns {number} - Total concentration as sum of all components except first one
- */
-function computeTotalConcentration(x: gazMixtureInMolePercent): number {
-  return x.slice(1).reduce((a, b) => a + b, 0);
-}
-
-/**
- * Checks if the total concentration of a gas mixture is 100%
- * 
- * @param {gazMixtureInMolePercent} x - Array of gas mixture components in mole percent
- * @returns {boolean} - True if total concentration is 100%, false otherwise
- */
-function isTotalConcentrationValid(x: gazMixtureInMolePercent): boolean {
-  const concentration = computeTotalConcentration(x);
-  const delta = Math.abs(1 - concentration);
-  if (delta > 1e-12) {
-    console.error(`Total concentration is not 100%: ${concentration * 100}%`);
-  }
-  totalPercent.value = concentration * 100;
-  return (delta <= 1e-12);
-}
-</script>

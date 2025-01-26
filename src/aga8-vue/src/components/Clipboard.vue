@@ -1,3 +1,52 @@
+<script setup lang="ts">
+/**
+ * @copyright Copyright (c) 2024 Ronan LE MEILLAT
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+import { onMounted, ref } from 'vue';
+import { generateUniqueId } from '../utilities/viteHelper';
+import { initFlowbite } from 'flowbite'
+import ClipboardJS from 'clipboard';
+export interface Props {
+  msg?: string
+  content: string
+  altMsg?: string
+  left?: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  msg: 'Copied !',
+  altMsg: 'Copy to clipboard',
+  left: false
+})
+
+const uniqueId = generateUniqueId();
+const spanRef = ref<HTMLSpanElement | null>(null);
+const btnRef = ref<HTMLButtonElement | null>(null);
+
+onMounted(() => {
+  initFlowbite();
+  if (btnRef.value) {
+    let clipboard = new ClipboardJS(btnRef.value);
+    clipboard.on('success', function () {
+      console.warn(`${spanRef.value?.innerText} copied !`);
+    });
+  }
+});
+</script>
+
 <template>
   <span v-if="!props.left" :id="uniqueId" ref="spanRef">
     <slot />
@@ -29,34 +78,3 @@
     <slot />
   </span>
 </template>
-<script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { generateUniqueId } from '../utilities/viteHelper';
-import { initFlowbite } from 'flowbite'
-import ClipboardJS from 'clipboard';
-export interface Props {
-  msg?: string
-  content: string
-  altMsg?: string
-  left?: boolean
-}
-const props = withDefaults(defineProps<Props>(), {
-  msg: 'Copied !',
-  altMsg: 'Copy to clipboard',
-  left: false
-})
-
-const uniqueId = generateUniqueId();
-const spanRef = ref<HTMLSpanElement | null>(null);
-const btnRef = ref<HTMLButtonElement | null>(null);
-
-onMounted(() => {
-  initFlowbite();
-  if (btnRef.value) {
-    let clipboard = new ClipboardJS(btnRef.value);
-    clipboard.on('success', function () {
-      console.warn(`${spanRef.value?.innerText} copied !`);
-    });
-  }
-});
-</script>
