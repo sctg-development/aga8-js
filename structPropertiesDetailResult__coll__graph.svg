@@ -11,7 +11,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title="Structure containing thermodynamic properties for DETAIL calculations.">
+<g id="a_Node000001"><a xlink:title=" ">
 <polygon fill="#999999" stroke="transparent" points="120,-199 0,-199 0,0 120,0 120,-199"/>
 <text text-anchor="start" x="5" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">PropertiesDetailResult</text>
 <text text-anchor="start" x="12.5" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
