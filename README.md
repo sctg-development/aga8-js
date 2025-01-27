@@ -104,6 +104,18 @@ console.log('Results:', {
 ### Building from Source
 
 ```bash
+# Emscripten SDK installation
+# Clone repository
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+# Download and install the 4.0.1 SDK
+./emsdk install 4.0.1
+./emsdk activate 4.0.1
+source ./emsdk_env.sh
+```
+
+```bash
+# WebAssembly module build
 # Clone repository
 git clone https://github.com/sctg-development/aga8-js.git
 cd aga8-js
