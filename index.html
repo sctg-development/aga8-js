@@ -162,23 +162,36 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 <div class="fragment"><div class="line">npm install @sctg/aga8-js</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md4"></a>
 💻 Quick Start</h2>
-<div class="fragment"><div class="line">import AGA8wasm, { gasMixtureInMolePercent } from &#39;@sctg/aga8-js&#39;;</div>
+<div class="fragment"><div class="line">import AGA8wasm, { type GasMixture } from &#39;@sctg/aga8-js&#39;;</div>
 <div class="line"> </div>
 <div class="line">// Initialize AGA8 module</div>
 <div class="line">const AGA8 = await AGA8wasm();</div>
 <div class="line">AGA8.SetupGERG();</div>
 <div class="line"> </div>
 <div class="line">// Define gas mixture (94% methane, 5% CO2, 1% helium)</div>
-<div class="line">const mixture: gasMixtureInMolePercent = [</div>
-<div class="line">    0,     // PLACEHOLDER</div>
-<div class="line">    0.94,  // METHANE</div>
-<div class="line">    0,     // NITROGEN</div>
-<div class="line">    0.05,  // CO2</div>
-<div class="line">    0,     // ETHANE</div>
-<div class="line">    // ... other components</div>
-<div class="line">    0.01,  // HELIUM</div>
-<div class="line">    0      // ARGON</div>
-<div class="line">];</div>
+<div class="line">const mixture: GasMixture = {</div>
+<div class="line">    methane: 0.94,</div>
+<div class="line">    nitrogen: 0,</div>
+<div class="line">    carbon_dioxide: 0.05,</div>
+<div class="line">    ethane: 0,</div>
+<div class="line">    propane: 0,</div>
+<div class="line">    isobutane: 0,</div>
+<div class="line">    n_butane: 0,</div>
+<div class="line">    isopentane: 0,</div>
+<div class="line">    n_pentane: 0,</div>
+<div class="line">    n_hexane: 0,</div>
+<div class="line">    n_heptane: 0,</div>
+<div class="line">    n_octane: 0,</div>
+<div class="line">    n_nonane: 0,</div>
+<div class="line">    n_decane: 0,</div>
+<div class="line">    hydrogen: 0,</div>
+<div class="line">    oxygen: 0,</div>
+<div class="line">    carbon_monoxide: 0,</div>
+<div class="line">    water: 0,</div>
+<div class="line">    hydrogen_sulfide: 0,</div>
+<div class="line">    helium: 0.01,</div>
+<div class="line">    argon: 0</div>
+<div class="line">}</div>
 <div class="line"> </div>
 <div class="line">// Calculate properties</div>
 <div class="line">const molarMass = AGA8.MolarMassGERG(mixture);</div>
@@ -210,7 +223,16 @@ Prerequisites</h3>
 </ul>
 <h3><a class="anchor" id="autotoc_md8"></a>
 Building from Source</h3>
-<div class="fragment"><div class="line"># Clone repository</div>
+<div class="fragment"><div class="line"># Emscripten SDK installation</div>
+<div class="line"># Clone repository</div>
+<div class="line">git clone https://github.com/emscripten-core/emsdk.git</div>
+<div class="line">cd emsdk</div>
+<div class="line"># Download and install the 4.0.1 SDK</div>
+<div class="line">./emsdk install 4.0.1</div>
+<div class="line">./emsdk activate 4.0.1</div>
+<div class="line">source ./emsdk_env.sh</div>
+</div><!-- fragment --><div class="fragment"><div class="line"># WebAssembly module build</div>
+<div class="line"># Clone repository</div>
 <div class="line">git clone https://github.com/sctg-development/aga8-js.git</div>
 <div class="line">cd aga8-js</div>
 <div class="line"> </div>

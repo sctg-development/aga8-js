@@ -12,7 +12,7 @@ var searchData=
   ['ncgerg_9',['NcGERG',['../GERG2008_8cpp.html#a8ffe6ceb5a6aa0a75b3a359fbf1b0309',1,'GERG2008.cpp']]],
   ['ncgross_10',['NcGross',['../Gross_8cpp.html#a9f33884b6f58c450cee327af3a17cc3a',1,'Gross.cpp']]],
   ['nijk_11',['nijk',['../GERG2008_8cpp.html#a997b49f255760b7d92530096254bea92',1,'GERG2008.cpp']]],
-  ['nitrogen_12',['nitrogen',['../structgasMixture.html#a8a80db9303fd70154c27a495a098fadf',1,'gasMixture']]],
+  ['nitrogen_12',['nitrogen',['../structgasMixture.html#a8a80db9303fd70154c27a495a098fadf',1,'gasMixture::nitrogen'],['../structxGrs.html#abf42d01b64f253b19e7fb090196cd930',1,'xGrs::nitrogen']]],
   ['noik_13',['noik',['../GERG2008_8cpp.html#a290aae34434c25c3919a5466e59187b5',1,'GERG2008.cpp']]],
   ['nterms_14',['NTerms',['../Detail_8cpp.html#aba0c6ab490b5f90d65345d75c717fa38',1,'Detail.cpp']]]
 ];

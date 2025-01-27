@@ -1597,7 +1597,7 @@ $(function(){initNavTree('Detail_8cpp_source.html',''); initResizable(true); });
 <div class="line"><a id="l01644" name="l01644"></a><span class="lineno"> 1644</span>{</div>
 <div class="line"><a id="l01645" name="l01645"></a><span class="lineno"> 1645</span>    <a class="code hl_function" href="Detail_8cpp.html#a8185dc1fe1da64b9312b00bedf5c116c">SetupDetail</a>();</div>
 <div class="line"><a id="l01646" name="l01646"></a><span class="lineno"> 1646</span>    <span class="keywordtype">double</span> _x[] = {0.77824, 0.02, 0.06, 0.08, 0.03, 0.0015, 0.003, 0.0005, 0.00165, 0.00215, 0.00088, 0.00024, 0.00015, 0.00009, 0.004, 0.005, 0.002, 0.0001, 0.0025, 0.007, 0.001};</div>
-<div class="line"><a id="l01647" name="l01647"></a><span class="lineno"> 1647</span>    std::vector&lt;double&gt; x(_x, _x + <a class="code hl_variable" href="Detail_8cpp.html#ae816ac28393b198460116153c56239f1">NcDetail</a>), xGrs(4, 0);</div>
+<div class="line"><a id="l01647" name="l01647"></a><span class="lineno"> 1647</span>    std::vector&lt;double&gt; x(_x, _x + <a class="code hl_variable" href="Detail_8cpp.html#ae816ac28393b198460116153c56239f1">NcDetail</a>), <a class="code hl_struct" href="structxGrs.html">xGrs</a>(4, 0);</div>
 <div class="line"><a id="l01648" name="l01648"></a><span class="lineno"> 1648</span>    x.insert(x.begin(), 0.0);</div>
 <div class="line"><a id="l01649" name="l01649"></a><span class="lineno"> 1649</span> </div>
 <div class="line"><a id="l01650" name="l01650"></a><span class="lineno"> 1650</span>    <span class="keywordtype">double</span> mm = 0;</div>
@@ -1678,6 +1678,7 @@ $(function(){initNavTree('Detail_8cpp_source.html',''); initResizable(true); });
 <div class="ttc" id="aDetail_8cpp_html_af738dedddeb3ddc62487bd2ed1c32b64"><div class="ttname"><a href="Detail_8cpp.html#af738dedddeb3ddc62487bd2ed1c32b64">DensityDetail</a></div><div class="ttdeci">void DensityDetail(const double T, const double P, const std::vector&lt; double &gt; &amp;x, double &amp;D, int &amp;ierr, std::string &amp;herr)</div><div class="ttdoc">Calculates density as a function of temperature and pressure using an iterative method.</div><div class="ttdef"><b>Definition</b> <a href="#l00246">Detail.cpp:246</a></div></div>
 <div class="ttc" id="aDetail_8cpp_html_afb1fb4554f619bbba97536baee3f4b59"><div class="ttname"><a href="Detail_8cpp.html#afb1fb4554f619bbba97536baee3f4b59">xTermsDetail</a></div><div class="ttdeci">static void xTermsDetail(const std::vector&lt; double &gt; &amp;x)</div><div class="ttdef"><b>Definition</b> <a href="#l00430">Detail.cpp:430</a></div></div>
 <div class="ttc" id="aDetail_8h_html"><div class="ttname"><a href="Detail_8h.html">Detail.h</a></div></div>
+<div class="ttc" id="astructxGrs_html"><div class="ttname"><a href="structxGrs.html">xGrs</a></div><div class="ttdef"><b>Definition</b> <a href="bindings_8cpp_source.html#l00199">bindings.cpp:200</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- HTML footer for doxygen 1.13.2-->

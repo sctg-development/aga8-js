@@ -5,5 +5,5 @@ var structGrossInputsResult =
     [ "herr", "structGrossInputsResult.html#a93a5a3e94b3a322f8e0dc580733b6e82", null ],
     [ "HN", "structGrossInputsResult.html#a9488aa02d1bb6742e864d4e4f67df16a", null ],
     [ "ierr", "structGrossInputsResult.html#a0a38eb66ef66bedf89105fee074d3e07", null ],
-    [ "xGrs", "structGrossInputsResult.html#ac470b0e72f915a2ec2c24e22ceaacd25", null ]
+    [ "xGrs", "structGrossInputsResult.html#a66cd2a38ca71d6f0d31fbe1a1c14ff2c", null ]
 ];

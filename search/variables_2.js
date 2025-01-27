@@ -4,7 +4,7 @@ var searchData=
   ['c0_1',['c0',['../Gross_8cpp.html#a551f4167338c4bdf1e3c672d717d8387',1,'Gross.cpp']]],
   ['c1_2',['c1',['../Gross_8cpp.html#a50c04abf4d8d551ed2bc1fc79a8f711e',1,'Gross.cpp']]],
   ['c2_3',['c2',['../Gross_8cpp.html#a677b8fa6a606817e8087983862e45c5c',1,'Gross.cpp']]],
-  ['carbon_5fdioxide_4',['carbon_dioxide',['../structgasMixture.html#a172c520bb01faa9d5bf78bfcdd8c73da',1,'gasMixture']]],
+  ['carbon_5fdioxide_4',['carbon_dioxide',['../structgasMixture.html#a172c520bb01faa9d5bf78bfcdd8c73da',1,'gasMixture::carbon_dioxide'],['../structxGrs.html#afa18974aa761531f4733155124f6fd02',1,'xGrs::carbon_dioxide']]],
   ['carbon_5fmonoxide_5',['carbon_monoxide',['../structgasMixture.html#aa17db77d4c707f7828dc6b84c35f0ebc',1,'gasMixture']]],
   ['cchx_6',['cCHx',['../Gross_8cpp.html#ad3272da6cc31e28dc66f2f7ffe1e47cc',1,'Gross.cpp']]],
   ['cf_7',['Cf',['../structPropertiesDetailResult.html#a8cccfd9407b11680fe23c80706f1b32e',1,'PropertiesDetailResult::Cf'],['../structPropertiesGERGResult.html#a9ce8941290efe09ef9c5b72c4b7a89a4',1,'PropertiesGERGResult::Cf']]],

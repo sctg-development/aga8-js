@@ -1,3 +1,5 @@
 <map id="GrossInputsResult" name="GrossInputsResult">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,137,171"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,173,137,319"/>
+<area shape="rect" id="Node000002" href="$structxGrs.html" title=" " alt="" coords="7,5,135,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,111,74,157,69,157,69,111"/>
 </map>

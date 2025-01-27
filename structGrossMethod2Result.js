@@ -6,5 +6,5 @@ var structGrossMethod2Result =
     [ "Hv", "structGrossMethod2Result.html#a9bcdf5a313429f18d74f9bb7674124e3", null ],
     [ "ierr", "structGrossMethod2Result.html#ac66492b81a6571cdf3f9037a690443d6", null ],
     [ "Mm", "structGrossMethod2Result.html#ae93ef96bbcb7ffe5418af982de1f9eae", null ],
-    [ "xGrs", "structGrossMethod2Result.html#a2e7c74badad6fac5fb0e4d65b1afa8d2", null ]
+    [ "xGrs", "structGrossMethod2Result.html#a1ae642498a4e5418a6658bf31cfa8c1a", null ]
 ];

@@ -10,5 +10,6 @@ var annotated_dup =
     [ "PressureGrossResult", "structPressureGrossResult.html", "structPressureGrossResult" ],
     [ "PressureResult", "structPressureResult.html", "structPressureResult" ],
     [ "PropertiesDetailResult", "structPropertiesDetailResult.html", "structPropertiesDetailResult" ],
-    [ "PropertiesGERGResult", "structPropertiesGERGResult.html", "structPropertiesGERGResult" ]
+    [ "PropertiesGERGResult", "structPropertiesGERGResult.html", "structPropertiesGERGResult" ],
+    [ "xGrs", "structxGrs.html", "structxGrs" ]
 ];

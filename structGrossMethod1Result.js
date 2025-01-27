@@ -5,5 +5,5 @@ var structGrossMethod1Result =
     [ "HN", "structGrossMethod1Result.html#a8abe36966487d39a4816cf02d8d0d621", null ],
     [ "ierr", "structGrossMethod1Result.html#ad96272f53e146e5ddaa10981eb8a5cdf", null ],
     [ "Mm", "structGrossMethod1Result.html#a413d450831c9eac121adf039e53e5bcb", null ],
-    [ "xGrs", "structGrossMethod1Result.html#abe079eea23516f4128e2eb0434ba1d40", null ]
+    [ "xGrs", "structGrossMethod1Result.html#ae2efefa90a037a904466a962f388f22f", null ]
 ];

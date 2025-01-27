@@ -7,7 +7,7 @@ var searchData=
   ['bchx_4',['bCHx',['../Gross_8cpp.html#a64befef7a7890997c9073a23f52d31b3',1,'Gross.cpp']]],
   ['bindings_2ecpp_5',['bindings.cpp',['../bindings_8cpp.html',1,'']]],
   ['bmix_6',['Bmix',['../Gross_8cpp.html#a957c10103f9962948a361b94ad63dda1',1,'Bmix(const double T, const std::vector&lt; double &gt; &amp;xGrs, const double HCH, double &amp;B, double &amp;C, int &amp;ierr, std::string &amp;herr):&#160;Gross.cpp'],['../Gross_8h.html#a957c10103f9962948a361b94ad63dda1',1,'Bmix(const double T, const std::vector&lt; double &gt; &amp;xGrs, const double HCH, double &amp;B, double &amp;C, int &amp;ierr, std::string &amp;herr):&#160;Gross.cpp']]],
-  ['bmix_5fwrapper_7',['Bmix_wrapper',['../bindings_8cpp.html#ab9d4ff65a92aa12b52f8f11b6a2dfa58',1,'bindings.cpp']]],
+  ['bmix_5fwrapper_7',['Bmix_wrapper',['../bindings_8cpp.html#a128c1df46d1ba289eda4a812a298f670',1,'bindings.cpp']]],
   ['bmixresult_8',['BmixResult',['../structBmixResult.html',1,'']]],
   ['bn_9',['bn',['../Detail_8cpp.html#aa1287c8b7e8ffc528a0e9765db857cdb',1,'Detail.cpp']]],
   ['bs_10',['Bs',['../Detail_8cpp.html#aa084545ad65e8c902d5d2032a655c0d4',1,'Detail.cpp']]],
