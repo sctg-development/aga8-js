@@ -10,7 +10,7 @@
     "lint": "eslint --fix"
   },
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.5",
+    "@sctg/aga8-js": "^1.0.6",
     "clipboard": "^2.0.11",
     "flowbite": "^3.0.0",
     "temml": "^0.10.32",
