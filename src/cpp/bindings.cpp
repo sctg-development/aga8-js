@@ -53,61 +53,7 @@
 #include "GERG2008.h"
 #include "Gross.h"
 
-EMSCRIPTEN_DECLARE_VAL_TYPE(gasMixtureInMolePercent);
-EMSCRIPTEN_DECLARE_VAL_TYPE(xGrsArray);
-
 using namespace emscripten;
-// The compositions in the gasMixtureInMolePercent array use the following order and must be sent as mole fractions:
-//     0 - PLACEHOLDER
-//     1 - Methane
-//     2 - Nitrogen
-//     3 - Carbon dioxide
-//     4 - Ethane
-//     5 - Propane
-//     6 - Isobutane
-//     7 - n-Butane
-//     8 - Isopentane
-//     9 - n-Pentane
-//    10 - n-Hexane
-//    11 - n-Heptane
-//    12 - n-Octane
-//    13 - n-Nonane
-//    14 - n-Decane
-//    15 - Hydrogen
-//    16 - Oxygen
-//    17 - Carbon monoxide
-//    18 - Water
-//    19 - Hydrogen sulfide
-//    20 - Helium
-//    21 - Argon
-//
-// For example, a mixture (in moles) of 94% methane, 5% CO2, and 1% helium would be (in mole fractions):
-// gasMixtureInMolePercent(1)=0.94, gasMixtureInMolePercent(3)=0.05, gasMixtureInMolePercent(20)=0.01
-enum class GasComponent
-{
-    PLACEHOLDER = 0,
-    METHANE = 1,
-    NITROGEN = 2,
-    CARBON_DIOXIDE = 3,
-    ETHANE = 4,
-    PROPANE = 5,
-    ISOBUTANE = 6,
-    N_BUTANE = 7,
-    ISOPENTANE = 8,
-    N_PENTANE = 9,
-    N_HEXANE = 10,
-    N_HEPTANE = 11,
-    N_OCTANE = 12,
-    N_NONANE = 13,
-    N_DECANE = 14,
-    HYDROGEN = 15,
-    OXYGEN = 16,
-    CARBON_MONOXIDE = 17,
-    WATER = 18,
-    HYDROGEN_SULFIDE = 19,
-    HELIUM = 20,
-    ARGON = 21
-};
 
 /**
  * @brief Structure to hold gas mixture composition in mole percent
@@ -244,13 +190,20 @@ struct PropertiesGERGResult
 };
 
 /**
- * @brief Structure containing computation results
+ * @brief Structure containing the composition of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
  * 
- * @var P Pressure value
- * @var Z Compressibility factor
- * @var ierr Error code (0 = success, non-zero = error)
- * @var herr Error message string
- *//**
+ * @var hydrocarbon Mole fraction of the equivalent hydrocarbon
+ * @var nitrogen Mole fraction of nitrogen
+ * @var carbon_dioxide Mole fraction of carbon dioxide
+ */
+struct xGrs
+{
+    double hydrocarbon;
+    double nitrogen;
+    double carbon_dioxide;
+};
+
+/**
  * @brief Structure containing computation results
  * 
  * @var P Pressure value
@@ -267,14 +220,14 @@ struct PressureGrossResult
 };
 struct GrossHvResult
 {
-    val xGrs;
+    xGrs xGrs;
     double HN;
     double HCH;
 };
 
 struct GrossInputsResult
 {
-    val xGrs;
+    xGrs xGrs;
     double Gr;
     double HN;
     double HCH;
@@ -292,7 +245,7 @@ struct BmixResult
 
 struct GrossMethod1Result
 {
-   val xGrs;
+    xGrs xGrs;
     double Mm;
     double HCH;
     double HN;
@@ -302,7 +255,7 @@ struct GrossMethod1Result
 
 struct GrossMethod2Result
 {
-    val xGrs;
+    xGrs xGrs;
     double Hv;
     double Mm;
     double HCH;
@@ -340,6 +293,33 @@ std::vector<double> gasMixture_to_vector(gasMixture js_object)
     result[19] = js_object.hydrogen_sulfide;
     result[20] = js_object.helium;
     result[21] = js_object.argon;
+    return result;
+}
+
+// Helper function to convert a JavaScript xGr object to a C++ struct
+/**
+ * @brief Converts a JavaScript xGrs Object to a C++ struct
+ */
+std::vector<double> xGrs_to_vector(xGrs js_object)
+{
+    std::vector<double> result(3);
+    result[0] = 0;
+    result[1] = js_object.hydrocarbon;
+    result[2] = js_object.nitrogen;
+    result[3] = js_object.carbon_dioxide;
+    return result;
+}
+
+// Helper function to convert a vector to a xGrs JavaScript object
+/**
+ * @brief Converts a C++ vector to a JavaScript xGrs object
+ */
+xGrs vector_to_xGrs(const std::vector<double> &vec)
+{
+    xGrs result;
+    result.hydrocarbon = vec[1];
+    result.nitrogen = vec[2];
+    result.carbon_dioxide = vec[3];
     return result;
 }
 
@@ -638,7 +618,7 @@ double MolarMassGross_wrapper(gasMixture x_array)
  * 
  * @param T Temperature in K
  * @param D Density in mol/l
- * @param xGrs_array Array containing mole fractions of components
+ * @param xGrs_object Array containing mole fractions of components
  * @param HCH Gross heating value in MJ/m³
  * 
  * @return PressureGrossResult struct containing:
@@ -649,9 +629,9 @@ double MolarMassGross_wrapper(gasMixture x_array)
  * 
  * @see PressureGross For the underlying calculation implementation
  */
-PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_array, double HCH)
+PressureGrossResult PressureGross_wrapper(double T, double D, xGrs xGrs_object, double HCH)
 {
-    std::vector<double> xGrs = array_to_vector(xGrs_array);
+    std::vector<double> xGrs = xGrs_to_vector(xGrs_object);
     double P = 0, Z = 0;
     int ierr = 0;
     std::string herr;
@@ -669,7 +649,7 @@ PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_arr
  * 
  * @param T Temperature [K]
  * @param P Pressure [kPa]
- * @param xGrs_array Array containing mole fractions of the mixture components
+ * @param xGrs_object Array containing mole fractions of the mixture components
  * @param HCH Heating value [MJ/m³]
  * @return DensityResult struct containing:
  *         - D: Density [kg/m³]
@@ -679,9 +659,9 @@ PressureGrossResult PressureGross_wrapper(double T, double D, xGrsArray xGrs_arr
  * @see DensityGross For the underlying calculation implementation
  * @note This is a wrapper function that converts the input array to a vector before calling the main DensityGross function
  */
-DensityResult DensityGross_wrapper(double T, double P, xGrsArray xGrs_array, double HCH)
+DensityResult DensityGross_wrapper(double T, double P, xGrs xGrs_object, double HCH)
 {
-    std::vector<double> xGrs = array_to_vector(xGrs_array);
+    std::vector<double> xGrs = xGrs_to_vector(xGrs_object);
     double D = 0;
     int ierr = 0;
     std::string herr;
@@ -714,7 +694,7 @@ GrossHvResult GrossHv_wrapper(gasMixture x_array)
     double HN = 0, HCH = 0;
 
     GrossHv(x, xGrs, HN, HCH);
-    GrossHvResult result = {vector_to_array(xGrs), HN, HCH};
+    GrossHvResult result = {vector_to_xGrs(xGrs), HN, HCH};
     return result;
 }
 
@@ -745,7 +725,7 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
 
     GrossInputs(T, P, x, xGrs, Gr, HN, HCH, ierr, herr);
 
-    GrossInputsResult result = {vector_to_array(xGrs), Gr, HN, HCH, ierr, herr};
+    GrossInputsResult result = {vector_to_xGrs(xGrs), Gr, HN, HCH, ierr, herr};
     return result;
 }
 
@@ -753,7 +733,7 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
  * @brief Calculates mixture second and third virial coefficients using the GERG-2008 equation of state
  * 
  * @param T Temperature [K]
- * @param xGrs_array Array of mole fractions for each component in the mixture
+ * @param xGrs_object Array of mole fractions for each component in the mixture
  * @param HCH Parameter for handling hydrocarbon mixtures
  * @return BmixResult Structure containing:
  *         - B: Second virial coefficient [cm³/mol]
@@ -766,9 +746,9 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
  * 
  * @see Bmix For the underlying calculation implementation
  */
-BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
+BmixResult Bmix_wrapper(double T, xGrs xGrs_object, double HCH)
 {
-    std::vector<double> xGrs = array_to_vector(xGrs_array);
+    std::vector<double> xGrs = xGrs_to_vector(xGrs_object);
     double B = 0, C = 0;
     int ierr = 0;
     std::string herr;
@@ -785,7 +765,7 @@ BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
  * @param Th Temperature high (T1) [K]
  * @param Td Temperature difference (T1-T2) [K]
  * @param Pd Pressure drop (P1-P2) [Pa]
- * @param xGrs_array Array of mole fractions for the mixture components
+ * @param xGrs_object Array of mole fractions for the mixture components
  * @param Gr Mass flow rate [kg/s]
  * @param Hv Heating value [J/kg]
  * 
@@ -799,16 +779,16 @@ BmixResult Bmix_wrapper(double T, xGrsArray xGrs_array, double HCH)
  * 
  * @see GrossMethod1 For the underlying calculation implementation
  */
-GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr, double Hv)
+GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrs xGrs_object, double Gr, double Hv)
 {
-    std::vector<double> xGrs = array_to_vector(xGrs_array);
+    std::vector<double> xGrs = xGrs_to_vector(xGrs_object);
     double Mm = 0, HCH = 0, HN = 0;
     int ierr = 0;
     std::string herr;
 
     GrossMethod1(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr);
 
-    GrossMethod1Result result = {vector_to_array(xGrs), Mm, HCH, HN, ierr, herr};
+    GrossMethod1Result result = {vector_to_xGrs(xGrs), Mm, HCH, HN, ierr, herr};
     return result;
 }
 
@@ -818,7 +798,7 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArr
  * @param Th Temperature at higher pressure (K)
  * @param Td Temperature at lower pressure (K)
  * @param Pd Pressure at lower temperature (kPa)
- * @param xGrs_array Array containing molar composition of the gas mixture
+ * @param xGrs_object Array containing molar composition of the gas mixture
  * @param Gr Relative density of the gas mixture
  * 
  * @return GrossMethod2Result struct containing:
@@ -832,16 +812,16 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrsArr
  * 
  * @see GrossMethod2 For the underlying calculation implementation
  */
-GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrsArray xGrs_array, double Gr)
+GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrs xGrs_object, double Gr)
 {
-    std::vector<double> xGrs = array_to_vector(xGrs_array);
+    std::vector<double> xGrs = xGrs_to_vector(xGrs_object);
     double Hv = 0, Mm = 0, HCH = 0, HN = 0;
     int ierr = 0;
     std::string herr;
 
     GrossMethod2(Th, Td, Pd, xGrs, Gr, Hv, Mm, HCH, HN, ierr, herr);
 
-    GrossMethod2Result result = {vector_to_array(xGrs), Hv, Mm, HCH, HN, ierr, herr};
+    GrossMethod2Result result = {vector_to_xGrs(xGrs), Hv, Mm, HCH, HN, ierr, herr};
     return result;
 }
 
@@ -899,32 +879,6 @@ GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrsArr
  */
 EMSCRIPTEN_BINDINGS(AGA8_module)
 {
-    enum_<GasComponent>("GasComponent")
-        .value("PLACEHOLDER", GasComponent::PLACEHOLDER)
-        .value("METHANE", GasComponent::METHANE)
-        .value("NITROGEN", GasComponent::NITROGEN)
-        .value("CARBON_DIOXIDE", GasComponent::CARBON_DIOXIDE)
-        .value("ETHANE", GasComponent::ETHANE)
-        .value("PROPANE", GasComponent::PROPANE)
-        .value("ISOBUTANE", GasComponent::ISOBUTANE)
-        .value("N_BUTANE", GasComponent::N_BUTANE)
-        .value("ISOPENTANE", GasComponent::ISOPENTANE)
-        .value("N_PENTANE", GasComponent::N_PENTANE)
-        .value("N_HEXANE", GasComponent::N_HEXANE)
-        .value("N_HEPTANE", GasComponent::N_HEPTANE)
-        .value("N_OCTANE", GasComponent::N_OCTANE)
-        .value("N_NONANE", GasComponent::N_NONANE)
-        .value("N_DECANE", GasComponent::N_DECANE)
-        .value("HYDROGEN", GasComponent::HYDROGEN)
-        .value("OXYGEN", GasComponent::OXYGEN)
-        .value("CARBON_MONOXIDE", GasComponent::CARBON_MONOXIDE)
-        .value("WATER", GasComponent::WATER)
-        .value("HYDROGEN_SULFIDE", GasComponent::HYDROGEN_SULFIDE)
-        .value("HELIUM", GasComponent::HELIUM)
-        .value("ARGON", GasComponent::ARGON);
-
-    register_type<gasMixtureInMolePercent>("gasMixtureInMolePercent");
-    register_type<xGrsArray>("xGrsArray");
     register_vector<double>("VectorDouble");
 
     value_object<gasMixture>("GasMixture")
@@ -949,6 +903,11 @@ EMSCRIPTEN_BINDINGS(AGA8_module)
         .field("hydrogen_sulfide", &gasMixture::hydrogen_sulfide)
         .field("helium", &gasMixture::helium)
         .field("argon", &gasMixture::argon);
+
+    value_object<xGrs>("xGrs")
+        .field("hydrocarbon", &xGrs::hydrocarbon)
+        .field("nitrogen", &xGrs::nitrogen)
+        .field("carbon_dioxide", &xGrs::carbon_dioxide);
 
     value_object<PressureResult>("PressureResult")
         .field("P", &PressureResult::P)
