@@ -42,7 +42,7 @@ npm install @sctg/aga8-js
 ## 💻 Quick Start
 
 ```typescript
-import AGA8wasm, { {type GasMixture} } from '@sctg/aga8-js';
+import AGA8wasm, { type GasMixture } from '@sctg/aga8-js';
 
 // Initialize AGA8 module
 const AGA8 = await AGA8wasm();
