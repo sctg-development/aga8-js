@@ -716,7 +716,7 @@ DensityResult DensityGross_wrapper(double T, double P, xGrs xGrs_object, double 
 /**
  * @brief Wrapper function to calculate gross heating values for a gas mixture
  *
- * @param x_array Gas mixture composition in mole percent
+ * @param x_array Gas mixture composition in mole fraction
  * @return GrossHvResult Structure containing:
  *         - xGrs: Vector of calculated gross heating values for each component
  *         - HN: Normal gross heating value of the mixture
