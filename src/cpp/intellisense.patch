@@ -1,0 +1,446 @@
+--- dist/index.d.ts.orig	2025-01-27 11:37:55
++++ dist/index.d.ts	2025-01-27 12:53:52
+@@ -31,131 +31,259 @@
+   set(_0: number, _1: number): boolean;
+ }
+ 
++/**
++ * Gas mixture composition in mole fraction
++ */
+ export type GasMixture = {
++  /** Methane concentration as mole fraction */
+   methane: number,
++  /** Nitrogen concentration as mole fraction */
+   nitrogen: number,
++  /** Carbon dioxide concentration as mole fraction */
+   carbon_dioxide: number,
++  /** Ethane concentration as mole fraction */
+   ethane: number,
++  /** Propane concentration as mole fraction */
+   propane: number,
++  /** Isobutane concentration as mole fraction */
+   isobutane: number,
++  /** Normal butane concentration as mole fraction */
+   n_butane: number,
++  /** Isopentane concentration as mole fraction */
+   isopentane: number,
++  /** Normal pentane concentration as mole fraction */
+   n_pentane: number,
++  /** Normal hexane concentration as mole fraction */
+   n_hexane: number,
++  /** Normal heptane concentration as mole fraction */
+   n_heptane: number,
++  /** Normal octane concentration as mole fraction */
+   n_octane: number,
++  /** Normal nonane concentration as mole fraction */
+   n_nonane: number,
++  /** Normal decane concentration as mole fraction */
+   n_decane: number,
++  /** Hydrogen concentration as mole fraction */
+   hydrogen: number,
++  /** Oxygen concentration as mole fraction */
+   oxygen: number,
++  /** Carbon monoxide concentration as mole fraction */
+   carbon_monoxide: number,
++  /** Water concentration as mole fraction */
+   water: number,
++  /** Hydrogen sulfide concentration as mole fraction */
+   hydrogen_sulfide: number,
++  /** Helium concentration as mole fraction */
+   helium: number,
++  /** Argon concentration as mole fraction */
+   argon: number
+ };
+ 
++/**
++ * Gross method composition in mole fraction
++ */
+ export type xGrs = {
++  /** Hydrocarbon concentration as mole fraction */
+   hydrocarbon: number,
++  /** Nitrogen concentration as mole fraction */
+   nitrogen: number,
++  /** Carbon dioxide concentration as mole fraction */
+   carbon_dioxide: number
+ };
+ 
++/**
++ * Pressure result
++ */
+ export type PressureResult = {
++  /** Pressure in kPa */
+   P: number,
++  /** Compressibility factor */
+   Z: number
+ };
+ 
++/**
++ * Density result
++ */
+ export type DensityResult = {
++  /** Density in kg/m³ */
+   D: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
++/**
++ * Properties detail result
++ */
+ export type PropertiesDetailResult = {
++  /** Pressure in kPa */
+   P: number,
++  /** Compressibility factor */
+   Z: number,
++  /** Derivative of pressure with respect to density */
+   dPdD: number,
++  /** Second derivative of pressure with respect to density */
+   d2PdD2: number,
++  /** Derivative of pressure with respect to temperature and density */
+   d2PdTD: number,
++  /** Derivative of pressure with respect to temperature */
+   dPdT: number,
++  /** Internal energy in J/kg */
+   U: number,
++  /** Enthalpy in J/kg */
+   H: number,
++  /** Entropy in J/kg/K */
+   S: number,
++  /** Specific heat at constant volume in J/kg/K */
+   Cv: number,
++  /** Specific heat at constant pressure in J/kg/K */
+   Cp: number,
++  /** Speed of sound in m/s */
+   W: number,
++  /** Gibbs free energy in J/kg */
+   G: number,
++  /** Joule-Thomson coefficient in K/kPa */
+   JT: number,
++  /** Isentropic exponent */
+   Kappa: number,
++  /** Helmholtz free energy in J/kg */
+   Cf: number
+ };
+ 
++/**
++ * Properties GERG result
++ */
+ export type PropertiesGERGResult = {
++  /** Pressure in kPa */
+   P: number,
++  /** Compressibility factor */
+   Z: number,
++  /** Derivative of pressure with respect to density */
+   dPdD: number,
++  /** Second derivative of pressure with respect to density */
+   d2PdD2: number,
++  /** Derivative of pressure with respect to temperature and density */
+   d2PdTD: number,
++  /** Derivative of pressure with respect to temperature */
+   dPdT: number,
++  /** Internal energy in J/kg */
+   U: number,
++  /** Enthalpy in J/kg */
+   H: number,
++  /** Entropy in J/kg/K */
+   S: number,
++  /** Specific heat at constant volume in J/kg/K */
+   Cv: number,
++  /** Specific heat at constant pressure in J/kg/K */
+   Cp: number,
++  /** Speed of sound in m/s */
+   W: number,
++  /** Gibbs free energy in J/kg */
+   G: number,
++  /** Joule-Thomson coefficient in K/kPa */
+   JT: number,
++  /** Isentropic exponent */
+   Kappa: number,
++  /** Helmholtz free energy in J/kg */
+   A: number,
++  /** Critical flow factor */
+   Cf: number
+ };
+ 
++/**
++ * Pressure gross result
++ */
+ export type PressureGrossResult = {
++  /** Pressure in kPa */
+   P: number,
++  /** Compressibility factor */
+   Z: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
++/**
++ * Gross Hv result
++ */
+ export type GrossHvResult = {
++  /** Gross method composition in mole fraction */
+   xGrs: xGrs,
++  /** Normal enthalpy in J/kg */
+   HN: number,
++  /** Hydrocarbon enthalpy in J/kg */
+   HCH: number
+ };
+ 
++/**
++ * Gross inputs result
++ */
+ export type GrossInputsResult = {
++  /** Gross method composition in mole fraction */
+   xGrs: xGrs,
++  /** Relative density */
+   Gr: number,
++  /** Normal enthalpy in J/kg */
+   HN: number,
++  /** Hydrocarbon enthalpy in J/kg */
+   HCH: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
++/**
++ * Bmix result
++ */
+ export type BmixResult = {
++  /** Bmix value */
+   B: number,
++  /** Cmix value */
+   C: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
++/**
++ * Gross method 1 result
++ */
+ export type GrossMethod1Result = {
++  /** Gross method composition in mole fraction */
+   xGrs: xGrs,
++  /** Molar mass in g/mol */
+   Mm: number,
++  /** Hydrocarbon enthalpy in J/kg */
+   HCH: number,
++  /** Normal enthalpy in J/kg */
+   HN: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
++/**
++ * Gross method 2 result
++ */
+ export type GrossMethod2Result = {
++  /** Gross method composition in mole fraction */
+   xGrs: xGrs,
++  /** Enthalpy in J/kg */
+   Hv: number,
++  /** Molar mass in g/mol */
+   Mm: number,
++  /** Hydrocarbon enthalpy in J/kg */
+   HCH: number,
++  /** Normal enthalpy in J/kg */
+   HN: number,
++  /** Error code (0 = no error) */
+   ierr: number,
++  /** Error message */
+   herr: EmbindString
+ };
+ 
+@@ -163,25 +291,166 @@
+   VectorDouble: {
+     new(): VectorDouble;
+   };
++
++  /**
++   * Setup the DETAIL method
++   */
+   SetupDetail(): void;
+-  MolarMassDetail(_0: GasMixture): number;
+-  PressureDetail(_0: number, _1: number, _2: GasMixture): PressureResult;
+-  DensityDetail(_0: number, _1: number, _2: GasMixture): DensityResult;
+-  PropertiesDetail(_0: number, _1: number, _2: GasMixture): PropertiesDetailResult;
+-  SetupGERG(): void;
+-  MolarMassGERG(_0: GasMixture): number;
+-  PressureGERG(_0: number, _1: number, _2: GasMixture): PressureResult;
+-  DensityGERG(_0: number, _1: number, _2: number, _3: GasMixture): DensityResult;
+-  PropertiesGERG(_0: number, _1: number, _2: GasMixture): PropertiesGERGResult;
+-  SetupGross(): void;
+-  MolarMassGross(_0: GasMixture): number;
+-  PressureGross(_0: number, _1: number, _2: xGrs, _3: number): PressureGrossResult;
++
++  /**
++   * Calculate the molar mass of a gas mixture
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Molar mass in g/mol
++   */
++  MolarMassDetail(x: GasMixture): number;
++
++  /**
++   * Calculate the pressure of a gas mixture
++   * @param T - Temperature in K
++   * @param D - Density in kg/m³
++   * @param x - Gas mixture composition in mole fraction
++   * @returns {PressureResult} Pressure result
++   */
++  PressureDetail(T: number, D: number, x: GasMixture): PressureResult;
++
++  /**
++   * Calculate the density of a gas mixture
++   * @param T - Temperature in K
++   * @param P - Pressure in kPa
++   * @param x - Gas mixture composition in mole fraction
++   * @returns {DensityResult} Density result
++   */
++  DensityDetail(T: number, P: number, x: GasMixture): DensityResult;
++
++  /**
++   * Calculate the properties of a gas mixture
++   * @param T - Temperature in K
++   * @param D - Density in kg/m³
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Properties detail result
++   */
++  PropertiesDetail(T: number, D: number, x: GasMixture): PropertiesDetailResult;
++
++  /**
++   * Setup the GERG method
++   * @returns void
++   */
++  SetupGERG(): void;
++
++  /**
++   * Calculate the molar mass of a gas mixture
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Molar mass in g/mol
++   */
++  MolarMassGERG(x: GasMixture): number;
++
++  /**
++   * Calculate the pressure of a gas mixture
++   * @param T - Temperature in K
++   * @param D - Density in kg/m³
++   * @param x - Gas mixture composition in mole fraction
++   * @returns {PressureResult} Pressure result
++   */
++  PressureGERG(T: number, D: number, x: GasMixture): PressureResult;
++
++  /**
++   * Calculate the density of a gas mixture
++   * @param iFlag - Solution mode: (0: Strict pressure solver [gas phase, no checks, fastest), 1: Check possible 2-phase states, 2: Search liquid phase (with 2-phase checks)]
++   * @param T - Temperature in K
++   * @param P - Pressure in kPa
++   * @param x - Gas mixture composition in mole fraction
++   * @returns {DensityResult} Density result
++   */
++  DensityGERG(iFlag: number, T: number, P: number, x: GasMixture): DensityResult;
++
++  /**
++   * Calculate the properties of a gas mixture
++   * @param T - Temperature in K
++   * @param D - Density in kg/m³
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Properties GERG result
++   */
++  PropertiesGERG(T: number, D: number, x: GasMixture): PropertiesGERGResult;
++
++  /**
++   * Setup the GROSS method
++   * @returns void
++   */
++  SetupGross(): void;
++
++  /**
++   * Calculate the molar mass of a gas mixture
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Molar mass in g/mol
++   */
++  MolarMassGross(x: GasMixture): number;
++
++  /**
++   * Calculate the pressure of a gas mixture
++   * @param T - Temperature in K
++   * @param D - Density in kg/m³
++   * @param x - Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
++   * @param HCH - Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K. Call subroutine GrossHv or GrossInputs first to obtain HCH.
++   * @returns {PressureGrossResult} Pressure result
++   */
++  PressureGross(T: number, D: number, x: xGrs, HCH: number): PressureGrossResult;
++
++  /**
++   * Calculate the density of a gas mixture
++   * @param T - Temperature in K
++   * @param P - Pressure in kPa
++   * @param x - Gas mixture composition in mole fraction
++   * @returns {DensityResult} Density result
++   */
+   DensityGross(_0: number, _1: number, _2: xGrs, _3: number): DensityResult;
+-  GrossHv(_0: GasMixture): GrossHvResult;
+-  GrossInputs(_0: number, _1: number, _2: GasMixture): GrossInputsResult;
+-  Bmix(_0: number, _1: xGrs, _2: number): BmixResult;
+-  GrossMethod1(_0: number, _1: number, _2: number, _3: xGrs, _4: number, _5: number): GrossMethod1Result;
+-  GrossMethod2(_0: number, _1: number, _2: number, _3: xGrs, _4: number): GrossMethod2Result;
++
++  /**
++   * Calculate the gross method enthalpy
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Gross Hv result
++   */
++  GrossHv(x: GasMixture): GrossHvResult;
++
++  /**
++   * Calculate the gross method inputs
++   * @param T - Temperature (K), generally a reference temperature for relative density
++   * @param P - Pressure (kPa), generally a reference pressure for relative density
++   * @param x - Gas mixture composition in mole fraction
++   * @returns Gross inputs result
++   */
++  GrossInputs(T: number, P: number, _2: GasMixture): GrossInputsResult;
++
++  /**
++   * Calculate the Bmix value
++   * @param T - Temperature (K)
++   * @param xGrs - Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
++   * @param HCH - Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K
++   * @returns Bmix result
++   */
++  Bmix(T: number, xGrs: xGrs, HCH: number): BmixResult;
++
++  /**
++   * Calculate the Gross method 1
++   * @param Th - Reference temperature for heating value (K)
++   * @param Td - Reference temperature for density (K)
++   * @param Pd - Reference pressure for density (kPa)
++   * @param xGrs - Array of size 3 with the molar composition of CO2 in the 3rd position. xCH and xN2 are returned in this array.
++   * @param Gr - Relative density at Td and Pd
++   * @param Hv - Volumetric ideal gross heating value (MJ/m^3) at Th
++   * @returns Gross method 1 result
++   */
++  GrossMethod1(Th: number, Td: number, Pd: number, xGrs: xGrs, Gr: number, Hv: number): GrossMethod1Result;
++
++  /**
++   * Calculate the Gross method 2
++   * @param Th - Reference temperature for heating value (K)
++   * @param Td - Reference temperature for density (K)
++   * @param Pd - Reference pressure for density (kPa)
++   * @param xGrs - Array of size 3 with the molar composition of CO2 in the 3rd position. xCH and xN2 are returned in this array.
++   * @param Gr - Relative density at Td and Pd
++   * @returns Gross method 2 result
++   */
++  GrossMethod2(Th: number, Td: number, Pd: number, xGrs: xGrs, Gr: number): GrossMethod2Result;
+ }
+ 
+ export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;

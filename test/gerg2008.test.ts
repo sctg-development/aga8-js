@@ -4,43 +4,54 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, { type GasMixture, PropertiesGERGResult } from '../dist/index.js';
+import { describe, expect, test } from "@jest/globals";
+import AGA8wasm, {
+  type GasMixture,
+  type PropertiesGERGResult,
+  type DensityResult,
+} from "../dist/index.js";
 
-describe('GERG2008', () => {
+describe("GERG2008", () => {
   const EPSILON = 1.0e-8;
 
+  interface ReferencesGERG extends PropertiesGERGResult {
+    mm: number;
+    D: number;
+  }
+
   // Reference values from GERG2008.cpp main() function
-  const references = {
+  const references: ReferencesGERG = {
     mm: 20.5427445016,
     D: 12.79828626082062,
     P: 50000.0,
     Z: 1.174690666383717,
     dPdD: 7000.694030193327,
     d2PdD2: 1129.526655214841, // Note that GERG2008.cpp has 1130.481239114938, 1129.526655214841 is the result from the C++ test
+    d2PdTD: 0.0,
     dPdT: 235.9832292593096,
-    U: -2746.492901212530,
+    U: -2746.49290121253,
     H: 1160.280160510973,
     S: -38.57590392409089,
     Cv: 39.02948218156372,
     Cp: 58.45522051000366,
     W: 714.4248840596024,
     G: 16590.64173014733,
-    JT: 7.155629581480913E-05,
+    JT: 7.155629581480913e-5,
     Kappa: 2.683820255058032,
+    A: 0.0,
     Cf: 0.8398521837767355,
   };
 
-  test('GERG2008 properties calculation', async () => {
+  test("GERG2008 properties calculation", async () => {
     const AGA8 = await AGA8wasm();
     AGA8.SetupGERG();
 
@@ -66,16 +77,16 @@ describe('GERG2008', () => {
       water: 0.0001,
       hydrogen_sulfide: 0.0025,
       helium: 0.007,
-      argon: 0.001
+      argon: 0.001,
     };
-
+    
     // Input parameters
     const T = 400;
     const P = 50000;
 
     // Calculations
     const mm = AGA8.MolarMassGERG(x);
-    const densityResult = AGA8.DensityGERG(0, T, P, x);
+    const densityResult: DensityResult = AGA8.DensityGERG(0, T, P, x);
     const D = densityResult.D;
     const props: PropertiesGERGResult = AGA8.PropertiesGERG(T, D, x);
 

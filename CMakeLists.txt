@@ -57,3 +57,8 @@ install(FILES
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
     DESTINATION ${CMAKE_SOURCE_DIR}/dist
 )
+
+add_custom_command(
+    TARGET index POST_BUILD
+    COMMAND patch -p0 --fuzz=10 < ${CMAKE_SOURCE_DIR}/src/cpp/intellisense.patch
+)
