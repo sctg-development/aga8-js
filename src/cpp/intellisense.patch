@@ -78,7 +78,7 @@
 + * Density result
 + */
  export type DensityResult = {
-+  /** Density in kg/m³ */
++  /** Density in mol/L */
    D: number,
 +  /** Error code (0 = no error) */
    ierr: number,
@@ -102,25 +102,25 @@
    d2PdTD: number,
 +  /** Derivative of pressure with respect to temperature */
    dPdT: number,
-+  /** Internal energy in J/kg */
++  /** Internal energy in J/mol */
    U: number,
-+  /** Enthalpy in J/kg */
++  /** Enthalpy in J/mol */
    H: number,
-+  /** Entropy in J/kg/K */
++  /** Entropy in J/mol/K */
    S: number,
-+  /** Specific heat at constant volume in J/kg/K */
++  /** Specific heat at constant volume in J/mol/K */
    Cv: number,
-+  /** Specific heat at constant pressure in J/kg/K */
++  /** Specific heat at constant pressure in J/mol/K */
    Cp: number,
 +  /** Speed of sound in m/s */
    W: number,
-+  /** Gibbs free energy in J/kg */
++  /** Gibbs free energy in J/mol */
    G: number,
 +  /** Joule-Thomson coefficient in K/kPa */
    JT: number,
 +  /** Isentropic exponent */
    Kappa: number,
-+  /** Helmholtz free energy in J/kg */
++  /** Helmholtz free energy in J/mol */
    Cf: number
  };
  
@@ -140,25 +140,25 @@
    d2PdTD: number,
 +  /** Derivative of pressure with respect to temperature */
    dPdT: number,
-+  /** Internal energy in J/kg */
++  /** Internal energy in J/mol */
    U: number,
-+  /** Enthalpy in J/kg */
++  /** Enthalpy in J/mol */
    H: number,
-+  /** Entropy in J/kg/K */
++  /** Entropy in J/mol/K */
    S: number,
-+  /** Specific heat at constant volume in J/kg/K */
++  /** Specific heat at constant volume in J/mol/K */
    Cv: number,
-+  /** Specific heat at constant pressure in J/kg/K */
++  /** Specific heat at constant pressure in J/mol/K */
    Cp: number,
 +  /** Speed of sound in m/s */
    W: number,
-+  /** Gibbs free energy in J/kg */
++  /** Gibbs free energy in J/mol */
    G: number,
 +  /** Joule-Thomson coefficient in K/kPa */
    JT: number,
 +  /** Isentropic exponent */
    Kappa: number,
-+  /** Helmholtz free energy in J/kg */
++  /** Helmholtz free energy in J/mol */
    A: number,
 +  /** Critical flow factor */
    Cf: number
@@ -184,9 +184,9 @@
  export type GrossHvResult = {
 +  /** Gross method composition in mole fraction */
    xGrs: xGrs,
-+  /** Normal enthalpy in J/kg */
++  /** Normal enthalpy in J/mol */
    HN: number,
-+  /** Hydrocarbon enthalpy in J/kg */
++  /** Hydrocarbon enthalpy in J/mol */
    HCH: number
  };
  
@@ -198,9 +198,9 @@
    xGrs: xGrs,
 +  /** Relative density */
    Gr: number,
-+  /** Normal enthalpy in J/kg */
++  /** Normal enthalpy in J/mol */
    HN: number,
-+  /** Hydrocarbon enthalpy in J/kg */
++  /** Hydrocarbon enthalpy in J/mol */
    HCH: number,
 +  /** Error code (0 = no error) */
    ierr: number,
@@ -230,9 +230,9 @@
    xGrs: xGrs,
 +  /** Molar mass in g/mol */
    Mm: number,
-+  /** Hydrocarbon enthalpy in J/kg */
++  /** Hydrocarbon enthalpy in J/mol */
    HCH: number,
-+  /** Normal enthalpy in J/kg */
++  /** Normal enthalpy in J/mol */
    HN: number,
 +  /** Error code (0 = no error) */
    ierr: number,
@@ -246,13 +246,13 @@
  export type GrossMethod2Result = {
 +  /** Gross method composition in mole fraction */
    xGrs: xGrs,
-+  /** Enthalpy in J/kg */
++  /** Enthalpy in J/mol */
    Hv: number,
 +  /** Molar mass in g/mol */
    Mm: number,
-+  /** Hydrocarbon enthalpy in J/kg */
++  /** Hydrocarbon enthalpy in J/mol */
    HCH: number,
-+  /** Normal enthalpy in J/kg */
++  /** Normal enthalpy in J/mol */
    HN: number,
 +  /** Error code (0 = no error) */
    ierr: number,
@@ -292,7 +292,7 @@
 +  /**
 +   * Calculate the pressure of a gas mixture
 +   * @param T - Temperature in K
-+   * @param D - Density in kg/m³
++   * @param D - Density in mol/L
 +   * @param x - Gas mixture composition in mole fraction
 +   * @returns {PressureResult} Pressure result
 +   */
@@ -310,7 +310,7 @@
 +  /**
 +   * Calculate the properties of a gas mixture
 +   * @param T - Temperature in K
-+   * @param D - Density in kg/m³
++   * @param D - Density in mol/L
 +   * @param x - Gas mixture composition in mole fraction
 +   * @returns Properties detail result
 +   */
@@ -332,7 +332,7 @@
 +  /**
 +   * Calculate the pressure of a gas mixture
 +   * @param T - Temperature in K
-+   * @param D - Density in kg/m³
++   * @param D - Density in mol/L
 +   * @param x - Gas mixture composition in mole fraction
 +   * @returns {PressureResult} Pressure result
 +   */
@@ -351,7 +351,7 @@
 +  /**
 +   * Calculate the properties of a gas mixture
 +   * @param T - Temperature in K
-+   * @param D - Density in kg/m³
++   * @param D - Density in mol/L
 +   * @param x - Gas mixture composition in mole fraction
 +   * @returns Properties GERG result
 +   */
@@ -373,7 +373,7 @@
 +  /**
 +   * Calculate the pressure of a gas mixture
 +   * @param T - Temperature in K
-+   * @param D - Density in kg/m³
++   * @param D - Density in mol/L
 +   * @param x - Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
 +   * @param HCH - Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K. Call subroutine GrossHv or GrossInputs first to obtain HCH.
 +   * @returns {PressureGrossResult} Pressure result
