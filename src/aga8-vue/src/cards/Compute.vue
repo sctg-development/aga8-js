@@ -29,113 +29,129 @@ const menuOpen = ref(false);
 const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
 
-/**
- * Air mixture composition in mole fraction
- */
-const air: GasMixture = {
-  methane: 0,
-  nitrogen: 0.7808,
-  carbon_dioxide: 0,
-  ethane: 0,
-  propane: 0,
-  isobutane: 0,
-  n_butane: 0,
-  isopentane: 0,
-  n_pentane: 0,
-  n_hexane: 0,
-  n_heptane: 0,
-  n_octane: 0,
-  n_nonane: 0,
-  n_decane: 0,
-  hydrogen: 0,
-  oxygen: 0.2095,
-  carbon_monoxide: 0,
-  water: 0.000400,
-  hydrogen_sulfide: 0,
-  helium: 0,
-  argon: 0.009300,
-}
+type GasMixtureExt = {
+  name: string;
+  gasMixture: GasMixture;
+};
 
-/**
- *  NIST Reference Gas Mixture composition in mole fraction
- */
-const NISTReferenceGasMixture: GasMixture = {
-  methane: 0.77824,
-  nitrogen: 0.02,
-  carbon_dioxide: 0.06,
-  ethane: 0.08,
-  propane: 0.03,
-  isobutane: 0.0015,
-  n_butane: 0.003,
-  isopentane: 0.0005,
-  n_pentane: 0.00165,
-  n_hexane: 0.00215,
-  n_heptane: 0.00088,
-  n_octane: 0.00024,
-  n_nonane: 0.00015,
-  n_decane: 0.00009,
-  hydrogen: 0.004,
-  oxygen: 0.005,
-  carbon_monoxide: 0.002,
-  water: 0.0001,
-  hydrogen_sulfide: 0.0025,
-  helium: 0.007,
-  argon: 0.001
-}
+type AvailableGasMixtures = GasMixtureExt[];
 
-/**
- * Pure methane gas mixture in mole fraction
- */
-const methane: GasMixture = {
-  methane: 1,
-  nitrogen: 0,
-  carbon_dioxide: 0,
-  ethane: 0,
-  propane: 0,
-  isobutane: 0,
-  n_butane: 0,
-  isopentane: 0,
-  n_pentane: 0,
-  n_hexane: 0,
-  n_heptane: 0,
-  n_octane: 0,
-  n_nonane: 0,
-  n_decane: 0,
-  hydrogen: 0,
-  oxygen: 0,
-  carbon_monoxide: 0,
-  water: 0,
-  hydrogen_sulfide: 0,
-  helium: 0,
-  argon: 0
-}
+const availableGasMixtures = [
+  {
+    name: "Air",
+    gasMixture: {
+      methane: 0,
+      nitrogen: 0.7808,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0.2095,
+      carbon_monoxide: 0,
+      water: 0.000400,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0.009300,
+    } as GasMixture
+  },
+  {
+    /**
+     *  NIST Reference Gas Mixture composition in mole fraction
+     */
+    name: "NIST Reference Gas Mixture",
+    gasMixture: {
+      methane: 0.77824,
+      nitrogen: 0.02,
+      carbon_dioxide: 0.06,
+      ethane: 0.08,
+      propane: 0.03,
+      isobutane: 0.0015,
+      n_butane: 0.003,
+      isopentane: 0.0005,
+      n_pentane: 0.00165,
+      n_hexane: 0.00215,
+      n_heptane: 0.00088,
+      n_octane: 0.00024,
+      n_nonane: 0.00015,
+      n_decane: 0.00009,
+      hydrogen: 0.004,
+      oxygen: 0.005,
+      carbon_monoxide: 0.002,
+      water: 0.0001,
+      hydrogen_sulfide: 0.0025,
+      helium: 0.007,
+      argon: 0.001
+    }
+  },
+  {
+    /**
+     * Pure methane gas mixture in mole fraction
+     */
+    name: "Methane",
+    gasMixture: {
+      methane: 1,
+      nitrogen: 0,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      water: 0,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0
+    }
+  },
+  {
+    /**
+     * Pure nitrogen gas mixture in mole fraction
+     */
+    name: "Nitrogen",
+    gasMixture: {
+      methane: 0,
+      nitrogen: 1,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      water: 0,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0
+    }
+  }
+] as AvailableGasMixtures;
 
-/** 
- * Pure nitrogen gas mixture in mole fraction 
- */
-const nitrogen: GasMixture = {
-  methane: 0,
-  nitrogen: 1,
-  carbon_dioxide: 0,
-  ethane: 0,
-  propane: 0,
-  isobutane: 0,
-  n_butane: 0,
-  isopentane: 0,
-  n_pentane: 0,
-  n_hexane: 0,
-  n_heptane: 0,
-  n_octane: 0,
-  n_nonane: 0,
-  n_decane: 0,
-  hydrogen: 0,
-  oxygen: 0,
-  carbon_monoxide: 0,
-  water: 0,
-  hydrogen_sulfide: 0,
-  helium: 0,
-  argon: 0,
-}
 
 /**
  * Reactive references to gas mixture components in mole percent
@@ -199,7 +215,7 @@ let AGA8: MainModule | null = null;
  * @requires moduleLoaded - Reactive reference to the module load status
  */
 onMounted(() => {
-  setGasMixture(air);
+  setGasMixture(availableGasMixtures.find(x => x.name === "Air")?.gasMixture || availableGasMixtures[0].gasMixture);
   AGA8wasm().then((AGA8module) => {
     AGA8 = AGA8module;
     moduleLoaded.value = true;
@@ -457,36 +473,15 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <!-- Dropdown menu -->
                 <div
                   id="dropdown"
-                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700"
+                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-56 dark:bg-gray-700"
                 >
                   <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                    <li>
+                    <li v-for="gas in availableGasMixtures" :key="gas.name">
                       <a
                         href="#"
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(air)"
-                      >Air</a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(methane)"
-                      >Methane</a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(NISTReferenceGasMixture)"
-                      >NIST Reference gas</a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(nitrogen)"
-                      >Nitrogen</a>
+                        @click="setGasMixture(gas.gasMixture)"
+                      >{{ gas.name }}</a>
                     </li>
                   </ul>
                 </div>

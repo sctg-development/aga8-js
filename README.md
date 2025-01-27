@@ -86,6 +86,11 @@ console.log('Results:', {
 });
 ```
 
+## Samples
+
+- [sonic-nozzle-flow.ts](src/examples/sonic-nozzle-flow.ts): Calculate the flow rate through a sonic nozzle
+- [gas-properties-calculations.ts](src/examples/gas-properties-calculations.ts): Calculate gas properties for a mixture using GERG-2008
+
 ## 📚 Documentation
 
 - [API Reference](https://sctg-development.github.io/aga8-js/)

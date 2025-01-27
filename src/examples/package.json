@@ -1,0 +1,18 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "Examples for @sctg/aga8-js package",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "test": "tsx sonic-nozzle-flow.ts && tsx gas-properties-calculations.ts"
+  },
+  "author": "Ronan Le Meillat",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@sctg/aga8-js": "^1.0.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}
