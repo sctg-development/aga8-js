@@ -4,30 +4,30 @@
  * @includedoc README.md
  * @file bindings.cpp
  * @brief Emscripten bindings for the AGA8 gas calculation library
- * 
+ *
  * This file provides WebAssembly bindings for the AGA8 gas calculation library,
  * enabling its use in JavaScript environments. It implements three main calculation methods:
  * - Detail method (high accuracy)
  * - GERG-2008 method (reference equations)
  * - Gross method (simplified calculations)
- * 
+ *
  * The gas composition is represented using a 21-component system where:
  * - Index 1: Methane
  * - Index 2: Nitrogen
  * - Index 3: Carbon dioxide
  * - Index 4-14: Various hydrocarbons (Ethane through n-Decane)
  * - Index 15-21: Other components (Hydrogen, Oxygen, CO, Water, H2S, Helium, Argon)
- * 
+ *
  * @note All compositions must be provided as mole fractions (not percentages)
  * @note Temperature inputs are in Kelvin
  * @note Pressure inputs are in kPa
  * @note Density inputs are in mol/l (mol/dm³)
- * 
+ *
  * Example mixture (94% methane, 5% CO2, 1% helium):
  * gasMixtureInMolePercent(1) = 0.94  // Methane
  * gasMixtureInMolePercent(3) = 0.05  // CO2
  * gasMixtureInMolePercent(20) = 0.01 // Helium
- * 
+ *
  * @copyright (C) 2025 Ronan LE MEILLAT
  * @license GNU Affero General Public License v3.0
  */
@@ -82,27 +82,27 @@ using namespace emscripten;
  */
 struct gasMixture
 {
-    double methane;
-    double nitrogen;
-    double carbon_dioxide;
-    double ethane;
-    double propane;
-    double isobutane;
-    double n_butane;
-    double isopentane;
-    double n_pentane;
-    double n_hexane;
-    double n_heptane;
-    double n_octane;
-    double n_nonane;
-    double n_decane;
-    double hydrogen;
-    double oxygen;
-    double carbon_monoxide;
-    double water;
-    double hydrogen_sulfide;
-    double helium;
-    double argon;
+    double methane;          /**< Methane mole fraction */
+    double nitrogen;         /**< Nitrogen mole fraction */
+    double carbon_dioxide;   /**< Carbon dioxide mole fraction */
+    double ethane;           /**< Ethane mole fraction */
+    double propane;          /**< Propane mole fraction */
+    double isobutane;        /**< Isobutane mole fraction */
+    double n_butane;         /**< n-Butane mole fraction */
+    double isopentane;       /**< Isopentane mole fraction */
+    double n_pentane;        /**< n-Pentane mole fraction */
+    double n_hexane;         /**< n-Hexane mole fraction */
+    double n_heptane;        /**< n-Heptane mole fraction */
+    double n_octane;         /**< n-Octane mole fraction */
+    double n_nonane;         /**< n-Nonane mole fraction */
+    double n_decane;         /**< n-Decane mole fraction */
+    double hydrogen;         /**< Hydrogen mole fraction */
+    double oxygen;           /**< Oxygen mole fraction */
+    double carbon_monoxide;  /**< Carbon monoxide mole fraction */
+    double water;            /**< Water mole fraction */
+    double hydrogen_sulfide; /**< Hydrogen sulfide mole fraction */
+    double helium;           /**< Helium mole fraction */
+    double argon;            /**< Argon mole fraction */
 };
 
 /**
@@ -113,57 +113,71 @@ struct gasMixture
  */
 struct PressureResult
 {
-    double P;
-    double Z;
+    double P; /**< Pressure value (kPa) */
+    double Z; /**< Compressibility factor value */
 };
 
 /**
  * @struct DensityResult
  * @brief Structure to hold the results of density calculations
- * 
+ *
  * @var D Density in mol/L
  * @var ierr Error flag (0 = success, non-zero = error)
  * @var herr Error message string describing the error if ierr is non-zero
  */
 struct DensityResult
 {
-    double D;
-    int ierr;
-    std::string herr;
+    double D;         /**< D Density in mol/L */
+    int ierr;         /**< ierr Error flag (0 = success, non-zero = error) */
+    std::string herr; /**< herr Error message string describing the error if ierr is non-zero */
 };
 
 /**
  * @brief Structure containing thermodynamic properties for DETAIL calculations
  * @details Contains the following properties:
- * - P: Pressure
- * - Z: Compressibility factor
- * - dPdD: Derivative of pressure with respect to density
- * - d2PdD2: Second derivative of pressure with respect to density
- * - d2PdTD: Mixed derivative of pressure with respect to temperature and density
- * - dPdT: Derivative of pressure with respect to temperature
- * - U: Internal energy
- * - H: Enthalpy
- * - S: Entropy
- * - Cv: Isochoric heat capacity
- * - Cp: Isobaric heat capacity
- * - W: Speed of sound
- * - G: Gibbs free energy
- * - JT: Joule-Thomson coefficient
- * - Kappa: Isothermal compressibility
- * - Cf Critical flow factor [-]
- * 
+ * @var P Pressure
+ * @var Z Compressibility factor
+ * @var dPdD Derivative of pressure with respect to density
+ * @var d2PdD2 Second derivative of pressure with respect to density
+ * @var d2PdTD Mixed derivative of pressure with respect to temperature and density
+ * @var dPdT Derivative of pressure with respect to temperature
+ * @var U Internal energy
+ * @var H Enthalpy
+ * @var S Entropy
+ * @var Cv Isochoric heat capacity
+ * @var Cp Isobaric heat capacity
+ * @var W Speed of sound
+ * @var G Gibbs free energy
+ * @var JT Joule-Thomson coefficient
+ * @var Kappa Isothermal compressibility
+ * @var Cf Critical flow factor [-]
+ *
  * @see PropertiesDetail For the underlying calculation implementation
  */
 struct PropertiesDetailResult
 {
-    double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
-    double U, H, S, Cv, Cp, W, G, JT, Kappa, Cf;
+    double P;      /**< Pressure in kPa */
+    double Z;      /**< Compressibility factor */
+    double dPdD;   /**< Derivative of pressure with respect to density */
+    double d2PdD2; /**< Second derivative of pressure with respect to density */
+    double d2PdTD; /**< Mixed derivative of pressure with respect to temperature and density */
+    double dPdT;   /**< Derivative of pressure with respect to temperature */
+    double U;      /**< Internal energy */
+    double H;      /**< Enthalpy */
+    double S;      /**< Entropy */
+    double Cv;     /**< Isochoric heat capacity */
+    double Cp;     /**< Isobaric heat capacity */
+    double W;      /**< Speed of sound */
+    double G;      /**< Gibbs free energy */
+    double JT;     /**< Joule-Thomson coefficient */
+    double Kappa;  /**< Isothermal compressibility */
+    double Cf;     /**< Critical flow factor */
 };
 
 /**
  * @brief Structure containing thermodynamic properties for GERG-2008 calculations
- * 
- * @param P Pressure [Pa]
+ *
+ * @param P Pressure [kPa]
  * @param Z Compressibility factor [-]
  * @param dPdD First partial derivative of pressure with respect to density [(Pa⋅m³)/kg]
  * @param d2PdD2 Second partial derivative of pressure with respect to density [(Pa⋅m⁶)/kg²]
@@ -180,93 +194,119 @@ struct PropertiesDetailResult
  * @param Kappa Isothermal compressibility [1/Pa]
  * @param A Helmholtz free energy [J/kg]
  * @param Cf Critical flow factor [-]
- * 
+ *
  * @see PropertiesGERG For the underlying calculation implementation
  */
 struct PropertiesGERGResult
 {
-    double P, Z, dPdD, d2PdD2, d2PdTD, dPdT;
-    double U, H, S, Cv, Cp, W, G, JT, Kappa, A, Cf;
+    double P;      /**< Pressure in kPa */
+    double Z;      /**< Compressibility factor */
+    double dPdD;   /**< Derivative of pressure with respect to density [(Pa⋅m³)/kg]*/
+    double d2PdD2; /**< Second derivative of pressure with respect to density [(Pa⋅m⁶)/kg²]*/
+    double d2PdTD; /**< Mixed derivative of pressure with respect to temperature and density */
+    double dPdT;   /**< Derivative of pressure with respect to temperature [Pa/K]*/
+    double U;      /**< Internal energy [J/kg]*/
+    double H;      /**< Enthalpy [J/kg]*/
+    double S;      /**< Entropy [J/(kg⋅K)]*/
+    double Cv;     /**< Isochoric heat capacity [J/(kg⋅K)]*/
+    double Cp;     /**< Isobaric heat capacity [J/(kg⋅K)]*/
+    double W;      /**< Speed of sound [m/s]*/
+    double G;      /**< Gibbs free energy [J/kg]*/
+    double JT;     /**< Joule-Thomson coefficient [K/Pa]*/
+    double Kappa;  /**< Isothermal compressibility */
+    double A;      /**< Helmholtz free energy [J/kg]*/
+    double Cf;     /**< Critical flow factor */
 };
 
 /**
  * @brief Structure containing the composition of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions)
- * 
+ *
  * @var hydrocarbon Mole fraction of the equivalent hydrocarbon
  * @var nitrogen Mole fraction of nitrogen
  * @var carbon_dioxide Mole fraction of carbon dioxide
  */
 struct xGrs
 {
-    double hydrocarbon;
-    double nitrogen;
-    double carbon_dioxide;
+    double hydrocarbon;    /**< Mole fraction of the equivalent hydrocarbon */
+    double nitrogen;       /**< Mole fraction of nitrogen */
+    double carbon_dioxide; /**< Mole fraction of carbon dioxide */
 };
 
 /**
  * @brief Structure containing computation results
- * 
- * @var P Pressure value
+ *
+ * @var P Pressure value (kPa)
  * @var Z Compressibility factor
  * @var ierr Error code (0 = success, non-zero = error)
  * @var herr Error message string
  */
 struct PressureGrossResult
 {
-    double P;
-    double Z;
-    int ierr;
-    std::string herr;
+    double P;         /**< Pressure value (kPa) */
+    double Z;         /**< Compressibility factor */
+    int ierr;         /**< Error code (0 = success, non-zero = error) */
+    std::string herr; /**< Error message string */
 };
+
+/**
+ * @brief Structure containing computation results
+ *
+ * @var D Density value (mol/L)
+ * @var ierr Error code (0 = success, non-zero = error)
+ * @var herr Error message string
+ *
+ * @see GrossHv For the underlying use implementation
+ */
 struct GrossHvResult
 {
-    xGrs xGrs;
-    double HN;
-    double HCH;
+    xGrs xGrs;  /**< Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions) */
+    double HN;  /**< Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K*/
+    double HCH; /**< Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K */
 };
 
 struct GrossInputsResult
 {
-    xGrs xGrs;
-    double Gr;
-    double HN;
-    double HCH;
-    int ierr;
-    std::string herr;
+    xGrs xGrs;        /**< Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions) */
+    double Gr;        /**< Relative density at T and P */
+    double HN;        /**< Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K */
+    double HCH;       /**< Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K */
+    int ierr;         /**< Error number (0 indicates no error) */
+    std::string herr; /**< Error message if ierr is not equal to zero */
 };
 
 struct BmixResult
 {
-    double B;
-    double C;
-    int ierr;
-    std::string herr;
+    double B;         /**< Second virial coefficient (dm^3/mol) */
+    double C;         /**< Third virial coefficient (dm^6/mol^2) */
+    int ierr;         /**< Error number (0 indicates no error) */
+    std::string herr; /**< Error message if ierr is not equal to zero */
 };
 
 struct GrossMethod1Result
 {
-    xGrs xGrs;
-    double Mm;
-    double HCH;
-    double HN;
-    int ierr;
-    std::string herr;
+    xGrs xGrs;        /**< Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions) */
+    double Mm;        /**< Molar mass (g/mol) */
+    double HCH;       /**< Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K */
+    double HN;        /**< Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K */
+    int ierr;         /**< Error number (0 indicates no error) */
+    std::string herr; /**< Error message if ierr is not equal to zero */
 };
 
 struct GrossMethod2Result
 {
-    xGrs xGrs;
-    double Hv;
-    double Mm;
-    double HCH;
-    double HN;
-    int ierr;
-    std::string herr;
+    xGrs xGrs;        /**< Compositions of the equivalent hydrocarbon, nitrogen, and CO2 (mole fractions) */
+    double Hv;        /**< Volumetric ideal gross heating value (MJ/m^3) at Th */
+    double Mm;        /**< Molar mass (g/mol) */
+    double HCH;       /**< Molar ideal gross heating value of the equivalent hydrocarbon (kJ/mol) at 298.15 K */
+    double HN;        /**< Molar ideal gross heating value of the mixture (kJ/mol) at 298.15 K */
+    int ierr;         /**< Error number (0 indicates no error) */
+    std::string herr; /**< Error message if ierr is not equal to zero */
 };
 
 // Helper function to convert a JavaScript object to a C++ struct
 /**
  * @brief Converts a JavaScript gasMixture Object to a C++ struct
+ * @param js_object JavaScript gasMixture object
  */
 std::vector<double> gasMixture_to_vector(gasMixture js_object)
 {
@@ -299,6 +339,7 @@ std::vector<double> gasMixture_to_vector(gasMixture js_object)
 // Helper function to convert a JavaScript xGr object to a C++ struct
 /**
  * @brief Converts a JavaScript xGrs Object to a C++ struct
+ * @param js_object JavaScript xGrs object
  */
 std::vector<double> xGrs_to_vector(xGrs js_object)
 {
@@ -313,6 +354,7 @@ std::vector<double> xGrs_to_vector(xGrs js_object)
 // Helper function to convert a vector to a xGrs JavaScript object
 /**
  * @brief Converts a C++ vector to a JavaScript xGrs object
+ * @param vec C++ vector containing the xGrs values
  */
 xGrs vector_to_xGrs(const std::vector<double> &vec)
 {
@@ -326,12 +368,12 @@ xGrs vector_to_xGrs(const std::vector<double> &vec)
 // Helper function to convert a JavaScript array to a C++ vector
 /**
  * @brief Converts a JavaScript array to a C++ vector of doubles
- * 
+ *
  * @param js_array JavaScript array object passed as an emscripten::val
  * @return std::vector<double> C++ vector containing the converted values
- * 
+ *
  * @details This function takes a JavaScript array passed through emscripten's val
- * interface and converts it to a C++ std::vector<double>. Each element in the 
+ * interface and converts it to a C++ std::vector<double>. Each element in the
  * JavaScript array is converted to a double value.
  */
 std::vector<double> array_to_vector(const val &js_array)
@@ -348,10 +390,10 @@ std::vector<double> array_to_vector(const val &js_array)
 // Helper function to convert a C++ vector to a JavaScript array
 /**
  * @brief Converts a C++ vector of doubles to a JavaScript array
- * 
+ *
  * @param vec The input vector containing double values to convert
  * @return val A JavaScript array containing the values from the input vector
- * 
+ *
  * This function takes a C++ vector of doubles and creates a new JavaScript array,
  * copying each element from the vector to the corresponding index in the JavaScript array.
  * The function is typically used for interoperability between C++ and JavaScript/WebAssembly.
@@ -369,13 +411,13 @@ val vector_to_array(const std::vector<double> &vec)
 // Detail wrappers
 /**
  * @brief Calculates the molar mass of a gas mixture given mole percentages
- * 
+ *
  * This function wraps the MolarMassDetail calculation for use with external bindings.
  * It converts the input array to a vector before calculating the molar mass.
- * 
+ *
  * @param x_array Gas mixture composition in mole percentages
  * @return double Molar mass of the gas mixture in kg/mol
- * 
+ *
  * @see MolarMassDetail For the underlying calculation implementation
  */
 double MolarMassDetail_wrapper(gasMixture x_array)
@@ -388,14 +430,14 @@ double MolarMassDetail_wrapper(gasMixture x_array)
 
 /**
  * @brief Wraps the PressureDetail function to calculate pressure and compressibility factor
- * 
+ *
  * @param T Temperature in Kelvin
  * @param D Density in mol/l
  * @param x_array Gas mixture composition in mole percent
  * @return PressureResult Struct containing:
  *         - P: Pressure in kPa
  *         - Z: Compressibility factor (dimensionless)
- * 
+ *
  * This wrapper function converts the input array to a vector and handles the pressure
  * calculation using PressureDetail, returning the results in a convenient struct.
  * @see PressureDetail For the underlying calculation implementation
@@ -411,9 +453,9 @@ PressureResult PressureDetail_wrapper(double T, double D, gasMixture x_array)
 
 /**
  * @brief Calculates the density of a gas mixture given temperature, pressure and composition
- * 
+ *
  * This function wraps the DensityDetail calculation for easier interface handling.
- * 
+ *
  * @param T Temperature in K
  * @param P Pressure in kPa
  * @param x_array Gas mixture composition in mole percent
@@ -436,14 +478,13 @@ DensityResult DensityDetail_wrapper(double T, double P, gasMixture x_array)
     return result;
 }
 
-
 /**
  * @brief Wrapper function to calculate detailed thermodynamic properties of a gas mixture
- * 
+ *
  * @param T Temperature [K]
  * @param D Density [mol/l]
  * @param x_array Gas mixture composition in mole percent
- * 
+ *
  * @return PropertiesDetailResult struct containing:
  *   - P: Pressure [kPa]
  *   - Z: Compressibility factor [-]
@@ -480,13 +521,13 @@ PropertiesDetailResult PropertiesDetail_wrapper(double T, double D, gasMixture x
 // GERG wrappers
 /**
  * @brief Calculates the molar mass of a gas mixture using GERG-2008 equation of state
- * 
+ *
  * @param x_array Gas mixture composition in mole percent
  * @return double Molar mass of the mixture in kg/mol
- * 
+ *
  * This function serves as a wrapper for the MolarMassGERG calculation.
  * It converts the input array to a vector format before performing the calculation.
- * 
+ *
  * @see MolarMassGERG For the underlying calculation implementation
  */
 double MolarMassGERG_wrapper(gasMixture x_array)
@@ -509,7 +550,7 @@ double MolarMassGERG_wrapper(gasMixture x_array)
  *
  * This function is a wrapper around the PressureGERG function that handles
  * the conversion between array and vector representations of the gas mixture composition.
- * 
+ *
  * @see PressureGERG For the underlying calculation implementation
  */
 PressureResult PressureGERG_wrapper(double T, double D, gasMixture x_array)
@@ -524,7 +565,7 @@ PressureResult PressureGERG_wrapper(double T, double D, gasMixture x_array)
 
 /**
  * @brief Wrapper function to calculate density using GERG-2008 equation of state
- * 
+ *
  * @param iflag Flag to specify calculation path (1: density from pressure/temperature, 2: pressure from density/temperature)
  * @param T Temperature [K]
  * @param P Pressure [kPa]
@@ -533,7 +574,7 @@ PressureResult PressureGERG_wrapper(double T, double D, gasMixture x_array)
  *         - D: Density [kg/m³]
  *         - ierr: Error flag (0: successful, non-zero: error occurred)
  *         - herr: Error message string
- * 
+ *
  * @see DensityGERG For the underlying calculation implementation
  */
 DensityResult DensityGERG_wrapper(int iflag, double T, double P, gasMixture x_array)
@@ -551,11 +592,11 @@ DensityResult DensityGERG_wrapper(int iflag, double T, double P, gasMixture x_ar
 
 /**
  * @brief Calculates thermodynamic properties using GERG-2008 equation of state
- * 
+ *
  * @param T Temperature [K]
  * @param D Density [kg/m³]
  * @param x_array Array of mole fractions [%] of the mixture components
- * 
+ *
  * @return PropertiesGERGResult struct containing:
  *   - P: Pressure [kPa]
  *   - Z: Compressibility factor [-]
@@ -574,7 +615,7 @@ DensityResult DensityGERG_wrapper(int iflag, double T, double P, gasMixture x_ar
  *   - Kappa: Isentropic exponent [-]
  *   - A: Helmholtz energy [J/kg]
  *   - Cf: Critical flow factor [-]
- * 
+ *
  * @see PropertiesGERG For the underlying calculation implementation
  */
 PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gasMixture x_array)
@@ -593,13 +634,13 @@ PropertiesGERGResult PropertiesGERG_wrapper(double T, double D, gasMixture x_arr
 // Gross wrappers
 /**
  * @brief Calculates the gross molar mass of a gas mixture
- * 
+ *
  * This function is a wrapper to MolarMassGross that converts a gas mixture composition from array to vector
  * and calculates its gross molar mass.
- * 
+ *
  * @param x_array Gas mixture composition in mole percent
  * @return double Gross molar mass of the mixture in g/mol
- * 
+ *
  * @see MolarMassGross For the underlying calculation implementation
  */
 double MolarMassGross_wrapper(gasMixture x_array)
@@ -612,21 +653,21 @@ double MolarMassGross_wrapper(gasMixture x_array)
 
 /**
  * @brief Wrapper function for PressureGross calculation
- * 
+ *
  * This function wraps the PressureGross calculation to provide a simplified interface
  * for computing pressure and compressibility factor for natural gas mixtures.
- * 
+ *
  * @param T Temperature in K
  * @param D Density in mol/l
  * @param xGrs_object Array containing mole fractions of components
  * @param HCH Gross heating value in MJ/m³
- * 
+ *
  * @return PressureGrossResult struct containing:
  *         - P: Pressure in kPa
  *         - Z: Compressibility factor
  *         - ierr: Error code (0 = success)
  *         - herr: Error message
- * 
+ *
  * @see PressureGross For the underlying calculation implementation
  */
 PressureGrossResult PressureGross_wrapper(double T, double D, xGrs xGrs_object, double HCH)
@@ -644,9 +685,9 @@ PressureGrossResult PressureGross_wrapper(double T, double D, xGrs xGrs_object, 
 
 /**
  * @brief Wrapper function for DensityGross calculation
- * 
+ *
  * This function calculates the density of a natural gas mixture using the GERG-2008 equation of state
- * 
+ *
  * @param T Temperature [K]
  * @param P Pressure [kPa]
  * @param xGrs_object Array containing mole fractions of the mixture components
@@ -655,7 +696,7 @@ PressureGrossResult PressureGross_wrapper(double T, double D, xGrs xGrs_object, 
  *         - D: Density [kg/m³]
  *         - ierr: Error code (0 = successful)
  *         - herr: Error message string
- * 
+ *
  * @see DensityGross For the underlying calculation implementation
  * @note This is a wrapper function that converts the input array to a vector before calling the main DensityGross function
  */
@@ -674,17 +715,17 @@ DensityResult DensityGross_wrapper(double T, double P, xGrs xGrs_object, double 
 
 /**
  * @brief Wrapper function to calculate gross heating values for a gas mixture
- * 
+ *
  * @param x_array Gas mixture composition in mole percent
  * @return GrossHvResult Structure containing:
  *         - xGrs: Vector of calculated gross heating values for each component
  *         - HN: Normal gross heating value of the mixture
  *         - HCH: Chinese gross heating value of the mixture
- * 
+ *
  * This function serves as a wrapper around the GrossHv calculation, converting
  * between array and vector data structures while maintaining the computational
  * logic of the original GERG-2008 implementation.
- * 
+ *
  * @see GrossHv For the underlying calculation implementation
  */
 GrossHvResult GrossHv_wrapper(gasMixture x_array)
@@ -700,9 +741,9 @@ GrossHvResult GrossHv_wrapper(gasMixture x_array)
 
 /**
  * @brief Wrapper function for GrossInputs calculation
- * 
+ *
  * This function wraps the GrossInputs calculation to handle array conversions and provide a structured result
- * 
+ *
  * @param T Temperature value
  * @param P Pressure value
  * @param x_array Gas mixture composition in mole percent
@@ -731,7 +772,7 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
 
 /**
  * @brief Calculates mixture second and third virial coefficients using the GERG-2008 equation of state
- * 
+ *
  * @param T Temperature [K]
  * @param xGrs_object Array of mole fractions for each component in the mixture
  * @param HCH Parameter for handling hydrocarbon mixtures
@@ -740,10 +781,10 @@ GrossInputsResult GrossInputs_wrapper(double T, double P, gasMixture x_array)
  *         - C: Third virial coefficient [(cm³/mol)²]
  *         - ierr: Error code (0 = successful)
  *         - herr: Error message string
- * 
+ *
  * This function serves as a wrapper for the Bmix calculation, converting array inputs
  * to the required vector format and returning results in a structured format.
- * 
+ *
  * @see Bmix For the underlying calculation implementation
  */
 BmixResult Bmix_wrapper(double T, xGrs xGrs_object, double HCH)
@@ -761,14 +802,14 @@ BmixResult Bmix_wrapper(double T, xGrs xGrs_object, double HCH)
 
 /**
  * @brief Wrapper function for GrossMethod1 calculation method
- * 
+ *
  * @param Th Temperature high (T1) [K]
  * @param Td Temperature difference (T1-T2) [K]
  * @param Pd Pressure drop (P1-P2) [Pa]
  * @param xGrs_object Array of mole fractions for the mixture components
  * @param Gr Mass flow rate [kg/s]
  * @param Hv Heating value [J/kg]
- * 
+ *
  * @return GrossMethod1Result Structure containing:
  *         - Updated mole fractions array
  *         - Mm (Molar mass) [kg/kmol]
@@ -776,7 +817,7 @@ BmixResult Bmix_wrapper(double T, xGrs xGrs_object, double HCH)
  *         - HN (Heat value normalized)
  *         - ierr (Error code, 0 = success)
  *         - herr (Error message string)
- * 
+ *
  * @see GrossMethod1 For the underlying calculation implementation
  */
 GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrs xGrs_object, double Gr, double Hv)
@@ -794,13 +835,13 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrs xG
 
 /**
  * @brief Wrapper function for the GrossMethod2 calculation method
- * 
+ *
  * @param Th Temperature at higher pressure (K)
  * @param Td Temperature at lower pressure (K)
  * @param Pd Pressure at lower temperature (kPa)
  * @param xGrs_object Array containing molar composition of the gas mixture
  * @param Gr Relative density of the gas mixture
- * 
+ *
  * @return GrossMethod2Result struct containing:
  *         - Updated molar composition array
  *         - Hv: Heating value
@@ -809,7 +850,7 @@ GrossMethod1Result GrossMethod1_wrapper(double Th, double Td, double Pd, xGrs xG
  *         - HN: Number related to heating value
  *         - ierr: Error code (0 = success)
  *         - herr: Error message string
- * 
+ *
  * @see GrossMethod2 For the underlying calculation implementation
  */
 GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrs xGrs_object, double Gr)
@@ -827,18 +868,18 @@ GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrs xG
 
 /**
  * @brief Emscripten bindings for the AGA8 gas calculation module
- * 
+ *
  * These bindings expose the AGA8 gas calculation functionality to JavaScript/WebAssembly.
  * It includes:
- * 
+ *
  * Enums:
  * - GasComponent: Enumeration of different gas components (methane, nitrogen, etc.)
- * 
+ *
  * Types:
  * - gasMixtureInMolePercent: Gas mixture composition in mole percent
  * - xGrsArray: Array for gross method calculations
  * - VectorDouble: Vector of double precision numbers
- * 
+ *
  * Value Objects:
  * - PressureResult: Pressure calculation results (P, Z)
  * - DensityResult: Density calculation results (D, error info)
@@ -850,7 +891,7 @@ GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrs xG
  * - BmixResult: Binary mixture calculation results
  * - GrossMethod1Result: Results for gross characterization method 1
  * - GrossMethod2Result: Results for gross characterization method 2
- * 
+ *
  * Functions:
  * Detail Methods:
  * - SetupDetail: Initialize detail calculation method
@@ -858,14 +899,14 @@ GrossMethod2Result GrossMethod2_wrapper(double Th, double Td, double Pd, xGrs xG
  * - PressureDetail: Calculate pressure using detail method
  * - DensityDetail: Calculate density using detail method
  * - PropertiesDetail: Calculate detailed properties
- * 
+ *
  * GERG Methods:
  * - SetupGERG: Initialize GERG-2008 calculation method
  * - MolarMassGERG: Calculate molar mass using GERG-2008
  * - PressureGERG: Calculate pressure using GERG-2008
  * - DensityGERG: Calculate density using GERG-2008
  * - PropertiesGERG: Calculate properties using GERG-2008
- * 
+ *
  * Gross Methods:
  * - SetupGross: Initialize gross calculation method
  * - MolarMassGross: Calculate molar mass using gross method
