@@ -855,6 +855,10 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
           slider-color="oklch(0.6 0.118 184.704)"
           slider-off-color="oklch(0.707 0.022 261.325)"
           handle-size="1rem"
+          :min="0"
+          :max="100"
+          :default-min="2"
+          :default-max="10"
         />
       </div>
     </div>
