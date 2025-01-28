@@ -19,15 +19,16 @@
  */
 import AGA8wasm, { type MainModule, type GasMixture, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
 import Clipboard from '../components/Clipboard.vue';
-import { onMounted, ref, type VNodeRef } from 'vue';
+import { onMounted, ref, type VNodeRef, type Ref } from 'vue';
 import Temml from 'temml';
+import DoubleRange from '../components/DoubleRange.vue';
 
 type Method = 'DETAIL' | 'GERG-2008';
 const method = ref<Method>('DETAIL');
 const menuOpen = ref(false);
 const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
-
+const doubleSlider = ref<{ from: Ref<number>, to: Ref<number> }>();
 type GasMixtureExt = {
   name: string;
   gasMixture: GasMixture;
@@ -237,6 +238,9 @@ function getMaximalOutletPressure(inletPressure: number, criticalFlow: number): 
  * @returns {number} - Mass flow rate in kg/s
  */
 function getMassFlowRate(propertiesMethod: Method, gasMixture: GasMixture, inletPressure: number, temperature: number, orificeDiameter: number, orificeReynoldsNumber: number): number {
+  const minPressure = doubleSlider.value?.from || DoubleRange.props.defaultMin;
+  const maxPressure = doubleSlider.value?.to || DoubleRange.props.defaultMax;
+  console.warn(`Pressure range: ${minPressure} to ${maxPressure}`);
   let properties: PropertiesDetailResult | PropertiesGERGResult;
   let molarMass: number;
   if (!AGA8) {
@@ -371,67 +375,104 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
 <template>
   <div>
     <p class="mt-1.5 text-sm text-gray-500">
-      <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice, <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow factor,
-      <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet pressure,𝜅: Heat capacity ratio, <b>R<sub>s</sub>:</b>
+      <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice, <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow
+      factor,
+      <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet pressure,𝜅: Heat capacity ratio,
+      <b>R<sub>s</sub>:</b>
       Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature, <b>Q:</b> Flow rate.
     </p>
     <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('A=\\pi\\cdot(\\frac{D}{2})^2')" />
-    <div class="mt-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex('C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}')" />
+    <div
+      class="mt-1.5 text-xl text-gray-500"
+      v-html="getMathMLFromLatex('C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}')"
+    />
     <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
-    <div class="mt-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex('Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} ')" />
+    <div
+      class="mt-1.5 text-xl text-gray-500"
+      v-html="getMathMLFromLatex('Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} ')"
+    />
   </div>
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <div>
         <label for="temperature" class="block text-xs font-medium text-gray-700">Temperature in K</label>
-        <input id="temperature" v-model="T" type="number" placeholder="293.15"
-          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+        <input
+          id="temperature"
+          v-model="T"
+          type="number"
+          placeholder="293.15"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
       </div>
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <div>
         <label for="pressure" class="block text-xs font-medium text-gray-700">Inlet pressure in kPa</label>
-        <input id="pressure" v-model="P" type="number" placeholder="400"
-          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+        <input
+          id="pressure"
+          v-model="P"
+          type="number"
+          placeholder="400"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
       </div>
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <div>
         <label for="pressure" class="block text-xs font-medium text-gray-700">Outlet pressure in kPa</label>
-        <input id="pressure" v-model="Pout" type="number" placeholder="400"
-          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+        <input
+          id="pressure"
+          v-model="Pout"
+          type="number"
+          placeholder="400"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
       </div>
     </div>
     <div class="relative">
       <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
-        <button :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
+        <button
+          :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
           class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-500 hover:text-white"
-          @click="getMassFlowRate(method, getGasMixture(), P, T, 0.050, 16010500)">
+          @click="getMassFlowRate(method, getGasMixture(), P, T, 0.050, 16010500)"
+        >
           {{ isTotalConcentrationValid(getGasMixture()) ? `Compute with ${method}` :
             `Total must be 100% (${totalPercent}%)` }}
         </button>
         <button class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700" @click="menuOpen = !menuOpen">
           <span class="sr-only">Method</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </button>
       </div>
 
-      <div v-if="menuOpen" :ref="menu"
-        class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg">
+      <div
+        v-if="menuOpen"
+        :ref="menu"
+        class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg"
+      >
         <div class="p-2">
-          <button class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            @click="method = 'GERG-2008'; menuOpen = false">
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="method = 'GERG-2008'; menuOpen = false"
+          >
             GERG-2008
           </button>
 
-          <button class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            @click="method = 'DETAIL'; menuOpen = false">
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="method = 'DETAIL'; menuOpen = false"
+          >
             DETAIL
           </button>
         </div>
@@ -446,23 +487,41 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             <tr>
               <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 Gas mixture composition
-                <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
+                <button
+                  id="dropdownDefaultButton"
+                  data-dropdown-toggle="dropdown"
                   class="border border-gray-200 rounded text-sm text-gray-900 px-1 py-0.5 text-center inline-flex items-center"
-                  type="button">
-                  Preset <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="m1 1 4 4 4-4" />
+                  type="button"
+                >
+                  Preset <svg
+                    class="w-2.5 h-2.5 ms-3"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m1 1 4 4 4-4"
+                    />
                   </svg>
                 </button>
 
                 <!-- Dropdown menu -->
-                <div id="dropdown"
-                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-56 dark:bg-gray-700">
+                <div
+                  id="dropdown"
+                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-56 dark:bg-gray-700"
+                >
                   <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
                     <li v-for="gas in availableGasMixtures" :key="gas.name">
-                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(gas.gasMixture)">{{ gas.name }}</a>
+                      <a
+                        href="#"
+                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        @click="setGasMixture(gas.gasMixture)"
+                      >{{ gas.name }}</a>
                     </li>
                   </ul>
                 </div>
@@ -479,8 +538,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="methane" v-model="methaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="methane"
+                  v-model="methaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -489,8 +553,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nitrogen" v-model="nitrogenConcentration" type="number" placeholder="1"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nitrogen"
+                  v-model="nitrogenConcentration"
+                  type="number"
+                  placeholder="1"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -499,8 +568,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   Dioxide in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="carbonDioxide" v-model="carbonDioxideConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="carbonDioxide"
+                  v-model="carbonDioxideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -508,8 +582,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <label for="ethane" class="block text-xs font-medium text-gray-700">Ethane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="ethane" v-model="ethaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="ethane"
+                  v-model="ethaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -518,8 +597,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="propane" v-model="propaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="propane"
+                  v-model="propaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -528,8 +612,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="isobutane" v-model="isobutaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="isobutane"
+                  v-model="isobutaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -538,8 +627,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nButane" v-model="nButaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nButane"
+                  v-model="nButaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -548,8 +642,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="isopentane" v-model="isopentaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="isopentane"
+                  v-model="isopentaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -558,8 +657,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nPentane" v-model="nPentaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nPentane"
+                  v-model="nPentaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -568,8 +672,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nHexane" v-model="nHexaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nHexane"
+                  v-model="nHexaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -578,8 +687,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nHeptane" v-model="nHeptaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nHeptane"
+                  v-model="nHeptaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -588,8 +702,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nOctane" v-model="nOctaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nOctane"
+                  v-model="nOctaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -598,8 +717,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nNonane" v-model="nNonaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nNonane"
+                  v-model="nNonaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -608,8 +732,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="nDecane" v-model="nDecaneConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="nDecane"
+                  v-model="nDecaneConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -618,8 +747,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="hydrogen" v-model="hydrogenConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="hydrogen"
+                  v-model="hydrogenConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -627,8 +761,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <label for="oxygen" class="block text-xs font-medium text-gray-700">Oxygen in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="oxygen" v-model="oxygenConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="oxygen"
+                  v-model="oxygenConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -638,8 +777,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="carbonMonoxide" v-model="carbonMonoxideConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="carbonMonoxide"
+                  v-model="carbonMonoxideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -647,8 +791,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <label for="water" class="block text-xs font-medium text-gray-700">Water in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="water" v-model="waterConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="water"
+                  v-model="waterConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -657,8 +806,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   Sulfide in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="hydrogenSulfide" v-model="hydrogenSulfideConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="hydrogenSulfide"
+                  v-model="hydrogenSulfideConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -666,8 +820,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <label for="helium" class="block text-xs font-medium text-gray-700">Helium in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="helium" v-model="heliumConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="helium"
+                  v-model="heliumConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
             <tr>
@@ -675,8 +834,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                 <label for="argon" class="block text-xs font-medium text-gray-700">Argon in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <input id="argon" v-model="argonConcentration" type="number" placeholder="0"
-                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm">
+                <input
+                  id="argon"
+                  v-model="argonConcentration"
+                  type="number"
+                  placeholder="0"
+                  class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+                >
               </td>
             </tr>
           </tbody>
@@ -685,7 +849,13 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
     </div>
     <div class="rounded-lg bg-gray-200">
       <div class="m-1 overflow-x-auto">
-
+        <DoubleRange
+          ref="doubleSlider"
+          class="text-xs"
+          slider-color="oklch(0.6 0.118 184.704)"
+          slider-off-color="oklch(0.707 0.022 261.325)"
+          handle-size="1rem"
+        />
       </div>
     </div>
   </div>

@@ -1,7 +1,10 @@
 <template>
   <header id="header" class="bg-white">
-    <GithubCorner url="https://github.com/sctg-development/aga8-js/tree/main/src/aga8-sonic-nozzle-vue"
-      class-bg-color="fill-teal-600" class-hover-color="fill-teal-500" />
+    <GithubCorner
+      url="https://github.com/sctg-development/aga8-js/tree/main/src/aga8-sonic-nozzle-vue"
+      class-bg-color="fill-teal-600"
+      class-hover-color="fill-teal-500"
+    />
     <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -11,7 +14,8 @@
 
           <p class="mt-1.5 text-sm text-gray-500">
             Compute the flow of a sonic nozzle using AGA8 DETAIL or GERG-2008 equations of state for determing the gaz
-            mixture properties. </p>
+            mixture properties.
+          </p>
         </div>
 
         <div class="flex items-center gap-4">
