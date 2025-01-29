@@ -1,3 +1,6 @@
 {
-    "commentTranslate.source": "Bing"
+    "commentTranslate.source": "Bing",
+    "eslint.options": {
+        "overrideConfigFile": "eslint.config.js"
+    },
 }

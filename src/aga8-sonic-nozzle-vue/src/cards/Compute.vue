@@ -17,23 +17,39 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import AGA8wasm, { type MainModule, type GasMixture, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
-import Clipboard from '../components/Clipboard.vue';
-import { onMounted, ref, type VNodeRef, type Ref } from 'vue';
-import Temml from 'temml';
-import DoubleRange from '../components/DoubleRange.vue';
+import AGA8wasm, {
+  type MainModule,
+  type GasMixture,
+  type PropertiesDetailResult,
+  type PropertiesGERGResult,
+} from "@sctg/aga8-js";
+import Clipboard from "../components/Clipboard.vue";
+import { initFlowbite } from "flowbite";
+import { Chart } from "chart.js/auto";
+import { onMounted, ref, type VNodeRef, type Ref } from "vue";
+import Temml from "temml";
+import DoubleRange from "../components/DoubleRange.vue";
 
-type Method = 'DETAIL' | 'GERG-2008';
-const method = ref<Method>('DETAIL');
+type Method = "DETAIL" | "GERG-2008";
+type MassFlowRate = {
+  massFlowRate: number; // mass flow rate in kg/s
+  temperature: number; // temperature in K
+  pressure: number; // pressure in kPa
+};
+
+const method = ref<Method>("DETAIL");
 const menuOpen = ref(false);
 const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
-const doubleSlider = ref<{ from: Ref<number>, to: Ref<number> }>();
+const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
+const flowChart : Ref<HTMLCanvasElement | null> = ref(null);
+let chart: Chart | null = null;
 type GasMixtureExt = {
   name: string;
   gasMixture: GasMixture;
 };
-
+const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
+const nbGraphSteps = 1000;  // Number of steps for the graph
 type AvailableGasMixtures = GasMixtureExt[];
 
 const availableGasMixtures = [
@@ -57,11 +73,11 @@ const availableGasMixtures = [
       hydrogen: 0,
       oxygen: 0.2095,
       carbon_monoxide: 0,
-      water: 0.000400,
+      water: 0.0004,
       hydrogen_sulfide: 0,
       helium: 0,
-      argon: 0.009300,
-    } as GasMixture
+      argon: 0.0093,
+    } as GasMixture,
   },
   {
     /**
@@ -89,8 +105,8 @@ const availableGasMixtures = [
       water: 0.0001,
       hydrogen_sulfide: 0.0025,
       helium: 0.007,
-      argon: 0.001
-    }
+      argon: 0.001,
+    },
   },
   {
     /**
@@ -118,8 +134,8 @@ const availableGasMixtures = [
       water: 0,
       hydrogen_sulfide: 0,
       helium: 0,
-      argon: 0
-    }
+      argon: 0,
+    },
   },
   {
     /**
@@ -147,11 +163,10 @@ const availableGasMixtures = [
       water: 0,
       hydrogen_sulfide: 0,
       helium: 0,
-      argon: 0
-    }
-  }
+      argon: 0,
+    },
+  },
 ] as AvailableGasMixtures;
-
 
 /**
  * Reactive references to gas mixture components in mole percent
@@ -179,31 +194,34 @@ const heliumConcentration = ref(0);
 const argonConcentration = ref(0);
 
 const T = ref(273.15 + 20); // °K
-const P = ref(400);     // kPa
-const Pout = ref(200);  // kPa
+const P = ref(400); // kPa
+const Pout = ref(200); // kPa
 // const R = 8.31446261815324;      // J•mol^-1•K^-1)
-const mm = ref(0); // Molar mass in g/mol
-const density = ref(0);  // Density in mol/l
+
 const totalPercent = ref(100); // Total percentage
 
 let AGA8: MainModule | null = null;
 
 /**
  * Loads the AGA8 WASM module
- * 
+ *
  * This function is called when the component is mounted
- * 
+ *
  * @requires AGA8wasm - The AGA8 WASM module
  * @requires moduleLoaded - Reactive reference to the module load status
  */
 onMounted(() => {
-  setGasMixture(availableGasMixtures.find(x => x.name === "Air")?.gasMixture || availableGasMixtures[0].gasMixture);
+  initFlowbite();
+  setGasMixture(
+    availableGasMixtures.find((x) => x.name === "Air")?.gasMixture ||
+      availableGasMixtures[0].gasMixture
+  );
   AGA8wasm().then((AGA8module) => {
     AGA8 = AGA8module;
     moduleLoaded.value = true;
     console.warn("AGA8 module loaded");
-  })
-})
+  });
+});
 
 /**
  * Compute the discharge coefficient for a toroidal nozzle given the Reynolds number
@@ -211,19 +229,22 @@ onMounted(() => {
  */
 function getThoroidalNozzleDischargeCoefficient(Re_thoroidal: number): number {
   const Cd_a = 0.9959; // Constant for toroidal nozzle
-  const Cd_b = 2.720; // Reynolds number factor for toroidal nozzle
-  const Cd_n = 0.5;    // Reynolds number exponent for toroidal nozzle
-  const Cd = Cd_a - Cd_b * Re_thoroidal ** (Cd_n * (-1));
+  const Cd_b = 2.72; // Reynolds number factor for toroidal nozzle
+  const Cd_n = 0.5; // Reynolds number exponent for toroidal nozzle
+  const Cd = Cd_a - Cd_b * Re_thoroidal ** (Cd_n * -1);
   return Cd;
 }
 
 /**
  * Compute the maximal outlet pressure for a given inlet pressure and critical flow
- * @param inletPressure 
- * @param criticalFlow 
+ * @param inletPressure
+ * @param criticalFlow
  */
-function getMaximalOutletPressure(inletPressure: number, criticalFlow: number): number {
-  const p_crit = (inletPressure) * criticalFlow;
+function getMaximalOutletPressure(
+  inletPressure: number,
+  criticalFlow: number
+): number {
+  const p_crit = inletPressure * criticalFlow;
   return p_crit;
 }
 
@@ -237,43 +258,62 @@ function getMaximalOutletPressure(inletPressure: number, criticalFlow: number): 
  * @param orificeReynoldsNumber - Reynolds number for the orifice
  * @returns {number} - Mass flow rate in kg/s
  */
-function getMassFlowRate(propertiesMethod: Method, gasMixture: GasMixture, inletPressure: number, temperature: number, orificeDiameter: number, orificeReynoldsNumber: number): number {
-  const minPressure = doubleSlider.value?.from || DoubleRange.props.defaultMin;
-  const maxPressure = doubleSlider.value?.to || DoubleRange.props.defaultMax;
+function getMassFlowRateDataset(
+  propertiesMethod: Method,
+  gasMixture: GasMixture,
+  inletPressureRange: { min: number; max: number },
+  temperature: number,
+  orificeDiameter: number,
+  orificeReynoldsNumber: number
+): MassFlowRate[] {
+  const output: MassFlowRate[] = [];
+  
+  const minPressure = inletPressureRange.min; //doubleSlider.value?.from || DoubleRange.props.defaultMin;
+  const maxPressure = inletPressureRange.max; //doubleSlider.value?.to || DoubleRange.props.defaultMax;
   console.warn(`Pressure range: ${minPressure} to ${maxPressure}`);
-  let properties: PropertiesDetailResult | PropertiesGERGResult;
-  let molarMass: number;
   if (!AGA8) {
     console.warn("AGA8 module is not loaded");
     throw new Error("AGA8 module is not loaded");
   }
-  if (propertiesMethod === 'DETAIL') {
-    AGA8.SetupDetail();
-    const { D } = AGA8.DensityDetail(temperature, inletPressure, gasMixture); // mol/L
-    properties = AGA8.PropertiesDetail(temperature, D, gasMixture);
-    molarMass = AGA8.MolarMassDetail(gasMixture);
-  } else {
-    AGA8.SetupGERG();
-    const { D } = AGA8.DensityGERG(0, temperature, inletPressure, gasMixture); // mol/L
-    properties = AGA8.PropertiesGERG(temperature, D, gasMixture);
-    molarMass = AGA8.MolarMassGERG(gasMixture);
-  }
-  const molarMassSI = molarMass / 1000; // kg/mol (SI units)
-  // Extract critical flow factor (Cf)
-  const Cf = properties.Cf;
-  const R = 8.31446261815324;      // Universal gas constant in J/(mol·K)
-  /** Specific gas constant */
-  const Rs = R / molarMassSI;        // J/(kg·K)
+  
+  let properties: PropertiesDetailResult | PropertiesGERGResult;
+  let molarMass = 0; // Molar mass in g/mol
   /** Discharge coefficient for thoroidal nozzle */
   const Cd = getThoroidalNozzleDischargeCoefficient(orificeReynoldsNumber); // Discharge coefficient
   /** Orifice area */
   const A = Math.PI * (orificeDiameter / 1000 / 2) ** 2; // m^2
-  // Maximal outlet pressure (critical flow)
-  // Calculate mass flow rate
-  // Q = Cd * Cf * A * P / sqrt(Rs * T)
-  const massFlow = Cd * Cf * A * (inletPressure * 1000) / Math.sqrt(Rs * temperature); // kg/s
-  console.warn(`Mass flow rate: ${massFlow.toPrecision(4)} kg/s (${massFlow * 3.6e6} g/h)`);
-  return massFlow;
+  const SetupFunction =
+    propertiesMethod === "DETAIL" ? AGA8.SetupDetail : AGA8.SetupGERG;
+  const MolarMassFunction =
+    propertiesMethod === "DETAIL" ? AGA8.MolarMassDetail : AGA8.MolarMassGERG;
+  const PropertiesFunction =
+    propertiesMethod === "DETAIL" ? AGA8.PropertiesDetail : AGA8.PropertiesGERG;
+  SetupFunction();
+  molarMass = MolarMassFunction(gasMixture); // g/mol
+  for (let i = 0; i < nbGraphSteps; i++) {
+    const P = minPressure + (i * (maxPressure - minPressure)) / nbGraphSteps;
+    const { D } =
+      propertiesMethod === "DETAIL"
+        ? AGA8.DensityDetail(temperature, P, gasMixture)
+        : AGA8.DensityGERG(2, temperature, P, gasMixture); // mol/l
+    properties = PropertiesFunction(temperature, D, gasMixture);
+    const molarMassSI = molarMass / 1000; // kg/mol (SI units)
+    // Extract critical flow factor (Cf)
+    const Cf = properties.Cf;
+    /** Specific gas constant */
+    const Rs = R / molarMassSI; // J/(kg·K)
+    // Calculate mass flow rate
+    // Q = Cd * Cf * A * P / sqrt(Rs * T)
+    const massFlow = (Cd * Cf * A * (P * 1000)) / Math.sqrt(Rs * temperature); // kg/s
+    output.push({ massFlowRate: massFlow, temperature, pressure: P });
+  }
+  console.warn(
+    `Mass flow rate at mid range: ${output[
+      nbGraphSteps / 2
+    ].massFlowRate.toPrecision(4)} kg/s Pressure: ${output[nbGraphSteps / 2].pressure
+    } kPa, Temperature: ${output[nbGraphSteps / 2].temperature} K`
+  );
+  return output;
 }
 
 /**
@@ -286,7 +326,7 @@ function getMathMLFromLatex(latex: string): string {
 
 /**
  * Returns the gas mixture in mole percent
- * 
+ *
  * @returns {GasMixture} - Array of gas mixture components in mole percent
  */
 function getGasMixture(): GasMixture {
@@ -312,7 +352,7 @@ function getGasMixture(): GasMixture {
     hydrogen_sulfide: hydrogenSulfideConcentration.value / 100,
     helium: heliumConcentration.value / 100,
     argon: argonConcentration.value / 100,
-  }
+  };
 }
 
 /**
@@ -344,11 +384,9 @@ function setGasMixture(x: GasMixture): void {
   argonConcentration.value = x.argon * 100;
 }
 
-
-
 /**
  * Calculates the sum of mole percentages for all components in a gas mixture, excluding the first element.
- * 
+ *
  * @param {GasMixture} x - Array of gas mixture components in mole percent
  * @returns {number} - Total concentration as sum of all components except first one
  */
@@ -358,7 +396,7 @@ function computeTotalConcentration(x: GasMixture): number {
 
 /**
  * Checks if the total concentration of a gas mixture is 100%
- * 
+ *
  * @param {GasMixture} x - Array of gas mixture components in mole percent
  * @returns {boolean} - True if total concentration is 100%, false otherwise
  */
@@ -369,27 +407,71 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
     console.error(`Total concentration is not 100%: ${concentration * 100}%`);
   }
   totalPercent.value = concentration * 100;
-  return (delta <= 1e-12);
+  return delta <= 1e-12;
+}
+
+function createChart(data: MassFlowRate[]): void {
+  if (!flowChart.value) {
+    return;
+  }
+  const ctx = flowChart.value;
+  if (!ctx) {
+    return;
+  }
+  const labels = data.map((x) => x.pressure);
+  const values = data.map((x) => x.massFlowRate);
+  if (chart) {
+    chart.destroy();
+  }
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Mass flow rate",
+          data: values,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0,
+          fill: false,
+          pointStyle: "circle",
+          pointBorderWidth: 0.1,
+          pointRadius: 1,
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+    },
+  });
 }
 </script>
 <template>
   <div>
     <p class="mt-1.5 text-sm text-gray-500">
-      <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice, <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow
-      factor,
-      <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet pressure,𝜅: Heat capacity ratio,
+      <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice,
+      <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow factor,
+      <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet
+      pressure,𝜅: Heat capacity ratio,
       <b>R<sub>s</sub>:</b>
-      Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature, <b>Q:</b> Flow rate.
+      Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature,
+      <b>Q:</b> Flow rate.
     </p>
     <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('A=\\pi\\cdot(\\frac{D}{2})^2')" />
     <div
       class="mt-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex('C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}')"
+      v-html="getMathMLFromLatex(
+        'C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}'
+      )
+      "
     />
     <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
     <div
       class="mt-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex('Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} ')"
+      v-html="getMathMLFromLatex(
+        'Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
+      )
+      "
     />
   </div>
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
@@ -432,12 +514,27 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
     <div class="relative">
       <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
         <button
-          :class="!isTotalConcentrationValid(getGasMixture()) ? 'bg-gray-700' : 'bg-teal-600'"
+          :class="!isTotalConcentrationValid(getGasMixture())
+            ? 'bg-gray-700'
+            : 'bg-teal-600'
+          "
           class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-500 hover:text-white"
-          @click="getMassFlowRate(method, getGasMixture(), P, T, 0.050, 16010500)"
+          @click="
+            createChart(getMassFlowRateDataset(
+              method,
+              getGasMixture(),
+              {min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number},
+              T,
+              0.05,
+              16010500
+            ))
+          "
         >
-          {{ isTotalConcentrationValid(getGasMixture()) ? `Compute with ${method}` :
-            `Total must be 100% (${totalPercent}%)` }}
+          {{
+            isTotalConcentrationValid(getGasMixture())
+              ? `Compute with ${method}`
+              : `Total must be 100% (${totalPercent}%)`
+          }}
         </button>
         <button class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700" @click="menuOpen = !menuOpen">
           <span class="sr-only">Method</span>
@@ -464,14 +561,20 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
         <div class="p-2">
           <button
             class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            @click="method = 'GERG-2008'; menuOpen = false"
+            @click="
+              method = 'GERG-2008';
+              menuOpen = false;
+            "
           >
             GERG-2008
           </button>
 
           <button
             class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            @click="method = 'DETAIL'; menuOpen = false"
+            @click="
+              method = 'DETAIL';
+              menuOpen = false;
+            "
           >
             DETAIL
           </button>
@@ -481,7 +584,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
   </div>
   <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
     <div class="rounded-lg bg-gray-200">
-      <div class="m-1 overflow-x-auto ">
+      <div class="m-1 overflow-x-auto">
         <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
           <thead class="ltr:text-left rtl:text-right">
             <tr>
@@ -493,7 +596,8 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
                   class="border border-gray-200 rounded text-sm text-gray-900 px-1 py-0.5 text-center inline-flex items-center"
                   type="button"
                 >
-                  Preset <svg
+                  Preset
+                  <svg
                     class="w-2.5 h-2.5 ms-3"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
@@ -534,8 +638,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
           <tbody class="divide-y divide-gray-200">
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="methane" class="block text-xs font-medium text-gray-700">Methane in
-                  %</label>
+                <label for="methane" class="block text-xs font-medium text-gray-700">Methane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -549,8 +652,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nitrogen" class="block text-xs font-medium text-gray-700">Nitrogen in
-                  %</label>
+                <label for="nitrogen" class="block text-xs font-medium text-gray-700">Nitrogen in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -564,8 +666,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="carbonDioxide" class="block text-xs font-medium text-gray-700">Carbon
-                  Dioxide in %</label>
+                <label for="carbonDioxide" class="block text-xs font-medium text-gray-700">Carbon Dioxide in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -593,8 +694,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="propane" class="block text-xs font-medium text-gray-700">Propane in
-                  %</label>
+                <label for="propane" class="block text-xs font-medium text-gray-700">Propane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -608,8 +708,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="isobutane" class="block text-xs font-medium text-gray-700">Isobutane in
-                  %</label>
+                <label for="isobutane" class="block text-xs font-medium text-gray-700">Isobutane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -623,8 +722,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nButane" class="block text-xs font-medium text-gray-700">n-Butane in
-                  %</label>
+                <label for="nButane" class="block text-xs font-medium text-gray-700">n-Butane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -638,8 +736,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="isopentane" class="block text-xs font-medium text-gray-700">Isopentane in
-                  %</label>
+                <label for="isopentane" class="block text-xs font-medium text-gray-700">Isopentane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -653,8 +750,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nPentane" class="block text-xs font-medium text-gray-700">n-Pentane in
-                  %</label>
+                <label for="nPentane" class="block text-xs font-medium text-gray-700">n-Pentane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -668,8 +764,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nHexane" class="block text-xs font-medium text-gray-700">n-Hexane in
-                  %</label>
+                <label for="nHexane" class="block text-xs font-medium text-gray-700">n-Hexane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -683,8 +778,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nHeptane" class="block text-xs font-medium text-gray-700">n-Heptane in
-                  %</label>
+                <label for="nHeptane" class="block text-xs font-medium text-gray-700">n-Heptane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -698,8 +792,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nOctane" class="block text-xs font-medium text-gray-700">n-Octane in
-                  %</label>
+                <label for="nOctane" class="block text-xs font-medium text-gray-700">n-Octane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -713,8 +806,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nNonane" class="block text-xs font-medium text-gray-700">n-Nonane in
-                  %</label>
+                <label for="nNonane" class="block text-xs font-medium text-gray-700">n-Nonane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -728,8 +820,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="nDecane" class="block text-xs font-medium text-gray-700">n-Decane in
-                  %</label>
+                <label for="nDecane" class="block text-xs font-medium text-gray-700">n-Decane in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -743,8 +834,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="hydrogen" class="block text-xs font-medium text-gray-700">Hydrogen in
-                  %</label>
+                <label for="hydrogen" class="block text-xs font-medium text-gray-700">Hydrogen in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -772,9 +862,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="carbonMonoxide" class="block text-xs font-medium text-gray-700">Carbon
-                  Monoxide
-                  in %</label>
+                <label for="carbonMonoxide" class="block text-xs font-medium text-gray-700">Carbon Monoxide in %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -802,8 +890,8 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
             </tr>
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                <label for="hydrogenSulfide" class="block text-xs font-medium text-gray-700">Hydrogen
-                  Sulfide in %</label>
+                <label for="hydrogenSulfide" class="block text-xs font-medium text-gray-700">Hydrogen Sulfide in
+                  %</label>
               </td>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <input
@@ -856,10 +944,11 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
           slider-off-color="oklch(0.707 0.022 261.325)"
           handle-size="1rem"
           :min="0"
-          :max="100"
-          :default-min="2"
-          :default-max="10"
+          :max="10000"
+          :default-min="200"
+          :default-max="1000"
         />
+        <canvas id="flowChart" ref="flowChart" />
       </div>
     </div>
   </div>
