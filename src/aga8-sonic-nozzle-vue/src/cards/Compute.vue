@@ -144,6 +144,35 @@ const availableGasMixtures = [
       argon: 0,
     },
   },
+  {
+    /**
+     * Custom gas mixture in mole fraction
+     */
+    name: "Custom",
+    gasMixture: {
+      methane: 0,
+      nitrogen: 0,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      water: 0,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0,
+    },
+  },
 ] as AvailableGasMixtures;
 
 type Method = "DETAIL" | "GERG-2008";
@@ -490,16 +519,7 @@ function createChart(data: MassFlowRate[]): void {
       </div>
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-      <div>
-        <label for="pressure" class="block text-xs font-medium text-gray-700">Inlet pressure in kPa</label>
-        <input
-          id="pressure"
-          v-model="P"
-          type="number"
-          placeholder="400"
-          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
-        >
-      </div>
+
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <div>
@@ -637,7 +657,7 @@ function createChart(data: MassFlowRate[]): void {
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-200" v-if="selectedGasMixtureExt.name === 'Custom'">
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <label for="methane" class="block text-xs font-medium text-gray-700">Methane in %</label>
