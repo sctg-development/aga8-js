@@ -30,28 +30,6 @@ import { onMounted, ref, type VNodeRef, type Ref } from "vue";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
 
-type Method = "DETAIL" | "GERG-2008";
-type MassFlowRate = {
-  massFlowRate: number; // mass flow rate in kg/s
-  temperature: number; // temperature in K
-  pressure: number; // pressure in kPa
-};
-
-const method = ref<Method>("DETAIL");
-const menuOpen = ref(false);
-const menu = ref<VNodeRef | null>(null);
-const moduleLoaded = ref(false);
-const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
-const flowChart : Ref<HTMLCanvasElement | null> = ref(null);
-let chart: Chart | null = null;
-type GasMixtureExt = {
-  name: string;
-  gasMixture: GasMixture;
-};
-const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
-const nbGraphSteps = 1000;  // Number of steps for the graph
-type AvailableGasMixtures = GasMixtureExt[];
-
 const availableGasMixtures = [
   {
     name: "Air",
@@ -167,6 +145,30 @@ const availableGasMixtures = [
     },
   },
 ] as AvailableGasMixtures;
+
+type Method = "DETAIL" | "GERG-2008";
+type MassFlowRate = {
+  massFlowRate: number; // mass flow rate in kg/s
+  temperature: number; // temperature in K
+  pressure: number; // pressure in kPa
+};
+type GasMixtureExt = {
+  name: string;
+  gasMixture: GasMixture;
+};
+
+const method = ref<Method>("DETAIL");
+const menuOpen = ref(false);
+const menu = ref<VNodeRef | null>(null);
+const moduleLoaded = ref(false);
+const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
+const flowChart : Ref<HTMLCanvasElement | null> = ref(null);
+const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
+let chart: Chart | null = null;
+const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
+const nbGraphSteps = 1000;  // Number of steps for the graph
+type AvailableGasMixtures = GasMixtureExt[];
+
 
 /**
  * Reactive references to gas mixture components in mole percent
@@ -596,7 +598,7 @@ function createChart(data: MassFlowRate[]): void {
                   class="border border-gray-200 rounded text-sm text-gray-900 px-1 py-0.5 text-center inline-flex items-center"
                   type="button"
                 >
-                  Preset
+                  {{ selectedGasMixtureExt.name }}
                   <svg
                     class="w-2.5 h-2.5 ms-3"
                     aria-hidden="true"
@@ -624,7 +626,7 @@ function createChart(data: MassFlowRate[]): void {
                       <a
                         href="#"
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="setGasMixture(gas.gasMixture)"
+                        @click="selectedGasMixtureExt = availableGasMixtures.find(_gas => _gas.name === gas.name ); setGasMixture(gas.gasMixture)"
                       >{{ gas.name }}</a>
                     </li>
                   </ul>
