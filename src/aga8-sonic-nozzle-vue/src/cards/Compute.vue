@@ -23,7 +23,7 @@ import AGA8wasm, {
   type PropertiesDetailResult,
   type PropertiesGERGResult,
 } from "@sctg/aga8-js";
-import Clipboard from "../components/Clipboard.vue";
+// import Clipboard from "../components/Clipboard.vue";
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
 import { onMounted, ref, type VNodeRef, type Ref } from "vue";
@@ -180,6 +180,7 @@ type MassFlowRate = {
   massFlowRate: number; // mass flow rate in kg/s
   temperature: number; // temperature in K
   pressure: number; // pressure in kPa
+  crticalPresure: number; // critical pressure in kPa
 };
 type GasMixtureExt = {
   name: string;
@@ -225,7 +226,6 @@ const heliumConcentration = ref(0);
 const argonConcentration = ref(0);
 
 const T = ref(273.15 + 20); // °K
-const P = ref(400); // kPa
 const Pout = ref(200); // kPa
 // const R = 8.31446261815324;      // J•mol^-1•K^-1)
 
@@ -336,7 +336,7 @@ function getMassFlowRateDataset(
     // Calculate mass flow rate
     // Q = Cd * Cf * A * P / sqrt(Rs * T)
     const massFlow = (Cd * Cf * A * (P * 1000)) / Math.sqrt(Rs * temperature); // kg/s
-    output.push({ massFlowRate: massFlow, temperature, pressure: P });
+    output.push({ massFlowRate: massFlow, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf) });
   }
   console.warn(
     `Mass flow rate at mid range: ${output[
