@@ -37,6 +37,8 @@ View the demo source code in our [Vue.js implementation](https://github.com/sctg
 
 Try it now at [Lasersmart Sonic Nozzle](https://sonic.lasersmart.work/)!
 
+<img width="1235" alt="image" src="https://github.com/user-attachments/assets/9dbcea62-0028-4aba-8132-f4c48be6fae8" />
+
 
 ## 📦 Installation
 
