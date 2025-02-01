@@ -3,4 +3,5 @@
     "eslint.options": {
         "overrideConfigFile": "eslint.config.js"
     },
+    "commentTranslate.multiLineMerge": true,
 }

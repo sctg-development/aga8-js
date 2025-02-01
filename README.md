@@ -25,13 +25,18 @@ High-performance WebAssembly implementation of the GERG-2008 equation of state a
   - 💪 TypeScript type definitions included
   - 📚 Comprehensive [API documentation](https://sctg-development.github.io/aga8-js/)
 
-## 🚀 Live Demo
+## 🚀 Live AGA8 Demo
 
 Try it now at [Lasersmart AGA8](https://aga8.lasersmart.work/)!
 
 [<img width="1164" alt="AGA8 Calculator Demo" src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" />](https://aga8.lasersmart.work/)
 
 View the demo source code in our [Vue.js implementation](https://github.com/sctg-development/aga8-js/tree/main/src/aga8-vue).
+
+## 🚀 Live sonic nozzle Demo
+
+Try it now at [Lasersmart Sonic Nozzle](https://sonic.lasersmart.work/)!
+
 
 ## 📦 Installation
 

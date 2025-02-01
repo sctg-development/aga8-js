@@ -209,7 +209,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col w-4/5 mx-auto my-24">
+  <div class="flex flex-col mx-auto">
     <div class="relative min-h-3">
       <input
         id="fromSlider"

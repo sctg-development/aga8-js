@@ -193,6 +193,7 @@ const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
 const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
 const flowChart : Ref<HTMLCanvasElement | null> = ref(null);
+const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
 let chart: Chart | null = null;
 const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
@@ -226,7 +227,7 @@ const heliumConcentration = ref(0);
 const argonConcentration = ref(0);
 
 const T = ref(273.15 + 20); // °K
-const Pout = ref(200); // kPa
+const Pout = ref(100); // kPa
 // const R = 8.31446261815324;      // J•mol^-1•K^-1)
 
 const totalPercent = ref(100); // Total percentage
@@ -441,6 +442,84 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
   return delta <= 1e-12;
 }
 
+class ScientificNotation{
+  /**
+ * Convert a number to scientific notation
+ * @param value - Value to convert
+ * @param precision - Number of significant digits
+ * @returns {number, number} - Mantissa and exponent
+ */
+  private static toScientificNotation(value: number, precision?: number): {
+    mantissa: number;
+    exponent: number;
+  } {
+    if (precision === undefined) {
+      precision = 3;
+    } else if (precision < 1) {
+      precision = 0;
+    } else{
+      precision = Math.floor(precision-1);
+    }
+
+    if (value === 0) {
+      return { mantissa: 0, exponent: 0 };
+    }
+
+    // Compute the exponent
+    const exp = Math.floor(Math.log10(Math.abs(value)));
+  
+    // round to the nearest multiple of 3
+    const normalizedExp = Math.floor(exp / 3) * 3;
+  
+    // Compute the mantissa
+    let mantissa = value / Math.pow(10, normalizedExp);
+    // Round mantissa to precision decimal places
+    mantissa = Math.round(mantissa * 10**precision) / 10**precision;
+
+    return { mantissa, exponent: normalizedExp };
+  }
+
+  /**
+   * Convert a number to scientific notation string
+   * @param value - Value to convert
+   * @returns {string} - Value in scientific notation
+   */
+  public static toScientificNotationString(value: number): string {
+    const { mantissa, exponent } = this.toScientificNotation(value);
+    return `${mantissa}e${exponent}`;
+  }
+
+  /**
+   * Convert a number to scientific notation latex string
+   * @param value - Value to convert
+   * @returns {string} - Value in scientific notation latex
+   */
+  public static toScientificNotationLatex(value: number): string {
+    const { mantissa, exponent } = this.toScientificNotation(value);
+    return `${mantissa} \\times 10^{${exponent}}`;
+  }
+
+  /**
+   * Convert a number to scientific notation MathML string
+   * @param value - Value to convert
+   * @returns {string} - Value in scientific notation MathML
+   */
+  public static toScientificNotationMathML(value: number): string {
+    const { mantissa, exponent } = this.toScientificNotation(value);
+    return `${mantissa} <msup><mn>10</mn><mn>${exponent}</mn></msup>`;
+  }
+
+  /**
+   * Convert a number to scientific notation HTML string
+   * @param value - Value to convert
+   * @returns {string} - Value in scientific notation HTML
+   */
+  public static toScientificNotationHTML(value: number): string {
+    const { mantissa, exponent } = this.toScientificNotation(value);
+    return `${mantissa} × 10<sup>${exponent}</sup>`;
+  }
+}
+
 function createChart(data: MassFlowRate[]): void {
   if (!flowChart.value) {
     return;
@@ -460,7 +539,7 @@ function createChart(data: MassFlowRate[]): void {
       labels,
       datasets: [
         {
-          label: "Mass flow rate",
+          label: "Mass flow rate in kg/s",
           data: values,
           borderColor: "rgb(75, 192, 192)",
           tension: 0,
@@ -473,6 +552,35 @@ function createChart(data: MassFlowRate[]): void {
       ],
     },
     options: {
+      responsive: true,
+      plugins:{
+        tooltip:{
+          callbacks:{
+            label: function(context) {
+              return `${context.dataset.label}: ${ScientificNotation.toScientificNotationString(context.parsed.y)} kg/s`;
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            // For a category axis, the val is the index so the lookup via getLabelForValue is needed
+            callback: function(_val, index) {
+              // Hide every decimal tick label
+              return (labels[index]) % 1 === 0 ? (labels[index]).toString() : '';
+            },
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return ScientificNotation.toScientificNotationString(value as number);
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -498,7 +606,7 @@ function createChart(data: MassFlowRate[]): void {
     />
     <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
     <div
-      class="mt-1.5 text-xl text-gray-500"
+      class="my-1.5 text-xl text-gray-500"
       v-html="getMathMLFromLatex(
         'Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
       )
@@ -519,7 +627,16 @@ function createChart(data: MassFlowRate[]): void {
       </div>
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
-
+      <div>
+        <label for="orifice" class="block text-xs font-medium text-gray-700">Orifice diameter in mm</label>
+        <input
+          id="orifice"
+          v-model="orificeDiameter"
+          type="number"
+          placeholder="0.050"
+          class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
+        >
+      </div>
     </div>
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
       <div>
@@ -528,7 +645,7 @@ function createChart(data: MassFlowRate[]): void {
           id="pressure"
           v-model="Pout"
           type="number"
-          placeholder="400"
+          placeholder="100"
           class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
         >
       </div>
@@ -547,7 +664,7 @@ function createChart(data: MassFlowRate[]): void {
               getGasMixture(),
               {min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number},
               T,
-              0.05,
+              orificeDiameter,
               16010500
             ))
           "
@@ -607,6 +724,23 @@ function createChart(data: MassFlowRate[]): void {
   <div class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
     <div class="rounded-lg bg-gray-200">
       <div class="m-1 overflow-x-auto">
+        <div class="flex flex-col items-start mt-0.5 mx-1.5">
+          <label for="doubleSlider" class="block text-xs font-medium text-gray-700">Inlet pressure range in kPa</label>
+          <DoubleRange
+            id="doubleSlider"
+            ref="doubleSlider"
+            class="w-full text-xs my-8"
+            slider-color="oklch(0.6 0.118 184.704)"
+            slider-off-color="oklch(0.707 0.022 261.325)"
+            handle-size="1rem"
+            :min="0"
+            :max="10000"
+            :default-min="200"
+            :default-max="1000"
+          />
+        </div>
+      </div>
+      <div class="m-1 overflow-x-auto">
         <table class="rounded-md min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
           <thead class="ltr:text-left rtl:text-right">
             <tr>
@@ -657,7 +791,7 @@ function createChart(data: MassFlowRate[]): void {
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200" v-if="selectedGasMixtureExt.name === 'Custom'">
+          <tbody v-if="selectedGasMixtureExt.name === 'Custom'" class="divide-y divide-gray-200">
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <label for="methane" class="block text-xs font-medium text-gray-700">Methane in %</label>
@@ -959,17 +1093,6 @@ function createChart(data: MassFlowRate[]): void {
     </div>
     <div class="rounded-lg bg-gray-200">
       <div class="m-1 overflow-x-auto">
-        <DoubleRange
-          ref="doubleSlider"
-          class="text-xs"
-          slider-color="oklch(0.6 0.118 184.704)"
-          slider-off-color="oklch(0.707 0.022 261.325)"
-          handle-size="1rem"
-          :min="0"
-          :max="10000"
-          :default-min="200"
-          :default-max="1000"
-        />
         <canvas id="flowChart" ref="flowChart" />
       </div>
     </div>

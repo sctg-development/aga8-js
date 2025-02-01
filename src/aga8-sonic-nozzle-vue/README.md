@@ -1,8 +1,8 @@
 # 🧮 AGA8 Vue Demo
 
-A modern Vue.js application demonstrating real-time gas property calculations using the AGA8 DETAIL, GERG-2008, and GROSS equations of state. All calculations are performed client-side using WebAssembly.
+A modern Vue.js application demonstrating real-time flow rate through a sonic nozzle using the AGA8 equations for gas properties and ISO 9300:2022 for nozzle flow calculations.
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://aga8.lasersmart.work/)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://sonic.lasersmart.work/)
 [![Vue.js](https://img.shields.io/badge/vue.js-v3.5-42b883.svg)](https://vuejs.org/)
 [![TailwindCSS](https://img.shields.io/badge/tailwindcss-v4.0-38bdf8.svg)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/typescript-v5.7-3178c6.svg)](https://www.typescriptlang.org/)
@@ -19,9 +19,8 @@ A modern Vue.js application demonstrating real-time gas property calculations us
 
 ## 🌟 Live Demo
 
-Try the calculator at [aga8.lasersmart.work](https://aga8.lasersmart.work/)
+Try the calculator at [sonic.lasersmart.work](https://sonic.lasersmart.work/)
 
-[<img width="821" alt="AGA8 Calculator Interface" src="https://github.com/user-attachments/assets/148f537c-e6ca-43c7-8b41-c50f770c64e8" />](https://aga8.lasersmart.work/)
 
 ## 🛠️ Development Setup
 
@@ -37,7 +36,7 @@ Try the calculator at [aga8.lasersmart.work](https://aga8.lasersmart.work/)
 git clone https://github.com/sctg-development/aga8-js.git
 
 # Navigate to the Vue demo directory
-cd aga8-js/src/aga8-vue
+cd aga8-js/src/aga8-soinc-nozzle-vue
 
 # Install dependencies
 npm install
@@ -68,18 +67,9 @@ The demo uses:
 - Temml for LaTeX math rendering
 - [@sctg/aga8-js](https://www.npmjs.com/package/@sctg/aga8-js) for calculations
 
-### Supported Calculations
+## About ISO 9300:2022
 
-- Compressibility factor (Z)
-- Density
-- Pressure
-- Internal energy
-- Enthalpy
-- Entropy
-- Heat capacities (Cv, Cp)
-- Speed of sound
-- Joule-Thomson coefficient
-- And many more...
+ISO 9300:2022 specifies the method for calculating the flow-rate of gas through a sonic nozzle. The method is based on the AGA Report No. 8, Part 1. The method is applicable to the flow of natural gas and other gases mixture composed of the 21 components listed in the standard.
 
 ## 📖 About AGA8
 
