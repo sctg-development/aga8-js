@@ -1,4 +1,4 @@
-# 🧮 AGA8 Vue Demo
+# 🧮 Sonic Nozzle Vue Demo
 
 A modern Vue.js application demonstrating real-time flow rate through a sonic nozzle using the AGA8 equations for gas properties and ISO 9300:2022 for nozzle flow calculations.
 
@@ -20,6 +20,8 @@ A modern Vue.js application demonstrating real-time flow rate through a sonic no
 ## 🌟 Live Demo
 
 Try the calculator at [sonic.lasersmart.work](https://sonic.lasersmart.work/)
+
+<img width="1235" alt="image" src="https://github.com/user-attachments/assets/3289e062-f111-47ed-beda-6480bef9c95a" />
 
 
 ## 🛠️ Development Setup
