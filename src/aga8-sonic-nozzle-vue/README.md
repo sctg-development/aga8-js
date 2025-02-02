@@ -9,19 +9,31 @@ A modern Vue.js application demonstrating real-time flow rate through a sonic no
 
 ## ✨ Features
 
-- 🚀 Real-time calculations using WebAssembly
-- 🎯 High-precision gas property computations
-- 📱 Responsive design with TailwindCSS
+### Calculations
+
+- 🚀 Real-time computations via WebAssembly
+- 🎯 High-precision gas properties using DETAIL method
+- 🧪 GERG-2008 equation of state support
+- 💨 ISO 9300:2022 nozzle flow calculations
+
+### Components
+
 - 🧪 Support for 21 different gas components
-- 📋 Easy-to-use copy-to-clipboard functionality
-- 🔢 LaTeX math rendering for equations
-- 💾 No server-side calculations required
+- 📊 Real-time flow visualization
+- 🔢 LaTeX math rendering
+- 📱 Responsive design with TailwindCSS
+
+### User Experience
+
+- 📋 Copy-to-clipboard functionality
+- 💾 Client-side only calculations
+- 📈 Interactive pressure-flow graphs
 
 ## 🌟 Live Demo
 
 Try the calculator at [sonic.lasersmart.work](https://sonic.lasersmart.work/)
 
-<img width="1235" alt="image" src="https://github.com/user-attachments/assets/3289e062-f111-47ed-beda-6480bef9c95a" />
+<img width="1235" alt="Sonic Nozzle Calculator Demo" src="/public/demo-screenshot.png" />
 
 ## 🛠️ Development Setup
 

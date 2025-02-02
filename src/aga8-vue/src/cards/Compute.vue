@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
 /**
- * @copyright Copyright (c) 2024 Ronan LE MEILLAT
+ * @copyright Copyright (c) 2024-2025 Ronan LE MEILLAT
  * @license AGPL-3.0-or-later
  *
  * This program is free software: you can redistribute it and/or modify

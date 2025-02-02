@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
 /**
- * @copyright Copyright (c) 2024 Ronan LE MEILLAT
+ * @copyright Copyright (c) 2024-2025 Ronan LE MEILLAT
  * @license AGPL-3.0-or-later
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import AGA8wasm, {
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
 import { onMounted, ref, type VNodeRef, type Ref } from "vue";
+import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
 
@@ -440,84 +441,6 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
   }
   totalPercent.value = concentration * 100;
   return delta <= 1e-12;
-}
-
-class ScientificNotation {
-  /**
- * Convert a number to scientific notation
- * @param value - Value to convert
- * @param precision - Number of significant digits
- * @returns {number, number} - Mantissa and exponent
- */
-  private static toScientificNotation(value: number, precision?: number): {
-    mantissa: number;
-    exponent: number;
-  } {
-    if (precision === undefined) {
-      precision = 3;
-    } else if (precision < 1) {
-      precision = 0;
-    } else {
-      precision = Math.floor(precision - 1);
-    }
-
-    if (value === 0) {
-      return { mantissa: 0, exponent: 0 };
-    }
-
-    // Compute the exponent
-    const exp = Math.floor(Math.log10(Math.abs(value)));
-
-    // round to the nearest multiple of 3
-    const normalizedExp = Math.floor(exp / 3) * 3;
-
-    // Compute the mantissa
-    let mantissa = value / Math.pow(10, normalizedExp);
-    // Round mantissa to precision decimal places
-    mantissa = Math.round(mantissa * 10 ** precision) / 10 ** precision;
-
-    return { mantissa, exponent: normalizedExp };
-  }
-
-  /**
-   * Convert a number to scientific notation string
-   * @param value - Value to convert
-   * @returns {string} - Value in scientific notation
-   */
-  public static toScientificNotationString(value: number): string {
-    const { mantissa, exponent } = this.toScientificNotation(value);
-    return `${mantissa}e${exponent}`;
-  }
-
-  /**
-   * Convert a number to scientific notation latex string
-   * @param value - Value to convert
-   * @returns {string} - Value in scientific notation latex
-   */
-  public static toScientificNotationLatex(value: number): string {
-    const { mantissa, exponent } = this.toScientificNotation(value);
-    return `${mantissa} \\times 10^{${exponent}}`;
-  }
-
-  /**
-   * Convert a number to scientific notation MathML string
-   * @param value - Value to convert
-   * @returns {string} - Value in scientific notation MathML
-   */
-  public static toScientificNotationMathML(value: number): string {
-    const { mantissa, exponent } = this.toScientificNotation(value);
-    return `${mantissa} <msup><mn>10</mn><mn>${exponent}</mn></msup>`;
-  }
-
-  /**
-   * Convert a number to scientific notation HTML string
-   * @param value - Value to convert
-   * @returns {string} - Value in scientific notation HTML
-   */
-  public static toScientificNotationHTML(value: number): string {
-    const { mantissa, exponent } = this.toScientificNotation(value);
-    return `${mantissa} × 10<sup>${exponent}</sup>`;
-  }
 }
 
 function createChart(data: MassFlowRate[]): void {
