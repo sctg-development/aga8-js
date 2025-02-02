@@ -72,9 +72,10 @@ The demo uses:
 ## Computations and formulas
 
 ```math
+\begin{aligned}
 R\space is\space the\space gas\space constant \newline
 M\space is\space the\space molecular\space weight \newline
-D\space is\space the\space diameter\space of\space the\space nozzle \newline
+D\space is\space the\space diameter\space of\space the\space nozzle \newline  
 A\space is\space the\space cross-sectional\space area\space of\space the\space nozzle \newline
 C_d\space is\space the\space discharge\space coefficient \newline
 R_{e_{nt}}\space is\space the\space Reynolds\space number\space of\space the\space nozzle \newline
@@ -83,7 +84,7 @@ C_d=a-\frac{b}{R_{e_{nt}}^n} \newline
 A=\pi \cdot \left( \frac{D}{2} \right)^2\newline
 C^*_p = \sqrt{\kappa\left(\frac{ 2}{\kappa + 1}\right)^{\frac{\kappa + 1}{\kappa - 1}}}\newline
 Q=A \cdot C_d \cdot C^*\frac{P_{in}}{\sqrt{R_s \cdot T_{in}}} \newline
-
+\end{aligned}
 ```
 
 ## About ISO 9300:2022
