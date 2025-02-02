@@ -67,6 +67,10 @@
           <li>
             <a class="text-gray-700 transition hover:text-gray-700/75" href="https://github.com/sctg-development"> Projects </a>
           </li>
+
+          <li>
+            <a class="text-gray-700 transition hover:text-gray-700/75" href="https://aga8.lasersmart.work"> AGA8 Computations </a>
+          </li>
         </ul>
       </div>
     

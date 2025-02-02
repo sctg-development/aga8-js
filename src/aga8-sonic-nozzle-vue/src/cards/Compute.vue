@@ -192,7 +192,7 @@ const menuOpen = ref(false);
 const menu = ref<VNodeRef | null>(null);
 const moduleLoaded = ref(false);
 const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
-const flowChart : Ref<HTMLCanvasElement | null> = ref(null);
+const flowChart: Ref<HTMLCanvasElement | null> = ref(null);
 const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
 let chart: Chart | null = null;
@@ -299,7 +299,7 @@ function getMassFlowRateDataset(
   orificeReynoldsNumber: number
 ): MassFlowRate[] {
   const output: MassFlowRate[] = [];
-  
+
   const minPressure = inletPressureRange.min; //doubleSlider.value?.from || DoubleRange.props.defaultMin;
   const maxPressure = inletPressureRange.max; //doubleSlider.value?.to || DoubleRange.props.defaultMax;
   console.warn(`Pressure range: ${minPressure} to ${maxPressure}`);
@@ -307,7 +307,7 @@ function getMassFlowRateDataset(
     console.warn("AGA8 module is not loaded");
     throw new Error("AGA8 module is not loaded");
   }
-  
+
   let properties: PropertiesDetailResult | PropertiesGERGResult;
   let molarMass = 0; // Molar mass in g/mol
   /** Discharge coefficient for thoroidal nozzle */
@@ -442,7 +442,7 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
   return delta <= 1e-12;
 }
 
-class ScientificNotation{
+class ScientificNotation {
   /**
  * Convert a number to scientific notation
  * @param value - Value to convert
@@ -457,8 +457,8 @@ class ScientificNotation{
       precision = 3;
     } else if (precision < 1) {
       precision = 0;
-    } else{
-      precision = Math.floor(precision-1);
+    } else {
+      precision = Math.floor(precision - 1);
     }
 
     if (value === 0) {
@@ -467,14 +467,14 @@ class ScientificNotation{
 
     // Compute the exponent
     const exp = Math.floor(Math.log10(Math.abs(value)));
-  
+
     // round to the nearest multiple of 3
     const normalizedExp = Math.floor(exp / 3) * 3;
-  
+
     // Compute the mantissa
     let mantissa = value / Math.pow(10, normalizedExp);
     // Round mantissa to precision decimal places
-    mantissa = Math.round(mantissa * 10**precision) / 10**precision;
+    mantissa = Math.round(mantissa * 10 ** precision) / 10 ** precision;
 
     return { mantissa, exponent: normalizedExp };
   }
@@ -553,10 +553,10 @@ function createChart(data: MassFlowRate[]): void {
     },
     options: {
       responsive: true,
-      plugins:{
-        tooltip:{
-          callbacks:{
-            label: function(context) {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
               return `${context.dataset.label}: ${ScientificNotation.toScientificNotationString(context.parsed.y)} kg/s`;
             }
           }
@@ -566,17 +566,17 @@ function createChart(data: MassFlowRate[]): void {
         x: {
           ticks: {
             // For a category axis, the val is the index so the lookup via getLabelForValue is needed
-            callback: function(_val, index) {
+            callback: function (_val, index) {
               // Hide every decimal tick label
-              return (labels[index]) % 1 === 0 ? (labels[index]).toString() : '';
+              return (labels[index]) % 1 === 0 ? (labels[index]).toString() + ' kPa' : '';
             },
           }
         },
         y: {
           beginAtZero: true,
           ticks: {
-            callback: function(value) {
-              return ScientificNotation.toScientificNotationString(value as number);
+            callback: function (value) {
+              return ScientificNotation.toScientificNotationString(value as number) + ' kg/s';
             },
           },
         },
@@ -591,12 +591,14 @@ function createChart(data: MassFlowRate[]): void {
       <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice,
       <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow factor,
       <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet
-      pressure,𝜅: Heat capacity ratio,
+      pressure,<b>𝜅</b>: Heat capacity ratio, <b>M</b>: Molar mass, <b>R</b>: Universal gas constant, 
       <b>R<sub>s</sub>:</b>
       Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature,
       <b>Q:</b> Flow rate.
     </p>
-    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('A=\\pi\\cdot(\\frac{D}{2})^2')" />
+    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('R_s = \\frac{R}{M}')" />
+    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('A=\\pi \\cdot \\left( \\frac{D}{2} \\right)^2')" />
+    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
     <div
       class="mt-1.5 text-xl text-gray-500"
       v-html="getMathMLFromLatex(
@@ -662,7 +664,7 @@ function createChart(data: MassFlowRate[]): void {
             createChart(getMassFlowRateDataset(
               method,
               getGasMixture(),
-              {min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number},
+              { min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number },
               T,
               orificeDiameter,
               16010500
@@ -780,8 +782,9 @@ function createChart(data: MassFlowRate[]): void {
                       <a
                         href="#"
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="selectedGasMixtureExt = availableGasMixtures.find(_gas => _gas.name === gas.name ); setGasMixture(gas.gasMixture)"
-                      >{{ gas.name }}</a>
+                        @click="selectedGasMixtureExt = availableGasMixtures.find(_gas => _gas.name === gas.name); setGasMixture(gas.gasMixture)"
+                      >{{
+                        gas.name }}</a>
                     </li>
                   </ul>
                 </div>
