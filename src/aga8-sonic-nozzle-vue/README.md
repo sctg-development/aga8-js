@@ -28,6 +28,12 @@ A modern Vue.js application demonstrating real-time flow rate through a sonic no
 - 📋 Copy-to-clipboard functionality
 - 💾 Client-side only calculations
 - 📈 Interactive pressure-flow graphs
+- 📊 Excel worksheet export with:
+  - Automatic formulas for mass flow rate calculation
+  - Integrated nozzle diameter computation for a target mass flow rate
+  - Complete gas mixture composition report
+  - Configurable target mass flow rate
+  - Temperature and pressure ranges
 
 ## 🌟 Live Demo
 

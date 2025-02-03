@@ -26,7 +26,8 @@ import AGA8wasm, {
 // import Clipboard from "../components/Clipboard.vue";
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
-import { onMounted, ref, type VNodeRef, type Ref } from "vue";
+import { onMounted, ref, type Ref, useTemplateRef } from "vue";
+import ExcelJS from "exceljs";
 import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
@@ -181,6 +182,7 @@ type MassFlowRate = {
   massFlowRate: number; // mass flow rate in kg/s
   temperature: number; // temperature in K
   pressure: number; // pressure in kPa
+  specificNozzleCoefficient: number; // specific nozzle coefficient
   crticalPresure: number; // critical pressure in kPa
 };
 type GasMixtureExt = {
@@ -190,7 +192,9 @@ type GasMixtureExt = {
 
 const method = ref<Method>("DETAIL");
 const menuOpen = ref(false);
-const menu = ref<VNodeRef | null>(null);
+const menuExcelOpen = ref(false);
+const menu = useTemplateRef<HTMLDivElement>("menu");
+const menuExcel = useTemplateRef<HTMLDivElement>("menuExcel");
 const moduleLoaded = ref(false);
 const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
 const flowChart: Ref<HTMLCanvasElement | null> = ref(null);
@@ -335,10 +339,18 @@ function getMassFlowRateDataset(
     const Cf = properties.Cf;
     /** Specific gas constant */
     const Rs = R / molarMassSI; // J/(kg·K)
+    // Nozzle specific coefficient
+    const Kn = (Cd * Cf * (P * 1000)) / Math.sqrt(Rs * temperature);
     // Calculate mass flow rate
     // Q = Cd * Cf * A * P / sqrt(Rs * T)
-    const massFlow = (Cd * Cf * A * (P * 1000)) / Math.sqrt(Rs * temperature); // kg/s
-    output.push({ massFlowRate: massFlow, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf) });
+    // Q = Kn * A
+
+    const massFlow = Kn * A; // kg/s
+    output.push({ massFlowRate: massFlow, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf), specificNozzleCoefficient: Kn });
+    //Kn is used for computing the diameter knowing the mass flow rate
+    // A = Q / Kn
+    // ∏ * (D/2)^2 = Q / Kn
+    // D = sqrt(4 * Q / (Kn * ∏))
   }
   console.warn(
     `Mass flow rate at mid range: ${output[
@@ -441,6 +453,135 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
   }
   totalPercent.value = concentration * 100;
   return delta <= 1e-12;
+}
+
+async function getExcel(data: MassFlowRate[]): Promise<void>{
+  const workbook = new ExcelJS.Workbook();
+  workbook.title = 'Sonic flow rate calculation';
+  workbook.subject = `${selectedGasMixtureExt.value.name} computation sheet`;
+  workbook.creator = 'SCTG Development Team';
+  workbook.description = `Build using https://sonic.lasersmart.work\nSource code available at https://github.com/sctg-development/aga8-js`;
+  workbook.lastModifiedBy = 'https://sonic.lasersmart.work';
+  workbook.created = new Date();
+  workbook.modified = new Date();
+  workbook.lastPrinted = new Date();
+  // Set workbook dates to 1904 date system
+  workbook.properties.date1904 = true;
+  workbook.calcProperties.fullCalcOnLoad = true;
+  const sheet = workbook.addWorksheet(`GAS ${selectedGasMixtureExt.value.name}`);
+  sheet.columns = [
+    { header: 'Pressure (kPa)', key: 'pressure', width: 16, style: { numFmt: '0.0', alignment: {horizontal: "right"} } },
+    { header: 'Mass flow rate (kg/s) for G1 nozzle', key: 'massFlowRate', width: 30, style: { numFmt: '0.000E+00', alignment: {horizontal: "right"} } },
+    { header: 'Specific nozzle coefficient', key: 'specificNozzleCoefficient', width: 30, style: { numFmt: '0.000', alignment: {horizontal: "right"} } },
+    { header: 'Nozzle (mm) for G28 target flow rate', width: 32, style: { alignment: {horizontal: "right"} } },
+    { width: 10 },
+    { width: 22 },
+    { width: 14},
+    { width: 14},
+  ];
+  sheet.getCell('A1').font = {bold: true, size: 12}; 
+  sheet.getCell('B1').font = {bold: true, size: 12};
+  sheet.getCell('B1').note = "Mass flow rate in kg/s\nQ = Kn * ∏*(D/2)^2";
+  sheet.getCell('C1').font = {bold: true, size: 12};
+  sheet.getCell('C1').note = "Specific nozzle coefficient\nKn = Cd * Cf * P / sqrt(Rs * T)";
+  sheet.getCell('D1').font = {bold: true, size: 12};
+  sheet.getCell('D1').note = "Nozzle diameter in mm\nD = sqrt(4 * Q / (Kn * ∏))";
+  // D = sqrt(4 * Q / (Kn * ∏))
+  // Q = Kn * ∏*(D/2)^2
+  for (let i = 0; i < data.length; i++) {
+    sheet.addRow([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`}, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$28/(C${i+2}*PI()))*1000`}]);
+  }
+  sheet.getCell('F1').value = "Nozzle diameter in mm";
+  sheet.getCell('F1').font = {bold: true};
+  sheet.getCell('G1').value = orificeDiameter.value;
+  sheet.getCell('F2').value = "Inlet temperature in K";
+  sheet.getCell('F2').font = {bold: true};
+  sheet.getCell('G2').value = T.value;
+  sheet.getCell('F3').value = "Inlet pressure range in kPa";
+  sheet.getCell('F3').font = {bold: true};
+  sheet.getCell('G3').value = doubleSlider.value?.from as unknown as number || 0; 
+  sheet.getCell('H3').value = doubleSlider.value?.to as unknown as number || 0;
+  sheet.getCell('F4').value = "Gas mixture composition";
+  sheet.getCell('F4').font = {bold: true};
+  sheet.getCell('G4').value = "Concentration (%)";
+  sheet.getCell('G4').font = {bold: true};
+  sheet.getCell('F5').value = "Methane";
+  sheet.getCell('F5').font = {bold: true};
+  sheet.getCell('G5').value = methaneConcentration.value;
+  sheet.getCell('F6').value = "Nitrogen";
+  sheet.getCell('F6').font = {bold: true};
+  sheet.getCell('G6').value = nitrogenConcentration.value;
+  sheet.getCell('F7').value = "Carbon dioxide";
+  sheet.getCell('F7').font = {bold: true};
+  sheet.getCell('G7').value = carbonDioxideConcentration.value;
+  sheet.getCell('F8').value = "Ethane";
+  sheet.getCell('F8').font = {bold: true};
+  sheet.getCell('G8').value = ethaneConcentration.value;
+  sheet.getCell('F9').value = "Propane";
+  sheet.getCell('F9').font = {bold: true};
+  sheet.getCell('G9').value = propaneConcentration.value;
+  sheet.getCell('F10').value = "Isobutane";
+  sheet.getCell('F10').font = {bold: true};
+  sheet.getCell('G10').value = isobutaneConcentration.value;
+  sheet.getCell('F11').value = "n-Butane";
+  sheet.getCell('F11').font = {bold: true};
+  sheet.getCell('G11').value = nButaneConcentration.value;
+  sheet.getCell('F12').value = "Isopentane";
+  sheet.getCell('F12').font = {bold: true};
+  sheet.getCell('G12').value = isopentaneConcentration.value;
+  sheet.getCell('F13').value = "n-Pentane";
+  sheet.getCell('F13').font = {bold: true};
+  sheet.getCell('G13').value = nPentaneConcentration.value;
+  sheet.getCell('F14').value = "n-Hexane";
+  sheet.getCell('F14').font = {bold: true};
+  sheet.getCell('G14').value = nHexaneConcentration.value;
+  sheet.getCell('F15').value = "n-Heptane";
+  sheet.getCell('F15').font = {bold: true};
+  sheet.getCell('G15').value = nHeptaneConcentration.value;
+  sheet.getCell('F16').value = "n-Octane";
+  sheet.getCell('F16').font = {bold: true};
+  sheet.getCell('G16').value = nOctaneConcentration.value;
+  sheet.getCell('F17').value = "n-Nonane";
+  sheet.getCell('F17').font = {bold: true};
+  sheet.getCell('G17').value = nNonaneConcentration.value;
+  sheet.getCell('F18').value = "n-Decane";
+  sheet.getCell('F18').font = {bold: true};
+  sheet.getCell('G18').value = nDecaneConcentration.value;
+  sheet.getCell('F19').value = "Hydrogen";
+  sheet.getCell('F19').font = {bold: true};
+  sheet.getCell('G19').value = hydrogenConcentration.value;
+  sheet.getCell('F20').value = "Oxygen";
+  sheet.getCell('F20').font = {bold: true};
+  sheet.getCell('G20').value = oxygenConcentration.value;
+  sheet.getCell('F21').value = "Carbon monoxide";
+  sheet.getCell('F21').font = {bold: true};
+  sheet.getCell('G21').value = carbonMonoxideConcentration.value;
+  sheet.getCell('F22').value = "Water";
+  sheet.getCell('F22').font = {bold: true};
+  sheet.getCell('G22').value = waterConcentration.value;
+  sheet.getCell('F23').value = "Hydrogen sulfide";
+  sheet.getCell('F23').font = {bold: true};
+  sheet.getCell('G23').value = hydrogenSulfideConcentration.value;
+  sheet.getCell('F24').value = "Helium";
+  sheet.getCell('F24').font = {bold: true};
+  sheet.getCell('G24').value = heliumConcentration.value;
+  sheet.getCell('F25').value = "Argon";
+  sheet.getCell('F25').font = {bold: true};
+  sheet.getCell('G25').value = argonConcentration.value;
+  sheet.getCell('F26').value = "Total concentration";
+  sheet.getCell('G26').value = {formula: `SUM(G5:G25)`};
+  sheet.getCell('G26').font = {bold: true};
+  sheet.getCell('F28').value = "Target mass flow rate in kg/s";
+  sheet.getCell('F28').font = {bold: true};
+  sheet.getCell('G28').value = 0.000002;
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sonic_flow_rate.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);  
 }
 
 function createChart(data: MassFlowRate[]): void {
@@ -619,7 +760,7 @@ function createChart(data: MassFlowRate[]): void {
 
       <div
         v-if="menuOpen"
-        :ref="menu"
+        ref="menu"
         class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg"
       >
         <div class="p-2">
@@ -638,6 +779,74 @@ function createChart(data: MassFlowRate[]): void {
             @click="
               method = 'DETAIL';
               menuOpen = false;
+            "
+          >
+            DETAIL
+          </button>
+        </div>
+      </div>
+      <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
+        <button
+          :class="!isTotalConcentrationValid(getGasMixture())
+            ? 'bg-gray-700'
+            : 'bg-teal-600'
+          "
+          class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-500 hover:text-white"
+          @click="
+            getExcel(getMassFlowRateDataset(
+              method,
+              getGasMixture(),
+              { min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number },
+              T,
+              orificeDiameter,
+              16010500
+            ))
+          "
+        >
+          {{
+            isTotalConcentrationValid(getGasMixture())
+              ? `Excel with ${method}`
+              : `Total must be 100% (${totalPercent}%)`
+          }}
+        </button>
+        <button class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700" @click="menuExcelOpen = !menuExcelOpen">
+          <span class="sr-only">Method</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        v-if="menuExcelOpen"
+        ref="menuExcel"
+        class="absolute start-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg"
+      >
+        <div class="p-2">
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="
+              method = 'GERG-2008';
+              menuExcelOpen = false;
+            "
+          >
+            GERG-2008
+          </button>
+
+          <button
+            class="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            @click="
+              method = 'DETAIL';
+              menuExcelOpen = false;
             "
           >
             DETAIL
