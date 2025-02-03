@@ -27,7 +27,7 @@ import AGA8wasm, {
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
 import { onMounted, ref, type Ref, useTemplateRef } from "vue";
-import ExcelJS from "exceljs";
+//import ExcelJS from "exceljs"; // now use dynamic import
 import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
@@ -461,177 +461,182 @@ function isTotalConcentrationValid(x: GasMixture): boolean {
 }
 
 async function getExcel(data: MassFlowRate[]): Promise<void>{
-  const workbook = new ExcelJS.Workbook();
-  workbook.title = 'Sonic flow rate calculation';
-  workbook.subject = `${selectedGasMixtureExt.value.name} computation sheet`;
-  workbook.creator = 'SCTG Development Team';
-  workbook.description = `Build using https://sonic.lasersmart.work\nSource code available at https://github.com/sctg-development/aga8-js`;
-  workbook.lastModifiedBy = 'https://sonic.lasersmart.work';
-  workbook.created = new Date();
-  workbook.modified = new Date();
-  workbook.lastPrinted = new Date();
-  // Set workbook dates to 1904 date system
-  workbook.properties.date1904 = true;
-  workbook.calcProperties.fullCalcOnLoad = true;
+  try {
+    const ExcelJS = (await import('exceljs')).default;
+    const workbook = new ExcelJS.Workbook();
+    workbook.title = 'Sonic flow rate calculation';
+    workbook.subject = `${selectedGasMixtureExt.value.name} computation sheet`;
+    workbook.creator = 'SCTG Development Team';
+    workbook.description = `Build using https://sonic.lasersmart.work\nSource code available at https://github.com/sctg-development/aga8-js`;
+    workbook.lastModifiedBy = 'https://sonic.lasersmart.work';
+    workbook.created = new Date();
+    workbook.modified = new Date();
+    workbook.lastPrinted = new Date();
+    // Set workbook dates to 1904 date system
+    workbook.properties.date1904 = true;
+    workbook.calcProperties.fullCalcOnLoad = true;
 
-  const tableRows = [];
-  for (let i = 0; i < data.length; i++) {
-    tableRows.push([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`}, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$28/(C${i+2}*PI()))*1000`}]);
-  };
+    const tableRows = [];
+    for (let i = 0; i < data.length; i++) {
+      tableRows.push([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`}, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$28/(C${i+2}*PI()))*1000`}]);
+    };
 
-  const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name}`);
-  sheet.addTable({
-    name: 'SonicFlowTable',
-    ref: 'A1',
-    headerRow: true,
-    totalsRow: false,
-    style: {
-      theme: 'TableStyleMedium2',
-      showRowStripes: true,
-    },
-    columns: [
-      { name: 'Pressure (kPa)', filterButton: true },
-      { name: 'Mass flow rate (kg/s) for G1 nozzle', filterButton: true },
-      { name: 'Specific nozzle coefficient', filterButton: true },
-      { name: 'Nozzle (mm) for G28 target flow rate', filterButton: true }
-    ],
-    rows: tableRows,
-  });
-  // for(let i=0; i<data.length; i++){
-  //   sheet2.getCell(`A${i+2}`).note = "Pressure in kPa";
-  //   sheet2.getCell(`B${i+2}`).note = "Mass flow rate in kg/s\nQ = Kn * ∏*(D/2)^2";
-  //   sheet2.getCell(`C${i+2}`).note = "Specific nozzle coefficient\nKn = Cd * Cf * P / sqrt(Rs * T)";
-  //   sheet2.getCell(`D${i+2}`).note = "Nozzle diameter in mm\nD = sqrt(4 * Q / (Kn * ∏))";
-  // }
-  sheet.getColumn('A').width = 16;
-  sheet.getColumn('A').style = { numFmt: '0.0', alignment: {horizontal: "right"} };
-  sheet.getColumn('B').width = 30;
-  sheet.getColumn('B').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
-  sheet.getColumn('C').width = 30;
-  sheet.getColumn('C').style = { numFmt: '0.000', alignment: {horizontal: "right"} };
-  sheet.getColumn('D').width = 32;
-  sheet.getColumn('D').style = { alignment: {horizontal: "right"} };
-  sheet.getColumn('E').width = 10;
-  sheet.getColumn('F').width = 22;
-  sheet.getColumn('G').width = 22;
-  sheet.getColumn('H').width = 14;
-  sheet.getCell('F1').value = "Nozzle diameter in mm";
-  sheet.getCell('F1').font = {bold: true};
-  sheet.getCell('G1').value = orificeDiameter.value;
-  sheet.getCell('G1').protection = {locked: true};
-  sheet.getCell('F2').value = "Inlet temperature in K";
-  sheet.getCell('F2').font = {bold: true};
-  sheet.getCell('G2').value = T.value;
-  sheet.getCell('G2').protection = {locked: true};
-  sheet.getCell('F3').value = "Inlet pressure range in kPa";
-  sheet.getCell('F3').font = {bold: true};
-  sheet.getCell('G3').value = doubleSlider.value?.from as unknown as number || 0; 
-  sheet.getCell('G3').protection = {locked: true};
-  sheet.getCell('H3').value = doubleSlider.value?.to as unknown as number || 0;
-  sheet.getCell('H3').protection = {locked: true};
-  sheet.getCell('F4').value = "Gas mixture composition";
-  sheet.getCell('F4').font = {bold: true};
-  sheet.getCell('G4').value = "Concentration (%)";
-  sheet.getCell('G4').font = {bold: true};
-  sheet.getCell('F5').value = "Methane";
-  sheet.getCell('F5').font = {bold: true};
-  sheet.getCell('G5').value = methaneConcentration.value;
-  sheet.getCell('G5').protection = {locked: true};
-  sheet.getCell('F6').value = "Nitrogen";
-  sheet.getCell('F6').font = {bold: true};
-  sheet.getCell('G6').value = nitrogenConcentration.value;
-  sheet.getCell('G6').protection = {locked: true};
-  sheet.getCell('F7').value = "Carbon dioxide";
-  sheet.getCell('F7').font = {bold: true};
-  sheet.getCell('G7').value = carbonDioxideConcentration.value;
-  sheet.getCell('G7').protection = {locked: true};
-  sheet.getCell('F8').value = "Ethane";
-  sheet.getCell('F8').font = {bold: true};
-  sheet.getCell('G8').value = ethaneConcentration.value;
-  sheet.getCell('G8').protection = {locked: true};
-  sheet.getCell('F9').value = "Propane";
-  sheet.getCell('F9').font = {bold: true};
-  sheet.getCell('G9').value = propaneConcentration.value;
-  sheet.getCell('G9').protection = {locked: true};
-  sheet.getCell('F10').value = "Isobutane";
-  sheet.getCell('F10').font = {bold: true};
-  sheet.getCell('G10').value = isobutaneConcentration.value;
-  sheet.getCell('G10').protection = {locked: true};
-  sheet.getCell('F11').value = "n-Butane";
-  sheet.getCell('F11').font = {bold: true};
-  sheet.getCell('G11').value = nButaneConcentration.value;
-  sheet.getCell('G11').protection = {locked: true};
-  sheet.getCell('F12').value = "Isopentane";
-  sheet.getCell('F12').font = {bold: true};
-  sheet.getCell('G12').value = isopentaneConcentration.value;
-  sheet.getCell('G12').protection = {locked: true};
-  sheet.getCell('F13').value = "n-Pentane";
-  sheet.getCell('F13').font = {bold: true};
-  sheet.getCell('G13').value = nPentaneConcentration.value;
-  sheet.getCell('G13').protection = {locked: true};
-  sheet.getCell('F14').value = "n-Hexane";
-  sheet.getCell('F14').font = {bold: true};
-  sheet.getCell('G14').value = nHexaneConcentration.value;
-  sheet.getCell('G14').protection = {locked: true};
-  sheet.getCell('F15').value = "n-Heptane";
-  sheet.getCell('F15').font = {bold: true};
-  sheet.getCell('G15').value = nHeptaneConcentration.value;
-  sheet.getCell('G15').protection = {locked: true};
-  sheet.getCell('F16').value = "n-Octane";
-  sheet.getCell('F16').font = {bold: true};
-  sheet.getCell('G16').value = nOctaneConcentration.value;
-  sheet.getCell('G16').protection = {locked: true};
-  sheet.getCell('F17').value = "n-Nonane";
-  sheet.getCell('F17').font = {bold: true};
-  sheet.getCell('G17').value = nNonaneConcentration.value;
-  sheet.getCell('G17').protection = {locked: true};
-  sheet.getCell('F18').value = "n-Decane";
-  sheet.getCell('F18').font = {bold: true};
-  sheet.getCell('G18').value = nDecaneConcentration.value;
-  sheet.getCell('G18').protection = {locked: true};
-  sheet.getCell('F19').value = "Hydrogen";
-  sheet.getCell('F19').font = {bold: true};
-  sheet.getCell('G19').value = hydrogenConcentration.value;
-  sheet.getCell('G19').protection = {locked: true};
-  sheet.getCell('F20').value = "Oxygen";
-  sheet.getCell('F20').font = {bold: true};
-  sheet.getCell('G20').value = oxygenConcentration.value;
-  sheet.getCell('G20').protection = {locked: true};
-  sheet.getCell('F21').value = "Carbon monoxide";
-  sheet.getCell('F21').font = {bold: true};
-  sheet.getCell('G21').value = carbonMonoxideConcentration.value;
-  sheet.getCell('G21').protection = {locked: true};
-  sheet.getCell('F22').value = "Water";
-  sheet.getCell('F22').font = {bold: true};
-  sheet.getCell('G22').value = waterConcentration.value;
-  sheet.getCell('G22').protection = {locked: true};
-  sheet.getCell('F23').value = "Hydrogen sulfide";
-  sheet.getCell('F23').font = {bold: true};
-  sheet.getCell('G23').value = hydrogenSulfideConcentration.value;
-  sheet.getCell('G23').protection = {locked: true};
-  sheet.getCell('F24').value = "Helium";
-  sheet.getCell('F24').font = {bold: true};
-  sheet.getCell('G24').value = heliumConcentration.value;
-  sheet.getCell('G24').protection = {locked: true};
-  sheet.getCell('F25').value = "Argon";
-  sheet.getCell('F25').font = {bold: true};
-  sheet.getCell('G25').value = argonConcentration.value;
-  sheet.getCell('G25').protection = {locked: true};
-  sheet.getCell('F26').value = "Total concentration";
-  sheet.getCell('G26').value = {formula: `SUM(G5:G25)`};
-  sheet.getCell('G26').font = {bold: true};
-  sheet.getCell('F28').value = "Target mass flow rate in kg/s";
-  sheet.getCell('F28').font = {bold: true};
-  sheet.getCell('G28').value = 0.000002;
+    const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name}`);
+    sheet.addTable({
+      name: 'SonicFlowTable',
+      ref: 'A1',
+      headerRow: true,
+      totalsRow: false,
+      style: {
+        theme: 'TableStyleMedium2',
+        showRowStripes: true,
+      },
+      columns: [
+        { name: 'Pressure (kPa)', filterButton: true },
+        { name: 'Mass flow rate (kg/s) for G1 nozzle', filterButton: true },
+        { name: 'Specific nozzle coefficient', filterButton: true },
+        { name: 'Nozzle (mm) for G28 target flow rate', filterButton: true }
+      ],
+      rows: tableRows,
+    });
+    // for(let i=0; i<data.length; i++){
+    //   sheet2.getCell(`A${i+2}`).note = "Pressure in kPa";
+    //   sheet2.getCell(`B${i+2}`).note = "Mass flow rate in kg/s\nQ = Kn * ∏*(D/2)^2";
+    //   sheet2.getCell(`C${i+2}`).note = "Specific nozzle coefficient\nKn = Cd * Cf * P / sqrt(Rs * T)";
+    //   sheet2.getCell(`D${i+2}`).note = "Nozzle diameter in mm\nD = sqrt(4 * Q / (Kn * ∏))";
+    // }
+    sheet.getColumn('A').width = 16;
+    sheet.getColumn('A').style = { numFmt: '0.0', alignment: {horizontal: "right"} };
+    sheet.getColumn('B').width = 30;
+    sheet.getColumn('B').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
+    sheet.getColumn('C').width = 30;
+    sheet.getColumn('C').style = { numFmt: '0.000', alignment: {horizontal: "right"} };
+    sheet.getColumn('D').width = 32;
+    sheet.getColumn('D').style = { alignment: {horizontal: "right"} };
+    sheet.getColumn('E').width = 10;
+    sheet.getColumn('F').width = 22;
+    sheet.getColumn('G').width = 22;
+    sheet.getColumn('H').width = 14;
+    sheet.getCell('F1').value = "Nozzle diameter in mm";
+    sheet.getCell('F1').font = {bold: true};
+    sheet.getCell('G1').value = orificeDiameter.value;
+    sheet.getCell('G1').protection = {locked: true};
+    sheet.getCell('F2').value = "Inlet temperature in K";
+    sheet.getCell('F2').font = {bold: true};
+    sheet.getCell('G2').value = T.value;
+    sheet.getCell('G2').protection = {locked: true};
+    sheet.getCell('F3').value = "Inlet pressure range in kPa";
+    sheet.getCell('F3').font = {bold: true};
+    sheet.getCell('G3').value = doubleSlider.value?.from as unknown as number || 0; 
+    sheet.getCell('G3').protection = {locked: true};
+    sheet.getCell('H3').value = doubleSlider.value?.to as unknown as number || 0;
+    sheet.getCell('H3').protection = {locked: true};
+    sheet.getCell('F4').value = "Gas mixture composition";
+    sheet.getCell('F4').font = {bold: true};
+    sheet.getCell('G4').value = "Concentration (%)";
+    sheet.getCell('G4').font = {bold: true};
+    sheet.getCell('F5').value = "Methane";
+    sheet.getCell('F5').font = {bold: true};
+    sheet.getCell('G5').value = methaneConcentration.value;
+    sheet.getCell('G5').protection = {locked: true};
+    sheet.getCell('F6').value = "Nitrogen";
+    sheet.getCell('F6').font = {bold: true};
+    sheet.getCell('G6').value = nitrogenConcentration.value;
+    sheet.getCell('G6').protection = {locked: true};
+    sheet.getCell('F7').value = "Carbon dioxide";
+    sheet.getCell('F7').font = {bold: true};
+    sheet.getCell('G7').value = carbonDioxideConcentration.value;
+    sheet.getCell('G7').protection = {locked: true};
+    sheet.getCell('F8').value = "Ethane";
+    sheet.getCell('F8').font = {bold: true};
+    sheet.getCell('G8').value = ethaneConcentration.value;
+    sheet.getCell('G8').protection = {locked: true};
+    sheet.getCell('F9').value = "Propane";
+    sheet.getCell('F9').font = {bold: true};
+    sheet.getCell('G9').value = propaneConcentration.value;
+    sheet.getCell('G9').protection = {locked: true};
+    sheet.getCell('F10').value = "Isobutane";
+    sheet.getCell('F10').font = {bold: true};
+    sheet.getCell('G10').value = isobutaneConcentration.value;
+    sheet.getCell('G10').protection = {locked: true};
+    sheet.getCell('F11').value = "n-Butane";
+    sheet.getCell('F11').font = {bold: true};
+    sheet.getCell('G11').value = nButaneConcentration.value;
+    sheet.getCell('G11').protection = {locked: true};
+    sheet.getCell('F12').value = "Isopentane";
+    sheet.getCell('F12').font = {bold: true};
+    sheet.getCell('G12').value = isopentaneConcentration.value;
+    sheet.getCell('G12').protection = {locked: true};
+    sheet.getCell('F13').value = "n-Pentane";
+    sheet.getCell('F13').font = {bold: true};
+    sheet.getCell('G13').value = nPentaneConcentration.value;
+    sheet.getCell('G13').protection = {locked: true};
+    sheet.getCell('F14').value = "n-Hexane";
+    sheet.getCell('F14').font = {bold: true};
+    sheet.getCell('G14').value = nHexaneConcentration.value;
+    sheet.getCell('G14').protection = {locked: true};
+    sheet.getCell('F15').value = "n-Heptane";
+    sheet.getCell('F15').font = {bold: true};
+    sheet.getCell('G15').value = nHeptaneConcentration.value;
+    sheet.getCell('G15').protection = {locked: true};
+    sheet.getCell('F16').value = "n-Octane";
+    sheet.getCell('F16').font = {bold: true};
+    sheet.getCell('G16').value = nOctaneConcentration.value;
+    sheet.getCell('G16').protection = {locked: true};
+    sheet.getCell('F17').value = "n-Nonane";
+    sheet.getCell('F17').font = {bold: true};
+    sheet.getCell('G17').value = nNonaneConcentration.value;
+    sheet.getCell('G17').protection = {locked: true};
+    sheet.getCell('F18').value = "n-Decane";
+    sheet.getCell('F18').font = {bold: true};
+    sheet.getCell('G18').value = nDecaneConcentration.value;
+    sheet.getCell('G18').protection = {locked: true};
+    sheet.getCell('F19').value = "Hydrogen";
+    sheet.getCell('F19').font = {bold: true};
+    sheet.getCell('G19').value = hydrogenConcentration.value;
+    sheet.getCell('G19').protection = {locked: true};
+    sheet.getCell('F20').value = "Oxygen";
+    sheet.getCell('F20').font = {bold: true};
+    sheet.getCell('G20').value = oxygenConcentration.value;
+    sheet.getCell('G20').protection = {locked: true};
+    sheet.getCell('F21').value = "Carbon monoxide";
+    sheet.getCell('F21').font = {bold: true};
+    sheet.getCell('G21').value = carbonMonoxideConcentration.value;
+    sheet.getCell('G21').protection = {locked: true};
+    sheet.getCell('F22').value = "Water";
+    sheet.getCell('F22').font = {bold: true};
+    sheet.getCell('G22').value = waterConcentration.value;
+    sheet.getCell('G22').protection = {locked: true};
+    sheet.getCell('F23').value = "Hydrogen sulfide";
+    sheet.getCell('F23').font = {bold: true};
+    sheet.getCell('G23').value = hydrogenSulfideConcentration.value;
+    sheet.getCell('G23').protection = {locked: true};
+    sheet.getCell('F24').value = "Helium";
+    sheet.getCell('F24').font = {bold: true};
+    sheet.getCell('G24').value = heliumConcentration.value;
+    sheet.getCell('G24').protection = {locked: true};
+    sheet.getCell('F25').value = "Argon";
+    sheet.getCell('F25').font = {bold: true};
+    sheet.getCell('G25').value = argonConcentration.value;
+    sheet.getCell('G25').protection = {locked: true};
+    sheet.getCell('F26').value = "Total concentration";
+    sheet.getCell('G26').value = {formula: `SUM(G5:G25)`};
+    sheet.getCell('G26').font = {bold: true};
+    sheet.getCell('F28').value = "Target mass flow rate in kg/s";
+    sheet.getCell('F28').font = {bold: true};
+    sheet.getCell('G28').value = 0.000002;
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'sonic_flow_rate.xlsx';
-  a.click();
-  URL.revokeObjectURL(url);  
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sonic_flow_rate.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);  }
+  catch (error) {
+    console.error("Error while loading ExcelJS", error);
+  }
 }
 
 function createChart(data: MassFlowRate[]): void {
