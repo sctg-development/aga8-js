@@ -31,7 +31,10 @@ import ExcelJS from "exceljs";
 import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
+import { type GasMixtureExt } from "../../../examples/convert_nist_ng_types";
+import _nistGasMixture from "../../../examples/NG_Compositions.json" with { type: "json" };
 
+const nistGasMixture = _nistGasMixture as GasMixtureExt[];
 const availableGasMixtures = [
   {
     name: "Air",
@@ -175,6 +178,7 @@ const availableGasMixtures = [
       argon: 0,
     },
   },
+  ...nistGasMixture,
 ] as AvailableGasMixtures;
 
 type Method = "DETAIL" | "GERG-2008";
@@ -184,10 +188,6 @@ type MassFlowRate = {
   pressure: number; // pressure in kPa
   specificNozzleCoefficient: number; // specific nozzle coefficient
   crticalPresure: number; // critical pressure in kPa
-};
-type GasMixtureExt = {
-  name: string;
-  gasMixture: GasMixture;
 };
 
 const method = ref<Method>("DETAIL");
@@ -200,6 +200,7 @@ const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
 const flowChart: Ref<HTMLCanvasElement | null> = ref(null);
 const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
+const showGasDetails = ref(false);
 let chart: Chart | null = null;
 const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
 const nbGraphSteps = 1000;  // Number of steps for the graph
@@ -924,7 +925,7 @@ function createChart(data: MassFlowRate[]): void {
           <thead class="ltr:text-left rtl:text-right">
             <tr>
               <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Gas mixture composition
+                <span @click="showGasDetails = !showGasDetails">Gas mixture composition</span>
                 <button
                   id="dropdownDefaultButton"
                   data-dropdown-toggle="dropdown"
@@ -966,12 +967,12 @@ function createChart(data: MassFlowRate[]): void {
                   </ul>
                 </div>
               </th>
-              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900" @click="showGasDetails = !showGasDetails">
                 Concentration
               </th>
             </tr>
           </thead>
-          <tbody v-if="selectedGasMixtureExt.name === 'Custom'" class="divide-y divide-gray-200">
+          <tbody v-if="(selectedGasMixtureExt.name === 'Custom') || showGasDetails" class="divide-y divide-gray-200">
             <tr>
               <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                 <label for="methane" class="block text-xs font-medium text-gray-700">Methane in %</label>

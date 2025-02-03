@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Examples for @sctg/aga8-js package",
   "main": "index.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "tsx sonic-nozzle-flow.ts && tsx gas-properties-calculations.ts"
   },
@@ -13,6 +13,7 @@
     "@sctg/aga8-js": "^1.0.6"
   },
   "devDependencies": {
+    "fast-csv": "^5.0.2",
     "tsx": "^4.19.2"
   }
 }
