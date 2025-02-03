@@ -631,7 +631,7 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'sonic_flow_rate.xlsx';
+    a.download = `sonic_flow_rate_${selectedGasMixtureExt.value.name.replaceAll(' ','_')}.xlsx`;
     a.click();
     URL.revokeObjectURL(url);  }
   catch (error) {
