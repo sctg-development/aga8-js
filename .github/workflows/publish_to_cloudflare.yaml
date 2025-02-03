@@ -2,6 +2,9 @@ name: Publish Sonic Nozzle demo to Cloudflare Pages
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'src/aga8-sonic-nozzle-vue/**'
 
 jobs:
   build:
