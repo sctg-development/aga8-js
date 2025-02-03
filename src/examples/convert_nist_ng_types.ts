@@ -19,7 +19,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as csv from 'fast-csv';
-import type { GasMixture } from '../../dist/index.js';
+import type { GasMixture } from '@sctg/aga8-js';
 
 const fileIn = path.resolve('./NG_Compositions.csv');
 const fileOut = path.resolve('./NG_Compositions.json');
@@ -53,7 +53,7 @@ export type GasMixtureExt = {
 };
 
 const testGasMixtures = [] as GasMixtureExt[];
-const t = fs.createReadStream(fileIn)
+fs.createReadStream(fileIn)
     .pipe(csv.parse<GasMixtureCsv, GasMixture>({ headers: true }).transform((row: GasMixtureCsv) => {
         return {
             methane: parseFloat(row.methane)/100,
@@ -81,4 +81,4 @@ const t = fs.createReadStream(fileIn)
     }))
     .on('error', error => console.error(error))
     .on('data', row => { console.log(row); testGasMixtures.push({ name: `NIST NG#${testGasMixtures.length + 2}`, gasMixture: row }) })
-    .on('end', (rowCount: number, rows: GasMixture[]) => { fs.writeFileSync(fileOut, JSON.stringify(testGasMixtures, null, 2)); console.log(`Parsed ${rowCount} rows`) });
+    .on('end', (rowCount: number) => { fs.writeFileSync(fileOut, JSON.stringify(testGasMixtures, null, 2)); console.log(`Parsed ${rowCount} rows`) });

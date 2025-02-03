@@ -21,9 +21,12 @@ import AGA8wasm, { type MainModule, type GasMixture, type PropertiesDetailResult
 import Clipboard from '../components/Clipboard.vue';
 import { onMounted, ref, type VNodeRef } from 'vue';
 import Temml from 'temml';
-import { type GasMixtureExt } from "../../../examples/convert_nist_ng_types";
 import _nistGasMixture from "../../../examples/NG_Compositions.json" with { type: "json" };
 
+type GasMixtureExt = {
+  name: string;
+  gasMixture: GasMixture;
+};
 type Method = 'DETAIL' | 'GERG-2008';
 const method = ref<Method>('DETAIL');
 const methodComputed = ref<Method | ''>('');

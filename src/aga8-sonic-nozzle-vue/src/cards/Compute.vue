@@ -31,8 +31,12 @@ import ExcelJS from "exceljs";
 import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
-import { type GasMixtureExt } from "../../../examples/convert_nist_ng_types";
 import _nistGasMixture from "../../../examples/NG_Compositions.json" with { type: "json" };
+
+type GasMixtureExt = {
+  name: string;
+  gasMixture: GasMixture;
+};
 
 const nistGasMixture = _nistGasMixture as GasMixtureExt[];
 const availableGasMixtures = [
