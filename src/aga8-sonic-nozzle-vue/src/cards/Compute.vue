@@ -23,11 +23,9 @@ import AGA8wasm, {
   type PropertiesDetailResult,
   type PropertiesGERGResult,
 } from "@sctg/aga8-js";
-// import Clipboard from "../components/Clipboard.vue";
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
 import { onMounted, ref, type Ref, useTemplateRef } from "vue";
-//import ExcelJS from "exceljs"; // now use dynamic import
 import type { CellValue, Worksheet } from "exceljs";
 import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
@@ -277,6 +275,7 @@ onMounted(() => {
 
 /**
  * Compute the discharge coefficient for a toroidal nozzle given the Reynolds number
+ * cf: https://www.methyinfra.ptb.de/fileadmin/documents/empir-2021/methyinfra/documents/MetHyInfra_Nozzle_WS_MacDonald_Introduction_to_Sonic_Nozzles_and_ISO_9300.pdf p16
  * @param Re_thoroidal - Reynolds number for thoroidal nozzle
  */
 function getThoroidalNozzleDischargeCoefficient(Re_thoroidal: number): number {
