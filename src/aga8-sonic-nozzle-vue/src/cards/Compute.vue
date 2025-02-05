@@ -370,7 +370,15 @@ function getMassFlowRateDataset(
     // Q = Kn * A
 
     const massFlow = getMaximalOutletPressure(P, Cf) < outletPressure ? NaN : Kn * A; // kg/s
-    output.push({ massFlowRate: massFlow,volumeFlowRateAtOutputPressure:massFlow/rho_out, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf), specificNozzleCoefficient: Kn, kappa: properties.Kappa, Cf: properties.Cf, M: molarMassSI });
+    output.push({ massFlowRate: massFlow,
+                  volumeFlowRateAtOutputPressure:massFlow/rho_out, 
+                  temperature, 
+                  pressure: P, 
+                  crticalPresure: getMaximalOutletPressure(P, Cf), 
+                  specificNozzleCoefficient: Kn, 
+                  kappa: properties.Kappa, 
+                  Cf: properties.Cf, 
+                  M: molarMassSI });
     //Kn is used for computing the diameter knowing the mass flow rate
     // A = Q / Kn
     // ∏ * (D/2)^2 = Q / Kn
@@ -531,7 +539,11 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
 
     const tableRows = [];
     for (let i = 0; i < data.length; i++) {
-      tableRows.push([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`},data[i].volumeFlowRateAtOutputPressure, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$32/(C${i+2}*PI()))*1000`}]);
+      tableRows.push([data[i].pressure, 
+                      isNaN(data[i].massFlowRate) ? {formula:`PI()*($G$1/2000)^2*D${i+2}`}: -1,
+                      !isNaN(data[i].volumeFlowRateAtOutputPressure) ? data[i].volumeFlowRateAtOutputPressure : -1, 
+                      data[i].specificNozzleCoefficient , 
+                      {formula:`SQRT(4*$G$32/(D${i+2}*PI()))*1000`}]);
     };
 
     const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name} at ${Pout.value/100} bar`);
@@ -547,7 +559,7 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
       columns: [
         { name: 'Pressure (kPa)', filterButton: true },
         { name: 'Mass flow rate (kg/s) for G1 nozzle', filterButton: true },
-        { name: 'Volume flow rate (L/s)', filterButton: true },
+        { name: `Volume flow rate (L/s) at ${Pout.value} kPa`, filterButton: true },
         { name: 'Specific nozzle coefficient', filterButton: true },
         { name: 'Nozzle (mm) for G32 target flow rate', filterButton: true }
       ],
@@ -714,6 +726,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
   }
   const labels = data.map((x) => x.pressure);
   const values = data.map((x) => x.volumeFlowRateAtOutputPressure*1000);
+  const valuesStd = data.map((x) => x.volumeFlowRateAtOutputPressure*1000*Pout.value/101.325);
   if (chartLs) {
     chartLs.destroy();
   }
@@ -723,9 +736,20 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
       labels,
       datasets: [
         {
-          label: "Volume flow rate in L/s",
+          label: `Volume flow rate in L/s at ${Pout.value} kPa`,
           data: values,
           borderColor: "rgb(75, 192, 192)",
+          tension: 0,
+          fill: false,
+          pointStyle: "circle",
+          pointBorderWidth: 0.1,
+          pointRadius: 1,
+          borderWidth: 1,
+        },
+        {
+          label: `Volume flow rate in L/s at 1 atm`,
+          data: valuesStd,
+          borderColor: "rgb(192, 192, 192)",
           tension: 0,
           fill: false,
           pointStyle: "circle",
@@ -741,7 +765,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
         tooltip: {
           callbacks: {
             label: function (context) {
-              return `${context.dataset.label}: ${ScientificNotation.toScientificNotationString(context.parsed.y)} L/s`;
+              return `${context.dataset.label}: ${ScientificNotation.toScientificNotationString(context.parsed.y)}`;
             }
           }
         },
