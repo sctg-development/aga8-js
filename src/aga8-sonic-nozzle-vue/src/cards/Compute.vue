@@ -193,6 +193,7 @@ const availableGasMixtures = [
 type Method = "DETAIL" | "GERG-2008";
 type MassFlowRate = {
   massFlowRate: number; // mass flow rate in kg/s
+  volumeFlowRateAtOutputPressure: number; // volume flow rate in m³/s
   temperature: number; // temperature in K
   pressure: number; // pressure in kPa
   specificNozzleCoefficient: number; // specific nozzle coefficient
@@ -209,11 +210,13 @@ const menu = useTemplateRef<HTMLDivElement>("menu");
 const menuExcel = useTemplateRef<HTMLDivElement>("menuExcel");
 const moduleLoaded = ref(false);
 const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
-const flowChart: Ref<HTMLCanvasElement | null> = ref(null);
+const flowChartKgS: Ref<HTMLCanvasElement | null> = ref(null);
+const flowChartLs: Ref<HTMLCanvasElement | null> = ref(null);
 const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
 const showGasDetails = ref(false);
-let chart: Chart | null = null;
+let chartKgS: Chart | null = null;
+let chartLs: Chart | null = null;
 const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
 const nbGraphSteps = 1000;  // Number of steps for the graph
 type AvailableGasMixtures = GasMixtureExt[];
@@ -245,7 +248,7 @@ const heliumConcentration = ref(0);
 const argonConcentration = ref(0);
 
 const T = ref(273.15 + 20); // °K
-const Pout = ref(100); // kPa
+const Pout = ref(250); // kPa
 // const R = 8.31446261815324;      // J•mol^-1•K^-1)
 
 const totalPercent = ref(100); // Total percentage
@@ -304,6 +307,7 @@ function getMaximalOutletPressure(
  * @param propertiesMethod - Method to compute properties
  * @param gasMixture - Gas mixture composition
  * @param inletPressure - Inlet pressure in kPa
+ * @param outletPressure - Outlet pressure in kPa
  * @param temperature - Temperature in K
  * @param orificeDiameter - Orifice diameter in mm
  * @param orificeReynoldsNumber - Reynolds number for the orifice
@@ -313,12 +317,13 @@ function getMassFlowRateDataset(
   propertiesMethod: Method,
   gasMixture: GasMixture,
   inletPressureRange: { min: number; max: number },
+  outletPressure: number,
   temperature: number,
   orificeDiameter: number,
   orificeReynoldsNumber: number
 ): MassFlowRate[] {
   const output: MassFlowRate[] = [];
-
+  
   const minPressure = inletPressureRange.min; //doubleSlider.value?.from || DoubleRange.props.defaultMin;
   const maxPressure = inletPressureRange.max; //doubleSlider.value?.to || DoubleRange.props.defaultMax;
   console.warn(`Pressure range: ${minPressure} to ${maxPressure}`);
@@ -341,6 +346,12 @@ function getMassFlowRateDataset(
     propertiesMethod === "DETAIL" ? AGA8.PropertiesDetail : AGA8.PropertiesGERG;
   SetupFunction();
   molarMass = MolarMassFunction(gasMixture); // g/mol
+  const molarMassSI = molarMass / 1000; // kg/mol (SI units)
+  const { D: D_out } =
+    propertiesMethod === "DETAIL"
+      ? AGA8.DensityDetail(temperature, outletPressure, gasMixture)
+      : AGA8.DensityGERG(2, temperature, outletPressure, gasMixture); // mol/l
+  const rho_out = D_out * 1000 * molarMassSI; // kg/m³
   for (let i = 0; i < nbGraphSteps; i++) {
     const P = minPressure + (i * (maxPressure - minPressure)) / nbGraphSteps;
     const { D } =
@@ -348,7 +359,6 @@ function getMassFlowRateDataset(
         ? AGA8.DensityDetail(temperature, P, gasMixture)
         : AGA8.DensityGERG(2, temperature, P, gasMixture); // mol/l
     properties = PropertiesFunction(temperature, D, gasMixture);
-    const molarMassSI = molarMass / 1000; // kg/mol (SI units)
     // Extract critical flow factor (Cf)
     const Cf = properties.Cf;
     /** Specific gas constant */
@@ -359,8 +369,8 @@ function getMassFlowRateDataset(
     // Q = Cd * Cf * A * P / sqrt(Rs * T)
     // Q = Kn * A
 
-    const massFlow = getMaximalOutletPressure(P, Cf) < Pout.value ? NaN : Kn * A; // kg/s
-    output.push({ massFlowRate: massFlow, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf), specificNozzleCoefficient: Kn, kappa: properties.Kappa, Cf: properties.Cf, M: molarMassSI });
+    const massFlow = getMaximalOutletPressure(P, Cf) < outletPressure ? NaN : Kn * A; // kg/s
+    output.push({ massFlowRate: massFlow,volumeFlowRateAtOutputPressure:massFlow/rho_out, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf), specificNozzleCoefficient: Kn, kappa: properties.Kappa, Cf: properties.Cf, M: molarMassSI });
     //Kn is used for computing the diameter knowing the mass flow rate
     // A = Q / Kn
     // ∏ * (D/2)^2 = Q / Kn
@@ -369,7 +379,10 @@ function getMassFlowRateDataset(
   console.warn(
     `Mass flow rate at mid range: ${output[
       nbGraphSteps / 2
-    ].massFlowRate.toPrecision(4)} kg/s Pressure: ${output[nbGraphSteps / 2].pressure
+    ].massFlowRate.toPrecision(4)} kg/s 
+    Volume flow rate at mid range: ${output[
+      nbGraphSteps / 2
+    ].volumeFlowRateAtOutputPressure.toPrecision(4)}m³/s Pressure: ${output[nbGraphSteps / 2].pressure
     } kPa, Temperature: ${output[nbGraphSteps / 2].temperature} K
       Critical pressure: ${output[nbGraphSteps / 2].crticalPresure} kPa`
   );
@@ -518,10 +531,10 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
 
     const tableRows = [];
     for (let i = 0; i < data.length; i++) {
-      tableRows.push([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`}, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$32/(C${i+2}*PI()))*1000`}]);
+      tableRows.push([data[i].pressure, {formula:`PI()*($G$1/2000)^2*C${i+2}`},data[i].volumeFlowRateAtOutputPressure, data[i].specificNozzleCoefficient , {formula:`SQRT(4*$G$32/(C${i+2}*PI()))*1000`}]);
     };
 
-    const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name}`);
+    const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name} at ${Pout.value/100} bar`);
     sheet.addTable({
       name: 'SonicFlowTable',
       ref: 'A1',
@@ -534,6 +547,7 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
       columns: [
         { name: 'Pressure (kPa)', filterButton: true },
         { name: 'Mass flow rate (kg/s) for G1 nozzle', filterButton: true },
+        { name: 'Volume flow rate (L/s)', filterButton: true },
         { name: 'Specific nozzle coefficient', filterButton: true },
         { name: 'Nozzle (mm) for G32 target flow rate', filterButton: true }
       ],
@@ -550,12 +564,13 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
     sheet.getColumn('B').width = 30;
     sheet.getColumn('B').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
     sheet.getColumn('C').width = 30;
-    sheet.getColumn('C').style = { numFmt: '0.000', alignment: {horizontal: "right"} };
-    sheet.getColumn('D').width = 32;
-    sheet.getColumn('D').style = { alignment: {horizontal: "right"} };
-    sheet.getColumn('E').width = 10;
+    sheet.getColumn('C').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
+    sheet.getColumn('D').width = 30;
+    sheet.getColumn('D').style = { numFmt: '0.000', alignment: {horizontal: "right"} };
+    sheet.getColumn('E').width = 32;
+    sheet.getColumn('E').style = { alignment: {horizontal: "right"} };
     sheet.getColumn('F').width = 22;
-    sheet.getColumn('G').width = 22;
+    sheet.getColumn('H').width = 22;
     sheet.getColumn('H').width = 14;
     const gasMixtureData: CellDefinition[] = [
       { name: "Nozzle diameter in mm", value: orificeDiameter.value },
@@ -605,20 +620,34 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
   }
 }
 
-function createChart(data: MassFlowRate[]): void {
-  if (!flowChart.value) {
+/**
+ * Create all the charts
+ * @param data 
+ */
+function createCharts(data: MassFlowRate[]): void {
+  if (flowChartKgS.value && flowChartLs.value)
+  {  createChartKgS(flowChartKgS.value,data);
+     createChartLs(flowChartLs.value,data);}
+}
+/**
+ * Create a chart.js for the mass flow rate in kg/s  as a function of the pressure in kPa
+ * @param canvas The target element for hosting the chart
+ * @param data a MassFlowRate[] array
+ */
+function createChartKgS(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): void {
+  if (!canvas) {
     return;
   }
-  const ctx = flowChart.value;
+  const ctx = canvas;
   if (!ctx) {
     return;
   }
   const labels = data.map((x) => x.pressure);
   const values = data.map((x) => x.massFlowRate);
-  if (chart) {
-    chart.destroy();
+  if (chartKgS) {
+    chartKgS.destroy();
   }
-  chart = new Chart(ctx, {
+  chartKgS = new Chart(ctx, {
     type: "line",
     data: {
       labels,
@@ -662,6 +691,76 @@ function createChart(data: MassFlowRate[]): void {
           ticks: {
             callback: function (value) {
               return ScientificNotation.toScientificNotationString(value as number) + ' kg/s';
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+/**
+ * Create a chart.js linear chart for the volume flow rate in m³/s as a function of the pressure in kPa
+ * @param canvas The target element for hosting the chart
+ * @param data a MassFlowRate[] array
+ */
+function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): void {
+  if (!canvas) {
+    return;
+  }
+  const ctx = canvas;
+  if (!ctx) {
+    return;
+  }
+  const labels = data.map((x) => x.pressure);
+  const values = data.map((x) => x.volumeFlowRateAtOutputPressure*1000);
+  if (chartLs) {
+    chartLs.destroy();
+  }
+  chartLs = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Volume flow rate in L/s",
+          data: values,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0,
+          fill: false,
+          pointStyle: "circle",
+          pointBorderWidth: 0.1,
+          pointRadius: 1,
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return `${context.dataset.label}: ${ScientificNotation.toScientificNotationString(context.parsed.y)} L/s`;
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            // For a category axis, the val is the index so the lookup via getLabelForValue is needed
+            callback: function (_val, index) {
+              // Hide every decimal tick label
+              return (labels[index]) % 1 === 0 ? (labels[index]).toString() + ' kPa' : '';
+            },
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              return ScientificNotation.toScientificNotationString(value as number) + ' L/s';
             },
           },
         },
@@ -732,7 +831,7 @@ function createChart(data: MassFlowRate[]): void {
           id="pressure"
           v-model="Pout"
           type="number"
-          placeholder="100"
+          placeholder="250"
           class="mt-1 w-40 rounded-md border-gray-200 shadow-sm sm:text-sm"
         >
       </div>
@@ -746,10 +845,11 @@ function createChart(data: MassFlowRate[]): void {
           "
           class="border-e px-4 py-2 text-sm/none text-white hover:bg-teal-500 hover:text-white"
           @click="
-            createChart(getMassFlowRateDataset(
+            createCharts(getMassFlowRateDataset(
               method,
               getGasMixture(),
               { min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number },
+              Pout,
               T,
               orificeDiameter,
               THOROIDAL_RE_NUMBER
@@ -818,6 +918,7 @@ function createChart(data: MassFlowRate[]): void {
               method,
               getGasMixture(),
               { min: doubleSlider?.from as unknown as number, max: doubleSlider?.to as unknown as number },
+              Pout,
               T,
               orificeDiameter,
               THOROIDAL_RE_NUMBER
@@ -1249,8 +1350,11 @@ function createChart(data: MassFlowRate[]): void {
     </div>
     <div class="rounded-lg bg-gray-200">
       <div class="m-1 overflow-x-auto">
-        <canvas id="flowChart" ref="flowChart" />
+        <canvas id="flowChartKgS" ref="flowChartKgS" />
       </div>
     </div>
+  </div>
+  <div>
+    <canvas id="flowChartLs" ref="flowChartLs" />
   </div>
 </template>
