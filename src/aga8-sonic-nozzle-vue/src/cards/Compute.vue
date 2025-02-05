@@ -540,7 +540,7 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
     const tableRows = [];
     for (let i = 0; i < data.length; i++) {
       tableRows.push([data[i].pressure, 
-                      isNaN(data[i].massFlowRate) ? {formula:`PI()*($G$1/2000)^2*D${i+2}`}: -1,
+                      !isNaN(data[i].massFlowRate) ? {formula:`PI()*($G$1/2000)^2*D${i+2}`}: -1,
                       !isNaN(data[i].volumeFlowRateAtOutputPressure) ? data[i].volumeFlowRateAtOutputPressure : -1, 
                       data[i].specificNozzleCoefficient , 
                       {formula:`SQRT(4*$G$32/(D${i+2}*PI()))*1000`}]);
