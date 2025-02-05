@@ -359,7 +359,7 @@ function getMassFlowRateDataset(
     // Q = Cd * Cf * A * P / sqrt(Rs * T)
     // Q = Kn * A
 
-    const massFlow = Kn * A; // kg/s
+    const massFlow = getMaximalOutletPressure(P, Cf) < Pout.value ? NaN : Kn * A; // kg/s
     output.push({ massFlowRate: massFlow, temperature, pressure: P, crticalPresure: getMaximalOutletPressure(P, Cf), specificNozzleCoefficient: Kn, kappa: properties.Kappa, Cf: properties.Cf, M: molarMassSI });
     //Kn is used for computing the diameter knowing the mass flow rate
     // A = Q / Kn
@@ -370,7 +370,8 @@ function getMassFlowRateDataset(
     `Mass flow rate at mid range: ${output[
       nbGraphSteps / 2
     ].massFlowRate.toPrecision(4)} kg/s Pressure: ${output[nbGraphSteps / 2].pressure
-    } kPa, Temperature: ${output[nbGraphSteps / 2].temperature} K`
+    } kPa, Temperature: ${output[nbGraphSteps / 2].temperature} K
+      Critical pressure: ${output[nbGraphSteps / 2].crticalPresure} kPa`
   );
   return output;
 }
