@@ -894,7 +894,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
         <div v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
         <div
           v-html="getMathMLFromLatex(
-            'Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
+            'Q=A \\cdot C_d \\cdot C^*_p\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
           )
           "
         />
