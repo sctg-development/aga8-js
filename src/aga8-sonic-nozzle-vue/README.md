@@ -39,7 +39,7 @@ A modern Vue.js application demonstrating real-time flow rate through a sonic no
 
 Try the calculator at [sonic.lasersmart.work](https://sonic.lasersmart.work/)
 
-<img width="1235" alt="Sonic Nozzle Calculator Demo" src="/public/demo-screenshot.png" />
+<img width="640" alt="image" src="https://github.com/user-attachments/assets/7c3d3374-3a4d-4b67-bde8-82a793f9530d" />
 
 ## 🛠️ Development Setup
 
