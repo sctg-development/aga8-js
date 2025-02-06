@@ -25,7 +25,7 @@ export class ScientificNotation {
     /**
      * Convert a number to scientific notation
      * @param value - Value to convert
-     * @param precision - Number of significant digits
+     * @param precision - Number of significant digits (optinal default: 3)
      * @returns {number, number} - Mantissa and exponent
      */
     public static toScientificNotation(value: number, precision?: number): ScientificNotationNumber {
@@ -58,40 +58,44 @@ export class ScientificNotation {
     /**
      * Convert a number to scientific notation string
      * @param value - Value to convert
+     * @param precision - Number of significant digits (optinal default: 3)
      * @returns {string} - Value in scientific notation
      */
-    public static toScientificNotationString(value: number): string {
-      const { mantissa, exponent } = this.toScientificNotation(value);
+    public static toScientificNotationString(value: number, precision ?: number): string {
+      const { mantissa, exponent } = this.toScientificNotation(value, precision);
       return `${mantissa}e${exponent}`;
     }
   
     /**
      * Convert a number to scientific notation latex string
      * @param value - Value to convert
+     * @param precision - Number of significant digits (optinal default: 3)
      * @returns {string} - Value in scientific notation latex
      */
-    public static toScientificNotationLatex(value: number): string {
-      const { mantissa, exponent } = this.toScientificNotation(value);
+    public static toScientificNotationLatex(value: number, precision ?: number): string {
+      const { mantissa, exponent } = this.toScientificNotation(value, precision);
       return `${mantissa} \\times 10^{${exponent}}`;
     }
   
     /**
      * Convert a number to scientific notation MathML string
      * @param value - Value to convert
+     * @param precision - Number of significant digits (optinal default: 3)
      * @returns {string} - Value in scientific notation MathML
      */
-    public static toScientificNotationMathML(value: number): string {
-      const { mantissa, exponent } = this.toScientificNotation(value);
+    public static toScientificNotationMathML(value: number, precision ?: number): string {
+      const { mantissa, exponent } = this.toScientificNotation(value, precision);
       return `${mantissa} <msup><mn>10</mn><mn>${exponent}</mn></msup>`;
     }
   
     /**
      * Convert a number to scientific notation HTML string
      * @param value - Value to convert
+     * @param precision - Number of significant digits
      * @returns {string} - Value in scientific notation HTML
      */
-    public static toScientificNotationHTML(value: number): string {
-      const { mantissa, exponent } = this.toScientificNotation(value);
+    public static toScientificNotationHTML(value: number, precision ?: number): string {
+      const { mantissa, exponent } = this.toScientificNotation(value, precision);
       return `${mantissa} × 10<sup>${exponent}</sup>`;
     }
   }

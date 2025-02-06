@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@sctg/aga8-js": "^1.0.6",
+    "@sctg/polyfitjs": "0.0.3",
     "chart.js": "^4.4.7",
     "clipboard": "^2.0.11",
     "exceljs": "^4.4.0",

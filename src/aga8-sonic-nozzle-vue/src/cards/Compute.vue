@@ -31,6 +31,7 @@ import { ScientificNotation } from "../utilities/scientific";
 import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
 import _nistGasMixture from "../../../examples/NG_Compositions.json" with { type: "json" };
+import { Polyfit, type NumberArray } from "@sctg/polyfitjs";
 
 type GasMixtureExt = {
   name: string;
@@ -215,6 +216,7 @@ const flowChartLs: Ref<HTMLCanvasElement | null> = ref(null);
 const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
 const showGasDetails = ref(false);
+const linearPolynomials = useTemplateRef<HTMLDivElement>("linearPolynomials");
 let chartKgS: Chart | null = null;
 let chartLs: Chart | null = null;
 const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
@@ -394,7 +396,81 @@ function getMassFlowRateDataset(
     } kPa, Temperature: ${output[nbGraphSteps / 2].temperature} K
       Critical pressure: ${output[nbGraphSteps / 2].crticalPresure} kPa`
   );
+  // Polyfit
+  const x:number[] = [];
+  const y:number[] = [];
+  for (let i = 0; i < output.length; i++) {
+    if (!isNaN(output[i].massFlowRate)) {
+      x.push(output[i].pressure);
+      y.push(output[i].massFlowRate);
+    }
+  }
+  createPolynomialDisplay(output);
   return output;
+}
+
+function getPolyfitMassFlow(dataset: MassFlowRate[]): {terms: NumberArray, correlation: number} {
+  const x:number[] = [];
+  const y:number[] = [];
+  for (let i = 0; i < dataset.length; i++) {
+    if (!isNaN(dataset[i].massFlowRate)) {
+      x.push(dataset[i].pressure);
+      y.push(dataset[i].massFlowRate);
+    }
+  }
+  const _x64 = new Float64Array(x as number[]);
+  const _y64 = new Float64Array(y as number[]);
+  const polyfit = new Polyfit(_x64, _y64);
+  const terms = polyfit.computeBestFit(100,0.999);
+  return {terms, correlation: polyfit.correlationCoefficient(terms)};
+}
+
+function getPolyfitVolumeFlow(dataset: MassFlowRate[]): {terms: NumberArray, correlation: number} {
+  const x:number[] = [];
+  const y:number[] = [];
+  for (let i = 0; i < dataset.length; i++) {
+    if (!isNaN(dataset[i].volumeFlowRateAtOutputPressure)) {
+      x.push(dataset[i].pressure);
+      y.push(dataset[i].volumeFlowRateAtOutputPressure);
+    }
+  }
+  const _x64 = new Float64Array(x as number[]);
+  const _y64 = new Float64Array(y as number[]);
+  const polyfit = new Polyfit(_x64, _y64);
+  const terms = polyfit.computeBestFit(100,0.999);
+  return {terms, correlation: polyfit.correlationCoefficient(terms)};
+}
+
+/**
+ * Get the LaTeX representation of a polynomial
+ * @param terms - Polynomial terms
+ */
+function getLatexPolynomial(terms : NumberArray): string {
+  let latex = "";
+  for(let i = terms.length - 1; i > 0; i--) {
+    const coefficient = ScientificNotation.toScientificNotationLatex(terms[i], 4);
+    latex += `${coefficient.startsWith('-') || (i !== terms.length) ? '' : '+'}${coefficient}\\cdot ${i > 1 ? `x^${i}` : 'x'} `;
+  }
+  const lastTerm = ScientificNotation.toScientificNotationLatex(terms[0], 4);
+  latex += `${lastTerm.startsWith('-') ? '' : '+'}${lastTerm}`;
+  return latex;
+}
+
+function createPolynomialDisplay(dataset: MassFlowRate[]){
+  const {terms: massFlowTerms,correlation: massFlowCorrelation} = getPolyfitMassFlow(dataset);
+  const {terms: volumeFlowTerms, correlation: volumeFlowCorrelation} = getPolyfitVolumeFlow(dataset);
+  let massFlowLatex = "Q_{kg/s} \\left( x_{kPa} \\right) \\simeq ";
+  massFlowLatex += getLatexPolynomial(massFlowTerms);
+
+  let volumeFlowLatex = "Q_{(m^3\\cdot s^{-1})_{P_{out}}}\\left( x_{kPa} \\right) \\simeq ";
+  volumeFlowLatex += getLatexPolynomial(volumeFlowTerms);
+
+  if (linearPolynomials.value)
+  {  linearPolynomials.value.innerHTML = "<p>" + 
+    getMathMLFromLatex(massFlowLatex) + "<br/>" + 
+    "<span class='text-xs'>" + getMathMLFromLatex(`R_{mass} = ${massFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
+    getMathMLFromLatex(volumeFlowLatex) + "<br/>" +
+    "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol} = ${volumeFlowCorrelation.toPrecision(8)}`) + "</span><br/></p>";}
 }
 
 /**
@@ -804,24 +880,29 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
       Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature,
       <b>Q:</b> Flow rate.
     </p>
-    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('R_s = \\frac{R}{M}')" />
-    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('A=\\pi \\cdot \\left( \\frac{D}{2} \\right)^2')" />
-    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
-    <div
-      class="mt-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex(
-        'C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}'
-      )
-      "
-    />
-    <div class="mt-1.5 text-xl text-gray-500" v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
-    <div
-      class="my-1.5 text-xl text-gray-500"
-      v-html="getMathMLFromLatex(
-        'Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
-      )
-      "
-    />
+    <div class="flex flex-col lg:flex-row lg:items-center mt-1.5 text-xl text-gray-500">
+      <div class="w-full lg:w-1/2">
+        <div v-html="getMathMLFromLatex('R_s = \\frac{R}{M}')" />
+        <div v-html="getMathMLFromLatex('A=\\pi \\cdot \\left( \\frac{D}{2} \\right)^2')" />
+        <div v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
+        <div
+          v-html="getMathMLFromLatex(
+            'C^*_p = \\sqrt{\\kappa\\left(\\frac{ 2}{\\kappa + 1}\\right)^{\\frac{\\kappa + 1}{\\kappa - 1}}}'
+          )
+          "
+        />
+        <div v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
+        <div
+          v-html="getMathMLFromLatex(
+            'Q=A \\cdot C_d \\cdot C^*\\frac{P_{in}}{\\sqrt{R_s \\cdot T_{in}}} '
+          )
+          "
+        />
+      </div>
+      <div class="w-full lg:w-1/2">
+        <div ref="linearPolynomials" />
+      </div>
+    </div>
   </div>
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
     <div class="w-full h-24 rounded-lg bg-gray-200 flex items-center justify-center">
