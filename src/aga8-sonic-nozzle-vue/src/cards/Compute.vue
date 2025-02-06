@@ -195,6 +195,7 @@ type Method = "DETAIL" | "GERG-2008";
 type MassFlowRate = {
   massFlowRate: number; // mass flow rate in kg/s
   volumeFlowRateAtOutputPressure: number; // volume flow rate in m³/s
+  volumeFlowRateAt1atm: number; // volume flow rate at 1 atm in m³/s
   temperature: number; // temperature in K
   pressure: number; // pressure in kPa
   specificNozzleCoefficient: number; // specific nozzle coefficient
@@ -209,6 +210,7 @@ const menuOpen = ref(false);
 const menuExcelOpen = ref(false);
 const menu = useTemplateRef<HTMLDivElement>("menu");
 const menuExcel = useTemplateRef<HTMLDivElement>("menuExcel");
+const computeButton = useTemplateRef<HTMLButtonElement>("computeButton");
 const moduleLoaded = ref(false);
 const doubleSlider = ref<{ from: Ref<number>; to: Ref<number> }>();
 const flowChartKgS: Ref<HTMLCanvasElement | null> = ref(null);
@@ -217,10 +219,12 @@ const orificeDiameter = ref(0.05);
 const selectedGasMixtureExt = ref<GasMixtureExt>(availableGasMixtures[0]);
 const showGasDetails = ref(false);
 const linearPolynomials = useTemplateRef<HTMLDivElement>("linearPolynomials");
+const showPrecision = ref(false);
 let chartKgS: Chart | null = null;
 let chartLs: Chart | null = null;
 const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
 const nbGraphSteps = 1000;  // Number of steps for the graph
+const correlation = ref(1 - 1e-6);
 type AvailableGasMixtures = GasMixtureExt[];
 
 
@@ -354,6 +358,11 @@ function getMassFlowRateDataset(
       ? AGA8.DensityDetail(temperature, outletPressure, gasMixture)
       : AGA8.DensityGERG(2, temperature, outletPressure, gasMixture); // mol/l
   const rho_out = D_out * 1000 * molarMassSI; // kg/m³
+  const { D: D_1atm } =
+    propertiesMethod === "DETAIL"
+      ? AGA8.DensityDetail(temperature, 101.325, gasMixture)
+      : AGA8.DensityGERG(2, temperature, 101.325, gasMixture); // mol/l
+  const rho_1atm = D_1atm * 1000 * molarMassSI; // kg/m³
   for (let i = 0; i < nbGraphSteps; i++) {
     const P = minPressure + (i * (maxPressure - minPressure)) / nbGraphSteps;
     const { D } =
@@ -374,6 +383,7 @@ function getMassFlowRateDataset(
     const massFlow = getMaximalOutletPressure(P, Cf) < outletPressure ? NaN : Kn * A; // kg/s
     output.push({ massFlowRate: massFlow,
                   volumeFlowRateAtOutputPressure:massFlow/rho_out, 
+                  volumeFlowRateAt1atm:massFlow/rho_1atm,
                   temperature, 
                   pressure: P, 
                   crticalPresure: getMaximalOutletPressure(P, Cf), 
@@ -409,36 +419,34 @@ function getMassFlowRateDataset(
   return output;
 }
 
-function getPolyfitMassFlow(dataset: MassFlowRate[]): {terms: NumberArray, correlation: number} {
-  const x:number[] = [];
-  const y:number[] = [];
-  for (let i = 0; i < dataset.length; i++) {
-    if (!isNaN(dataset[i].massFlowRate)) {
-      x.push(dataset[i].pressure);
-      y.push(dataset[i].massFlowRate);
-    }
+/**
+ * Clean the dataset for removing NaN values
+ * @param x the x values
+ * @param y the f(x) values
+ * @param maxDegree the maximum degree of the polynomial (optional default 100)
+ * @param minCorrelation the minimum correlation coefficient (optional default 0.999)
+ * @returns {terms: NumberArray, correlation: number} - Polynomial terms and correlation coefficient
+ */
+function getPolyfitFlow(x: number[], y: number[],maxDegree?: number, minCorrelation?: number): {terms: NumberArray, correlation: number} {
+  const _x:number[] = [];
+  const _y:number[] = [];
+  if (maxDegree === undefined) {maxDegree = 100;}
+  if (minCorrelation === undefined) {minCorrelation = 0.999;}
+  if (x.length !== y.length) {
+    throw new Error("x and y arrays must have the same length");
   }
-  const _x64 = new Float64Array(x as number[]);
-  const _y64 = new Float64Array(y as number[]);
-  const polyfit = new Polyfit(_x64, _y64);
-  const terms = polyfit.computeBestFit(100,0.999);
-  return {terms, correlation: polyfit.correlationCoefficient(terms)};
-}
-
-function getPolyfitVolumeFlow(dataset: MassFlowRate[]): {terms: NumberArray, correlation: number} {
-  const x:number[] = [];
-  const y:number[] = [];
-  for (let i = 0; i < dataset.length; i++) {
-    if (!isNaN(dataset[i].volumeFlowRateAtOutputPressure)) {
-      x.push(dataset[i].pressure);
-      y.push(dataset[i].volumeFlowRateAtOutputPressure);
-    }
-  }
-  const _x64 = new Float64Array(x as number[]);
-  const _y64 = new Float64Array(y as number[]);
-  const polyfit = new Polyfit(_x64, _y64);
-  const terms = polyfit.computeBestFit(100,0.999);
-  return {terms, correlation: polyfit.correlationCoefficient(terms)};
+  else
+  {for (let i = 0; i < x.length; i++) {
+     if (!isNaN(y[i])) {
+       _x.push(x[i]);
+       _y.push(y[i]);
+     }
+   }
+   const _x64 = new Float64Array(_x as number[]);
+   const _y64 = new Float64Array(_y as number[]);
+   const polyfit = new Polyfit(_x64, _y64);
+   const terms = polyfit.computeBestFit(maxDegree,minCorrelation);
+   return {terms, correlation: polyfit.correlationCoefficient(terms)};}
 }
 
 /**
@@ -449,28 +457,50 @@ function getLatexPolynomial(terms : NumberArray): string {
   let latex = "";
   for(let i = terms.length - 1; i > 0; i--) {
     const coefficient = ScientificNotation.toScientificNotationLatex(terms[i], 4);
-    latex += `${coefficient.startsWith('-') || (i !== terms.length) ? '' : '+'}${coefficient}\\cdot ${i > 1 ? `x^${i}` : 'x'} `;
+    latex += `${coefficient.startsWith('-') || (i === terms.length - 1)? '' : '+'}${coefficient}\\cdot ${i > 1 ? `x^${i}` : 'x'} `;
   }
   const lastTerm = ScientificNotation.toScientificNotationLatex(terms[0], 4);
   latex += `${lastTerm.startsWith('-') ? '' : '+'}${lastTerm}`;
   return latex;
 }
 
+/**
+ * Create the 3 polynomial approximation display
+ * @param dataset - Mass flow rate dataset
+ */
 function createPolynomialDisplay(dataset: MassFlowRate[]){
-  const {terms: massFlowTerms,correlation: massFlowCorrelation} = getPolyfitMassFlow(dataset);
-  const {terms: volumeFlowTerms, correlation: volumeFlowCorrelation} = getPolyfitVolumeFlow(dataset);
+  const {terms: massFlowTerms,correlation: massFlowCorrelation} = 
+    getPolyfitFlow(dataset.map(x => x.pressure), 
+                   dataset.map(y => y.massFlowRate), 
+                   100, correlation.value);
+  const {terms: volumeFlowTerms, correlation: volumeFlowCorrelation} = 
+    getPolyfitFlow(dataset.map(x => x.pressure), 
+                   dataset.map(y => y.volumeFlowRateAtOutputPressure), 
+                   100, correlation.value);
+  const {terms: volumeFlow1AtmlTerms, correlation: volumeFlow1AtmlCorrelation} = 
+    getPolyfitFlow(dataset.map(x => x.pressure), 
+                   dataset.map(y => y.volumeFlowRateAt1atm), 
+                   100, correlation.value);
   let massFlowLatex = "Q_{kg/s} \\left( x_{kPa} \\right) \\simeq ";
   massFlowLatex += getLatexPolynomial(massFlowTerms);
 
   let volumeFlowLatex = "Q_{(m^3\\cdot s^{-1})_{P_{out}}}\\left( x_{kPa} \\right) \\simeq ";
   volumeFlowLatex += getLatexPolynomial(volumeFlowTerms);
 
+  let volumeFlow1AtmlLatex = "Q_{(m^3\\cdot s^{-1})_{1atm}}\\left( x_{kPa} \\right) \\simeq ";
+  volumeFlow1AtmlLatex += getLatexPolynomial(volumeFlow1AtmlTerms);
+
   if (linearPolynomials.value)
   {  linearPolynomials.value.innerHTML = "<p>" + 
-    getMathMLFromLatex(massFlowLatex) + "<br/>" + 
-    "<span class='text-xs'>" + getMathMLFromLatex(`R_{mass} = ${massFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
-    getMathMLFromLatex(volumeFlowLatex) + "<br/>" +
-    "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol} = ${volumeFlowCorrelation.toPrecision(8)}`) + "</span><br/></p>";}
+       getMathMLFromLatex(massFlowLatex) + "<br/>" + 
+       "<span class='text-xs'>" + getMathMLFromLatex(`R_{mass} = ${massFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
+       getMathMLFromLatex(volumeFlowLatex) + "<br/>" +
+       "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol} = ${volumeFlowCorrelation.toPrecision(8)}`) + "</span><br/>"+
+       getMathMLFromLatex(volumeFlow1AtmlLatex) + "<br/>" +
+       "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol1atm} = ${volumeFlow1AtmlCorrelation.toPrecision(8)}`) + "</span><br/></p>";
+     ;}
+
+  showPrecision.value = true;
 }
 
 /**
@@ -802,7 +832,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
   }
   const labels = data.map((x) => x.pressure);
   const values = data.map((x) => x.volumeFlowRateAtOutputPressure*1000);
-  const valuesStd = data.map((x) => x.volumeFlowRateAtOutputPressure*1000*Pout.value/101.325);
+  const valuesStd = data.map((x) => x.volumeFlowRateAt1atm*1000);
   if (chartLs) {
     chartLs.destroy();
   }
@@ -881,7 +911,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
       <b>Q:</b> Flow rate.
     </p>
     <div class="flex flex-col lg:flex-row lg:items-center mt-1.5 text-xl text-gray-500">
-      <div class="w-full lg:w-1/2">
+      <div class="w-full lg:w-1/3">
         <div v-html="getMathMLFromLatex('R_s = \\frac{R}{M}')" />
         <div v-html="getMathMLFromLatex('A=\\pi \\cdot \\left( \\frac{D}{2} \\right)^2')" />
         <div v-html="getMathMLFromLatex('C_d=a-\\frac{b}{R_{e_{nt}}^n}')" />
@@ -899,7 +929,17 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
           "
         />
       </div>
-      <div class="w-full lg:w-1/2">
+      <div class="w-full lg:w-2/3">
+        <div v-if="showPrecision" class="flex flex-row text-xs text-gray-500">
+          <label for="correlation" class="whitespace-nowrap">Correlation &gt;
+          </label> <input
+            id="correlation"
+            v-model="correlation"
+            type="number"
+            class="ml-1 w-full"
+            @change="computeButton?.click()"
+          >
+        </div>
         <div ref="linearPolynomials" />
       </div>
     </div>
@@ -944,6 +984,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
     <div class="relative">
       <div class="inline-flex items-center overflow-hidden rounded-md border bg-white border-gray-200 shadow-sm">
         <button
+          ref="computeButton"
           :class="!isTotalConcentrationValid(getGasMixture())
             ? 'bg-gray-700'
             : 'bg-teal-600'
