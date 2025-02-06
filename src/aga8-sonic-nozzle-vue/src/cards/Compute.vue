@@ -478,7 +478,7 @@ function createPolynomialDisplay(dataset: MassFlowRate[]){
  * @param latex - LaTeX string
  */
 function getMathMLFromLatex(latex: string): string {
-  return Temml.renderToString(latex);
+  return Temml.renderToString(latex, { displayMode: false, annotate: true });
 }
 
 /**
