@@ -7,6 +7,10 @@
 
 High-performance WebAssembly implementation of the GERG-2008 equation of state and AGA8 methods for natural gas properties calculations. This package provides JavaScript/TypeScript bindings to the industry-standard algorithms for precise gas property calculations.
 
+## Star the project
+
+**If you appreciate my work, please consider giving it a star! 🤩**
+
 ## 🌟 Features
 
 - **Three Calculation Methods**:

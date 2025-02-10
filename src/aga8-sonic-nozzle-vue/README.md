@@ -7,6 +7,10 @@ A modern Vue.js application demonstrating real-time flow rate through a sonic no
 [![TailwindCSS](https://img.shields.io/badge/tailwindcss-v4.0-38bdf8.svg)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/typescript-v5.7-3178c6.svg)](https://www.typescriptlang.org/)
 
+## Star the project
+
+**If you appreciate my work, please consider giving it a star! 🤩**
+
 ## ✨ Features
 
 ### Calculations
