@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import AGA8wasm, { type MainModule, type GasMixture, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
+import  { AGA8wasm, type MainModule, type GasMixture, type PropertiesDetailResult, type PropertiesGERGResult } from '@sctg/aga8-js'
 import Clipboard from '../components/Clipboard.vue';
 import { onMounted, ref, type VNodeRef } from 'vue';
 import Temml from 'temml';

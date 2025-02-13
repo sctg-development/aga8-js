@@ -43,7 +43,7 @@
     "url": "git+https://github.com/sctg-development/aga8-js.git"
   },
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.6",
+    "@sctg/aga8-js": "^1.0.7",
     "@sctg/polyfitjs": "0.0.3"
   }
 }

@@ -17,9 +17,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import AGA8wasm, {
+import {
+  AGA8wasm,
   type MainModule,
   type GasMixture,
+  type Method, 
+  type MassFlowRate,
+  getThoroidalNozzleDischargeCoefficient, 
+  getMassFlowRateDataset, 
+  getPolyfitFlow
 } from "@sctg/aga8-js";
 import { initFlowbite } from "flowbite";
 import { Chart } from "chart.js/auto";
@@ -30,7 +36,6 @@ import Temml from "temml";
 import DoubleRange from "../components/DoubleRange.vue";
 import _nistGasMixture from "../../../examples/NG_Compositions.json" with { type: "json" };
 import { type NumberArray } from "@sctg/polyfitjs";
-import { getThoroidalNozzleDischargeCoefficient, getMassFlowRateDataset, type Method, type MassFlowRate, getPolyfitFlow } from "../utilities/sonic";
 
 type GasMixtureExt = {
   name: string;
@@ -272,11 +277,11 @@ onMounted(() => {
  * Get the LaTeX representation of a polynomial
  * @param terms - Polynomial terms
  */
-function getLatexPolynomial(terms : NumberArray): string {
+function getLatexPolynomial(terms: NumberArray): string {
   let latex = "";
-  for(let i = terms.length - 1; i > 0; i--) {
+  for (let i = terms.length - 1; i > 0; i--) {
     const coefficient = ScientificNotation.toScientificNotationLatex(terms[i], 4);
-    latex += `${coefficient.startsWith('-') || (i === terms.length - 1)? '' : '+'}${coefficient}\\cdot ${i > 1 ? `x^${i}` : 'x'} `;
+    latex += `${coefficient.startsWith('-') || (i === terms.length - 1) ? '' : '+'}${coefficient}\\cdot ${i > 1 ? `x^${i}` : 'x'} `;
   }
   const lastTerm = ScientificNotation.toScientificNotationLatex(terms[0], 4);
   latex += `${lastTerm.startsWith('-') ? '' : '+'}${lastTerm}`;
@@ -287,18 +292,18 @@ function getLatexPolynomial(terms : NumberArray): string {
  * Create the 3 polynomial approximation display
  * @param dataset - Mass flow rate dataset
  */
-function createPolynomialDisplay(dataset: MassFlowRate[]){
-  const {terms: massFlowTerms,correlation: massFlowCorrelation} = 
-    getPolyfitFlow(dataset.map(x => x.pressure), 
-                   dataset.map(y => y.massFlowRate), 
+function createPolynomialDisplay(dataset: MassFlowRate[]) {
+  const { terms: massFlowTerms, correlation: massFlowCorrelation } =
+    getPolyfitFlow(dataset.map(x => x.pressure),
+                   dataset.map(y => y.massFlowRate),
                    100, correlation.value);
-  const {terms: volumeFlowTerms, correlation: volumeFlowCorrelation} = 
-    getPolyfitFlow(dataset.map(x => x.pressure), 
-                   dataset.map(y => y.volumeFlowRateAtOutputPressure), 
+  const { terms: volumeFlowTerms, correlation: volumeFlowCorrelation } =
+    getPolyfitFlow(dataset.map(x => x.pressure),
+                   dataset.map(y => y.volumeFlowRateAtOutputPressure),
                    100, correlation.value);
-  const {terms: volumeFlow1AtmlTerms, correlation: volumeFlow1AtmlCorrelation} = 
-    getPolyfitFlow(dataset.map(x => x.pressure), 
-                   dataset.map(y => y.volumeFlowRateAt1atm), 
+  const { terms: volumeFlow1AtmlTerms, correlation: volumeFlow1AtmlCorrelation } =
+    getPolyfitFlow(dataset.map(x => x.pressure),
+                   dataset.map(y => y.volumeFlowRateAt1atm),
                    100, correlation.value);
   let massFlowLatex = "Q_{kg/s} \\left( x_{kPa} \\right) \\simeq ";
   massFlowLatex += getLatexPolynomial(massFlowTerms);
@@ -309,15 +314,16 @@ function createPolynomialDisplay(dataset: MassFlowRate[]){
   let volumeFlow1AtmlLatex = "Q_{(m^3\\cdot s^{-1})_{1atm}}\\left( x_{kPa} \\right) \\simeq ";
   volumeFlow1AtmlLatex += getLatexPolynomial(volumeFlow1AtmlTerms);
 
-  if (linearPolynomials.value)
-  {  linearPolynomials.value.innerHTML = "<p>" + 
-       getMathMLFromLatex(massFlowLatex) + "<br/>" + 
-       "<span class='text-xs'>" + getMathMLFromLatex(`R_{mass} = ${massFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
-       getMathMLFromLatex(volumeFlowLatex) + "<br/>" +
-       "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol} = ${volumeFlowCorrelation.toPrecision(8)}`) + "</span><br/>"+
-       getMathMLFromLatex(volumeFlow1AtmlLatex) + "<br/>" +
-       "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol1atm} = ${volumeFlow1AtmlCorrelation.toPrecision(8)}`) + "</span><br/></p>";
-     ;}
+  if (linearPolynomials.value) {
+    linearPolynomials.value.innerHTML = "<p>" +
+      getMathMLFromLatex(massFlowLatex) + "<br/>" +
+      "<span class='text-xs'>" + getMathMLFromLatex(`R_{mass} = ${massFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
+      getMathMLFromLatex(volumeFlowLatex) + "<br/>" +
+      "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol} = ${volumeFlowCorrelation.toPrecision(8)}`) + "</span><br/>" +
+      getMathMLFromLatex(volumeFlow1AtmlLatex) + "<br/>" +
+      "<span class='text-xs'>" + getMathMLFromLatex(`R_{vol1atm} = ${volumeFlow1AtmlCorrelation.toPrecision(8)}`) + "</span><br/></p>";
+    ;
+  }
 
   showPrecision.value = true;
 }
@@ -426,15 +432,15 @@ function createNameValueColumns(sheet: Worksheet, topLeftCell: string, data: Cel
   const [col, row] = topLeftCell.match(/([A-Z]+)(\d+)/)!.slice(1);
   const nameCol = col;
   const valueCol = String.fromCharCode(col.charCodeAt(0) + 1);
-  
+
   data.forEach((item, index) => {
     const currentRow = parseInt(row) + index;
-    
+
     // Column with the names
     const nameCell = sheet.getCell(`${nameCol}${currentRow}`);
     nameCell.value = item.name;
     nameCell.font = { bold: true };
-    
+
     // Column with the values
     const valueCell = sheet.getCell(`${valueCol}${currentRow}`);
     valueCell.value = item.value;
@@ -446,7 +452,7 @@ function createNameValueColumns(sheet: Worksheet, topLeftCell: string, data: Cel
  * Create an Excel file with the computed mass flow rate
  * @param data 
  */
-async function getExcel(data: MassFlowRate[]): Promise<void>{
+async function getExcel(data: MassFlowRate[]): Promise<void> {
   try {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
@@ -464,14 +470,14 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
 
     const tableRows = [];
     for (let i = 0; i < data.length; i++) {
-      tableRows.push([data[i].pressure, 
-                      !isNaN(data[i].massFlowRate) ? {formula:`PI()*($G$1/2000)^2*D${i+2}`}: -1,
-                      !isNaN(data[i].volumeFlowRateAtOutputPressure) ? data[i].volumeFlowRateAtOutputPressure : -1, 
-                      data[i].specificNozzleCoefficient , 
-                      {formula:`SQRT(4*$G$32/(D${i+2}*PI()))*1000`}]);
+      tableRows.push([data[i].pressure,
+                      !isNaN(data[i].massFlowRate) ? { formula: `PI()*($G$1/2000)^2*D${i + 2}` } : -1,
+                      !isNaN(data[i].volumeFlowRateAtOutputPressure) ? data[i].volumeFlowRateAtOutputPressure : -1,
+                      data[i].specificNozzleCoefficient,
+                      { formula: `SQRT(4*$G$32/(D${i + 2}*PI()))*1000` }]);
     };
 
-    const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name} at ${Pout.value/100} bar`);
+    const sheet = workbook.addWorksheet(`Gas - ${selectedGasMixtureExt.value.name} at ${Pout.value / 100} bar`);
     sheet.addTable({
       name: 'SonicFlowTable',
       ref: 'A1',
@@ -497,22 +503,22 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
     //   sheet2.getCell(`D${i+2}`).note = "Nozzle diameter in mm\nD = sqrt(4 * Q / (Kn * ∏))";
     // }
     sheet.getColumn('A').width = 16;
-    sheet.getColumn('A').style = { numFmt: '0.0', alignment: {horizontal: "right"} };
+    sheet.getColumn('A').style = { numFmt: '0.0', alignment: { horizontal: "right" } };
     sheet.getColumn('B').width = 30;
-    sheet.getColumn('B').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
+    sheet.getColumn('B').style = { numFmt: '0.000E+00', alignment: { horizontal: "right" } };
     sheet.getColumn('C').width = 30;
-    sheet.getColumn('C').style = { numFmt: '0.000E+00', alignment: {horizontal: "right"} };
+    sheet.getColumn('C').style = { numFmt: '0.000E+00', alignment: { horizontal: "right" } };
     sheet.getColumn('D').width = 30;
-    sheet.getColumn('D').style = { numFmt: '0.000', alignment: {horizontal: "right"} };
+    sheet.getColumn('D').style = { numFmt: '0.000', alignment: { horizontal: "right" } };
     sheet.getColumn('E').width = 32;
-    sheet.getColumn('E').style = { alignment: {horizontal: "right"} };
+    sheet.getColumn('E').style = { alignment: { horizontal: "right" } };
     sheet.getColumn('F').width = 22;
     sheet.getColumn('H').width = 22;
     sheet.getColumn('H').width = 14;
     const gasMixtureData: CellDefinition[] = [
       { name: "Nozzle diameter in mm", value: orificeDiameter.value },
       { name: "Inlet temperature in K", value: T.value },
-      { name: "Inlet pressure min in kPa", value: doubleSlider.value?.from as unknown as number|| 0 },
+      { name: "Inlet pressure min in kPa", value: doubleSlider.value?.from as unknown as number || 0 },
       { name: "Inlet pressure max in kPa", value: doubleSlider.value?.to as unknown as number || 0 },
       { name: "Gas mixture composition", value: "Concentration (%)" },
       { name: "Methane", value: methaneConcentration.value },
@@ -537,10 +543,10 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
       { name: "Helium", value: heliumConcentration.value },
       { name: "Argon", value: argonConcentration.value },
       { name: "Total concentration", value: { formula: "SUM(G6:G26)" } },
-      { name: "Kappa", value: data[0].kappa},
-      { name: "Cf", value: data[0].Cf},
-      { name: "Molar mass kg/mol", value: data[0].M},
-      { name: "Cd", value: getThoroidalNozzleDischargeCoefficient(THOROIDAL_RE_NUMBER)},
+      { name: "Kappa", value: data[0].kappa },
+      { name: "Cf", value: data[0].Cf },
+      { name: "Molar mass kg/mol", value: data[0].M },
+      { name: "Cd", value: getThoroidalNozzleDischargeCoefficient(THOROIDAL_RE_NUMBER) },
       { name: "Target mass flow rate in kg/s", value: 0.000002 }
     ];
     createNameValueColumns(sheet, 'F1', gasMixtureData);
@@ -549,9 +555,10 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `sonic_flow_rate_${selectedGasMixtureExt.value.name.replaceAll(' ','_')}.xlsx`;
+    a.download = `sonic_flow_rate_${selectedGasMixtureExt.value.name.replaceAll(' ', '_')}.xlsx`;
     a.click();
-    URL.revokeObjectURL(url);  }
+    URL.revokeObjectURL(url);
+  }
   catch (error) {
     console.error("Error while loading ExcelJS", error);
   }
@@ -562,9 +569,10 @@ async function getExcel(data: MassFlowRate[]): Promise<void>{
  * @param data 
  */
 function createCharts(data: MassFlowRate[]): void {
-  if (flowChartKgS.value && flowChartLs.value)
-  {  createChartKgS(flowChartKgS.value,data);
-     createChartLs(flowChartLs.value,data);}
+  if (flowChartKgS.value && flowChartLs.value) {
+    createChartKgS(flowChartKgS.value, data);
+    createChartLs(flowChartLs.value, data);
+  }
 }
 /**
  * Create a chart.js for the mass flow rate in kg/s  as a function of the pressure in kPa
@@ -650,8 +658,8 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
     return;
   }
   const labels = data.map((x) => x.pressure);
-  const values = data.map((x) => x.volumeFlowRateAtOutputPressure*1000);
-  const valuesStd = data.map((x) => x.volumeFlowRateAt1atm*1000);
+  const values = data.map((x) => x.volumeFlowRateAtOutputPressure * 1000);
+  const valuesStd = data.map((x) => x.volumeFlowRateAt1atm * 1000);
   if (chartLs) {
     chartLs.destroy();
   }
@@ -724,7 +732,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
       <b>A:</b> Area of the orifice, <b>D:</b> Diameter of the orifice,
       <b>C<sup>*</sup><sub>p</sub>:</b> Critical flow factor,
       <b>C<sub>d</sub>:</b> Discharge coefficient, <b>P<sub>in</sub>:</b> Inlet
-      pressure,<b>𝜅</b>: Heat capacity ratio, <b>M</b>: Molar mass, <b>R</b>: Universal gas constant, 
+      pressure,<b>𝜅</b>: Heat capacity ratio, <b>M</b>: Molar mass, <b>R</b>: Universal gas constant,
       <b>R<sub>s</sub>:</b>
       Specific gaz constant, <b>T<sub>in</sub>:</b> Inlet temperature,
       <b>Q:</b> Flow rate.
@@ -820,7 +828,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
               THOROIDAL_RE_NUMBER,
               AGA8,
               nbGraphSteps
-            ).then((dataset)=>{createCharts(dataset);createPolynomialDisplay(dataset);})
+            ).then((dataset) => { createCharts(dataset); createPolynomialDisplay(dataset); })
           "
         >
           {{
@@ -891,7 +899,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
               THOROIDAL_RE_NUMBER,
               AGA8,
               nbGraphSteps
-            ).then((dataset)=>{getExcel(dataset);createPolynomialDisplay(dataset);})
+            ).then((dataset) => { getExcel(dataset); createPolynomialDisplay(dataset); })
           "
         >
           {{
@@ -900,7 +908,10 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
               : `Total must be 100% (${totalPercent}%)`
           }}
         </button>
-        <button class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700" @click="menuExcelOpen = !menuExcelOpen">
+        <button
+          class="h-full p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+          @click="menuExcelOpen = !menuExcelOpen"
+        >
           <span class="sr-only">Method</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -1012,7 +1023,10 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
                   </ul>
                 </div>
               </th>
-              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900" @click="showGasDetails = !showGasDetails">
+              <th
+                class="whitespace-nowrap px-4 py-2 font-medium text-gray-900"
+                @click="showGasDetails = !showGasDetails"
+              >
                 Concentration
               </th>
             </tr>

@@ -10,7 +10,7 @@
     "lint": "eslint --fix"
   },
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.6",
+    "@sctg/aga8-js": "^1.0.7",
     "@sctg/polyfitjs": "0.0.3",
     "chart.js": "^4.4.7",
     "clipboard": "^2.0.11",
