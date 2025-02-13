@@ -37,28 +37,31 @@ set(WASM_LINK_FLAGS
 include_directories(${CMAKE_SOURCE_DIR}/src/cpp)
 
 # Target definition
-add_executable(index ${SOURCES})
-target_include_directories(index PRIVATE src/cpp)
+add_executable(aga8 ${SOURCES})
+target_include_directories(aga8 PRIVATE src/cpp)
 
-target_link_options(index PRIVATE
-  --emit-tsd "index.d.ts" # or wherever else you want it to go
+target_link_options(aga8 PRIVATE
+  --emit-tsd "aga8.d.ts" # or wherever else you want it to go
 )
 
 # Link flags
 string(JOIN " " WASM_LINK_FLAGS_STR ${WASM_LINK_FLAGS})
-set_target_properties(index PROPERTIES LINK_FLAGS "${WASM_LINK_FLAGS_STR}")
+set_target_properties(aga8 PROPERTIES LINK_FLAGS "${WASM_LINK_FLAGS_STR}")
 
 # Installation
-install(TARGETS index
+install(TARGETS aga8
     RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist
 )
 install(FILES 
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.wasm
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/index.d.ts
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/aga8.wasm
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/aga8.d.ts
     DESTINATION ${CMAKE_SOURCE_DIR}/dist
 )
 
 add_custom_command(
-    TARGET index POST_BUILD
+    TARGET aga8 POST_BUILD
     COMMAND patch -p0 --fuzz=10 < ${CMAKE_SOURCE_DIR}/src/cpp/intellisense.patch
+    COMMAND cp ${CMAKE_SOURCE_DIR}/src/typescript/sonic.ts ${CMAKE_SOURCE_DIR}/dist/index.ts
+    COMMAND npx tsc -t es6 -m nodenext --declaration --declarationDir ${CMAKE_SOURCE_DIR}/dist --outDir ${CMAKE_SOURCE_DIR}/dist ${CMAKE_SOURCE_DIR}/dist/index.ts
+    COMMAND rm ${CMAKE_SOURCE_DIR}/dist/index.ts
 )

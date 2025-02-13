@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, { type GasMixture } from '../dist/index.js';
+import { AGA8wasm, type GasMixture} from '../dist/index.js';
 
 describe('GERG2008', () => {
   test('GERG properties calculation', async () => {

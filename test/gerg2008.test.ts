@@ -14,7 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, test } from "@jest/globals";
-import AGA8wasm, {
+import {
+  AGA8wasm,
   type GasMixture,
   type PropertiesGERGResult,
   type DensityResult,

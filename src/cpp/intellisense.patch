@@ -1,5 +1,5 @@
---- dist/index.d.ts.orig	2025-01-27 11:37:55
-+++ dist/index.d.ts	2025-01-27 12:53:52
+--- dist/aga8.d.ts.orig	2025-01-27 11:37:55
++++ dist/aga8.d.ts	2025-01-27 12:53:52
 @@ -31,131 +31,259 @@
    set(_0: number, _1: number): boolean;
  }

@@ -15,7 +15,7 @@
  */
 
 import { describe, expect, test } from '@jest/globals';
-import AGA8wasm, {type GasMixture} from '../dist/index.js';
+import { AGA8wasm, type GasMixture} from '../dist/index.js';
 
 describe('Detail', () => {
   const EPSILON = 1.0e-8;
