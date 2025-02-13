@@ -1,5 +1,8 @@
 var NAVTREEINDEX1 =
 {
+"structPropertiesDetailResult.html":[1,0,9],
+"structPropertiesDetailResult.html#a0e362d2df195c05de09abb5905cb29a9":[1,0,9,6],
+"structPropertiesDetailResult.html#a1c7224a54d3cbeffb220f608fcee2468":[1,0,9,4],
 "structPropertiesDetailResult.html#a25ee3cfdfd66e5f3db7b633806bb8364":[1,0,9,5],
 "structPropertiesDetailResult.html#a2ab99bbaf0bee035e2a93d7ea557913b":[1,0,9,11],
 "structPropertiesDetailResult.html#a74fb3b27523a5b44cdea06c30aa6ddba":[1,0,9,3],

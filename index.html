@@ -130,6 +130,9 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 <p><a href="https://www.npmjs.com/package/@sctg/aga8-js"><img src="https://badge.fury.io/js/@sctg%2Faga8-js.svg" alt="npm version" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml"><img src="https://github.com/sctg-development/aga8-js/actions/workflows/build.yaml/badge.svg" alt="Build Status" style="pointer-events: none;" class="inline"/></a> <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License" style="pointer-events: none;" class="inline"/></a> <a href="https://sctg-development.github.io/aga8-js/"><img src="https://img.shields.io/badge/docs-latest-brightgreen.svg" alt="Documentation" style="pointer-events: none;" class="inline"/></a></p>
 <p>High-performance WebAssembly implementation of the GERG-2008 equation of state and AGA8 methods for natural gas properties calculations. This package provides JavaScript/TypeScript bindings to the industry-standard algorithms for precise gas property calculations.</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
+Star the project</h2>
+<p><b>If you appreciate my work, please consider giving it a star! 🤩</b></p>
+<h2><a class="anchor" id="autotoc_md2"></a>
 🌟 Features</h2>
 <ul>
 <li><b>Three Calculation Methods</b>:<ul>
@@ -152,15 +155,19 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 </ul>
 </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md2"></a>
-🚀 Live Demo</h2>
+<h2><a class="anchor" id="autotoc_md3"></a>
+🚀 Live AGA8 Demo</h2>
 <p>Try it now at <a href="https://aga8.lasersmart.work/">Lasersmart AGA8</a>!</p>
 <p><a href="https://aga8.lasersmart.work/"><img src="https://github.com/user-attachments/assets/76c1deaa-9519-4bb4-916b-22e31a6eb06b" alt="AGA8 Calculator Demo" width="1164" class="inline"/></a></p>
 <p>View the demo source code in our <a href="https://github.com/sctg-development/aga8-js/tree/main/src/aga8-vue">Vue.js implementation</a>.</p>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md4"></a>
+🚀 Live sonic nozzle Demo</h2>
+<p>Try it now at <a href="https://sonic.lasersmart.work/">Lasersmart Sonic Nozzle</a>!</p>
+<p><img src="https://github.com/user-attachments/assets/02364ea3-ce60-4160-a65f-97d8801d9aa9" alt="image" width="640" class="inline"/></p>
+<h2><a class="anchor" id="autotoc_md5"></a>
 📦 Installation</h2>
 <div class="fragment"><div class="line">npm install @sctg/aga8-js</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md4"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
 💻 Quick Start</h2>
 <div class="fragment"><div class="line">import AGA8wasm, { type GasMixture } from &#39;@sctg/aga8-js&#39;;</div>
 <div class="line"> </div>
@@ -204,7 +211,13 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 <div class="line">  compressibility: properties.Z.toFixed(6),</div>
 <div class="line">  soundSpeed: `${properties.W.toFixed(2)} m/s`</div>
 <div class="line">});</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md5"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md7"></a>
+Samples</h2>
+<ul>
+<li><a href="src/examples/sonic-nozzle-flow.ts">sonic-nozzle-flow.ts</a>: Calculate the flow rate through a sonic nozzle</li>
+<li><a href="src/examples/gas-properties-calculations.ts">gas-properties-calculations.ts</a>: Calculate gas properties for a mixture using GERG-2008</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md8"></a>
 📚 Documentation</h2>
 <ul>
 <li><a href="https://sctg-development.github.io/aga8-js/">API Reference</a></li>
@@ -212,16 +225,16 @@ AGA8 GERG-2008, GROSS and DETAIL Gas Properties Calculator</h1>
 <li><a href="https://sctg-development.github.io/aga8-js/Detail_8h.html">Detail Method</a></li>
 <li><a href="https://sctg-development.github.io/aga8-js/Gross_8h.html">Gross Method</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md9"></a>
 🛠️ Development</h2>
-<h3><a class="anchor" id="autotoc_md7"></a>
+<h3><a class="anchor" id="autotoc_md10"></a>
 Prerequisites</h3>
 <ul>
 <li>Node.js ≥ 22.0.0</li>
 <li>Emscripten SDK ≥ 4.0.0</li>
 <li>CMake ≥ 3.10</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md8"></a>
+<h3><a class="anchor" id="autotoc_md11"></a>
 Building from Source</h3>
 <div class="fragment"><div class="line"># Emscripten SDK installation</div>
 <div class="line"># Clone repository</div>
@@ -244,22 +257,22 @@ Building from Source</h3>
 <div class="line"> </div>
 <div class="line"># Run tests</div>
 <div class="line">npm test</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md9"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md12"></a>
 🤝 Contributing</h2>
 <p>We welcome contributions!</p>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 📄 License</h2>
 <ul>
 <li><b>AGA8-JS</b>: GNU Affero General Public License v3.0</li>
 <li><b>Original AGA8 Implementation</b>: Public Domain (NIST)</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 🙏 Acknowledgments</h2>
 <ul>
 <li>Original AGA8 implementation by the National Institute of Standards and Technology (NIST)</li>
 <li>WebAssembly port, AGA8 modifications and maintenance by Ronan LE MEILLAT</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 📧 Support</h2>
 <ul>
 <li>Create an <a href="https://github.com/sctg-development/aga8-js/issues">Issue</a>   </li>
