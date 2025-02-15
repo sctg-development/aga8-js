@@ -20,7 +20,7 @@
 
 // first install the package
 // npm install --save @sctg/aga8-js
-import AGA8wasm, { type GasMixture } from '@sctg/aga8-js';
+import { AGA8wasm, type GasMixture } from '@sctg/aga8-js';
 
 // Gas mixture composition (mole fractions, must sum to 1)
 // NIST Reference Gas Mixture

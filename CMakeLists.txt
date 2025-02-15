@@ -61,6 +61,7 @@ install(FILES
 add_custom_command(
     TARGET aga8 POST_BUILD
     COMMAND patch -p0 --fuzz=10 < ${CMAKE_SOURCE_DIR}/src/cpp/intellisense.patch
+    COMMAND cp ${CMAKE_SOURCE_DIR}/src/examples/NG_Compositions.json ${CMAKE_SOURCE_DIR}/dist/NG_Compositions.json
     COMMAND cp ${CMAKE_SOURCE_DIR}/src/typescript/sonic.ts ${CMAKE_SOURCE_DIR}/dist/index.ts
     COMMAND npx tsc -t es6 -m nodenext --declaration --resolveJsonModule --declarationDir ${CMAKE_SOURCE_DIR}/dist --outDir ${CMAKE_SOURCE_DIR}/dist ${CMAKE_SOURCE_DIR}/dist/index.ts
     COMMAND rm ${CMAKE_SOURCE_DIR}/dist/index.ts

@@ -10,7 +10,7 @@
   "author": "Ronan Le Meillat",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.6"
+    "@sctg/aga8-js": "^1.0.7"
   },
   "devDependencies": {
     "fast-csv": "^5.0.2",

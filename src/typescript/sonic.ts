@@ -32,9 +32,140 @@ import type {
 } from "./aga8.js";
 import _AGA8wasm from "./aga8.js";
 import { Polyfit, type NumberArray } from "@sctg/polyfitjs";
+import _nistGasMixture from "./NG_Compositions.json" with { type: "json" };
 
 export const R = 8.31446261815324; // Universal gas constant in J/(mol·K)
-export type Method = "DETAIL" | "GERG-2008";
+export type GasMixtureExt = {
+  name: string;
+  gasMixture: GasMixture;
+};
+export const nistGasMixture = _nistGasMixture as GasMixtureExt[];
+type AvailableGasMixtures = GasMixtureExt[];
+
+/**
+ * Available gas mixtures
+ * Air, Nitrogen, Methane, NIST Reference Gas Mixture and all NIST Gas Mixtures
+ * @see https://pages.nist.gov/AGA8/#:~:text=AGA8.xls%20%E2%80%93%20This%20Excel%20spreadsheet%20can%20be%20used,the%20DETAIL%2C%20GROSS%2C%20and%20GERG-2008%20equations%20of%20state.
+ * 
+ */
+export const availableGasMixtures: GasMixtureExt[] = [
+  {
+    name: "Air",
+    gasMixture: {
+      methane: 0,
+      nitrogen: 0.7808,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0.2095,
+      carbon_monoxide: 0,
+      water: 0.000400,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0.009300,
+    } as GasMixture
+  },
+  {
+    /**
+     *  NIST Reference Gas Mixture composition in mole fraction
+     */
+    name: "NIST Reference Gas Mixture",
+    gasMixture: {
+      methane: 0.77824,
+      nitrogen: 0.02,
+      carbon_dioxide: 0.06,
+      ethane: 0.08,
+      propane: 0.03,
+      isobutane: 0.0015,
+      n_butane: 0.003,
+      isopentane: 0.0005,
+      n_pentane: 0.00165,
+      n_hexane: 0.00215,
+      n_heptane: 0.00088,
+      n_octane: 0.00024,
+      n_nonane: 0.00015,
+      n_decane: 0.00009,
+      hydrogen: 0.004,
+      oxygen: 0.005,
+      carbon_monoxide: 0.002,
+      water: 0.0001,
+      hydrogen_sulfide: 0.0025,
+      helium: 0.007,
+      argon: 0.001
+    }
+  },
+  {
+    /**
+     * Pure methane gas mixture in mole fraction
+     */
+    name: "Methane",
+    gasMixture: {
+      methane: 1,
+      nitrogen: 0,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      water: 0,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0
+    }
+  },
+  {
+    /**
+     * Pure nitrogen gas mixture in mole fraction
+     */
+    name: "Nitrogen",
+    gasMixture: {
+      methane: 0,
+      nitrogen: 1,
+      carbon_dioxide: 0,
+      ethane: 0,
+      propane: 0,
+      isobutane: 0,
+      n_butane: 0,
+      isopentane: 0,
+      n_pentane: 0,
+      n_hexane: 0,
+      n_heptane: 0,
+      n_octane: 0,
+      n_nonane: 0,
+      n_decane: 0,
+      hydrogen: 0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      water: 0,
+      hydrogen_sulfide: 0,
+      helium: 0,
+      argon: 0
+    }
+  },
+  ...nistGasMixture,
+] as AvailableGasMixtures;
+
+export type Method = "DETAIL" | "GERG-2008" | "GROSS";
 export type MassFlowRate = {
   massFlowRate: number; // mass flow rate in kg/s
   volumeFlowRateAtOutputPressure: number; // volume flow rate in m³/s

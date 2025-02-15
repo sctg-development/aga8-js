@@ -1,4 +1,4 @@
-import AGA8wasm, { type GasMixture } from '@sctg/aga8-js';
+import {AGA8wasm, type GasMixture } from '@sctg/aga8-js';
 
 // Air composition (mole fractions)
 const air: GasMixture = {
