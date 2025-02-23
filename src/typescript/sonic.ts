@@ -42,13 +42,7 @@ export type GasMixtureExt = {
 export const nistGasMixture = _nistGasMixture as GasMixtureExt[];
 type AvailableGasMixtures = GasMixtureExt[];
 
-/**
- * Available gas mixtures
- * Air, Nitrogen, Methane, NIST Reference Gas Mixture and all NIST Gas Mixtures
- * @see https://pages.nist.gov/AGA8/#:~:text=AGA8.xls%20%E2%80%93%20This%20Excel%20spreadsheet%20can%20be%20used,the%20DETAIL%2C%20GROSS%2C%20and%20GERG-2008%20equations%20of%20state.
- * 
- */
-export const availableGasMixtures: GasMixtureExt[] = [
+export const pureGasMixtures: GasMixtureExt[] = [
   {
     name: "Air",
     gasMixture: {
@@ -74,35 +68,6 @@ export const availableGasMixtures: GasMixtureExt[] = [
       helium: 0,
       argon: 0.009300,
     } as GasMixture
-  },
-  {
-    /**
-     *  NIST Reference Gas Mixture composition in mole fraction
-     */
-    name: "NIST Reference Gas Mixture",
-    gasMixture: {
-      methane: 0.77824,
-      nitrogen: 0.02,
-      carbon_dioxide: 0.06,
-      ethane: 0.08,
-      propane: 0.03,
-      isobutane: 0.0015,
-      n_butane: 0.003,
-      isopentane: 0.0005,
-      n_pentane: 0.00165,
-      n_hexane: 0.00215,
-      n_heptane: 0.00088,
-      n_octane: 0.00024,
-      n_nonane: 0.00015,
-      n_decane: 0.00009,
-      hydrogen: 0.004,
-      oxygen: 0.005,
-      carbon_monoxide: 0.002,
-      water: 0.0001,
-      hydrogen_sulfide: 0.0025,
-      helium: 0.007,
-      argon: 0.001
-    }
   },
   {
     /**
@@ -162,6 +127,196 @@ export const availableGasMixtures: GasMixtureExt[] = [
       argon: 0
     }
   },
+  {
+    name: "Hydrogen Sulfide",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 1.0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      helium: 0,
+      argon: 0,
+    } as GasMixture,
+  },
+  {
+    name: "Carbon Monoxide",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 0,
+      carbon_monoxide: 1.0,
+      helium: 0.0,
+      argon: 0.0,
+    } as GasMixture,
+  },
+  {
+    name: "Carbon Dioxide",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 1.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      helium: 0,
+      argon: 0,
+    } as GasMixture,
+  },
+  {
+    name: "Hydrogen",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 1.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      helium: 0,
+      argon: 0,
+    } as GasMixture,
+  },
+  { name: "Oxygen",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 1.0,
+      carbon_monoxide: 0,
+      helium: 0,
+      argon: 0,
+    } as GasMixture,
+  },
+  {
+    name: "Helium",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      helium: 1.0,
+      argon: 0,
+    } as GasMixture,
+  },
+  {
+    name: "Argon",
+    gasMixture: {
+      methane: 0.0,
+      ethane: 0.0,
+      propane: 0.0,
+      n_butane: 0.0,
+      isobutane: 0.0,
+      n_pentane: 0.0,
+      isopentane: 0.0,
+      n_hexane: 0.0,
+      n_heptane: 0.0,
+      n_octane: 0.0,
+      n_nonane: 0.0,
+      n_decane: 0.0,
+      hydrogen: 0.0,
+      nitrogen: 0.0,
+      carbon_dioxide: 0.0,
+      water: 0.0,
+      hydrogen_sulfide: 0.0,
+      oxygen: 0,
+      carbon_monoxide: 0,
+      helium: 0,
+      argon: 1.0,
+    } as GasMixture,
+  }
+] as AvailableGasMixtures;
+/**
+ * Available gas mixtures
+ * Air, Nitrogen, Methane, NIST Reference Gas Mixture and all NIST Gas Mixtures
+ * @see https://pages.nist.gov/AGA8/#:~:text=AGA8.xls%20%E2%80%93%20This%20Excel%20spreadsheet%20can%20be%20used,the%20DETAIL%2C%20GROSS%2C%20and%20GERG-2008%20equations%20of%20state.
+ * 
+ */
+export const availableGasMixtures: GasMixtureExt[] = [
+  ...pureGasMixtures,
   ...nistGasMixture,
 ] as AvailableGasMixtures;
 
@@ -375,4 +530,4 @@ export type {
   GrossMethod2Result,
 };
 
-export function AGA8wasm(){return _AGA8wasm();} ;
+export function AGA8wasm() { return _AGA8wasm(); };

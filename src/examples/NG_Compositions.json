@@ -1,5 +1,31 @@
 [
   {
+    "name": "NIST Reference Gas Mixture",
+    "gasMixture": {
+      "methane": 0.77824,
+      "nitrogen": 0.02,
+      "carbon_dioxide": 0.06,
+      "ethane": 0.08,
+      "propane": 0.03,
+      "isobutane": 0.0015,
+      "n_butane": 0.003,
+      "isopentane": 0.0005,
+      "n_pentane": 0.00165,
+      "n_hexane": 0.00215,
+      "n_heptane": 0.00088,
+      "n_octane": 0.00024,
+      "n_nonane": 0.00015,
+      "n_decane": 0.00009,
+      "hydrogen": 0.004,
+      "oxygen": 0.005,
+      "carbon_monoxide": 0.002,
+      "water": 0.0001,
+      "hydrogen_sulfide": 0.0025,
+      "helium": 0.007,
+      "argon": 0.001
+    }
+  },
+  {
     "name": "NIST NG#2",
     "gasMixture": {
       "methane": 0.9969531,
