@@ -26,9 +26,9 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.26.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.5",
     "jest": "^29.7.0",
-    "ts-jest": "^29.2.5",
+    "ts-jest": "^29.2.6",
     "typescript": "^5.7.3"
   },
   "engines": {
@@ -43,7 +43,7 @@
     "url": "git+https://github.com/sctg-development/aga8-js.git"
   },
   "dependencies": {
-    "@sctg/aga8-js": "^1.0.7",
+    "@sctg/aga8-js": "^1.0.8",
     "@sctg/polyfitjs": "0.0.3"
   }
 }
