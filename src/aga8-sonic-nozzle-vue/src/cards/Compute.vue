@@ -1016,7 +1016,7 @@ function createChartLs(canvas: HTMLCanvasElement | null, data: MassFlowRate[]): 
                       <a
                         href="#"
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        @click="selectedGasMixtureExt = availableGasMixtures.find(_gas => _gas.name === gas.name); setGasMixture(gas.gasMixture)"
+                        @click="selectedGasMixtureExt = availableGasMixtures.find(_gas => _gas.name === gas.name) as GasMixtureExt; setGasMixture(gas.gasMixture)"
                       >{{
                         gas.name }}</a>
                     </li>
