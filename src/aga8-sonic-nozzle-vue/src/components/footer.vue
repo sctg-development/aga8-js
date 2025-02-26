@@ -71,6 +71,9 @@
           <li>
             <a class="text-gray-700 transition hover:text-gray-700/75" href="https://aga8.lasersmart.work"> AGA8 Computations </a>
           </li>
+          <li>
+            <a class="text-gray-700 transition hover:text-gray-700/75" href="https://dilution.lasersmart.work"> Flow Dilution </a>
+          </li>
         </ul>
       </div>
     
